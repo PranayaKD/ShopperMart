@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}  {# Make sure this is included #}
+
+{% block title %}Edit Profile | ShopperMart{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card shadow-lg">
+        <div class="card-body">
+          <h3 class="mb-4 fw-bold">Edit Profile</h3>
+          <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">{{ uform.username.label }}</label>
+                {% render_field uform.username class="form-control" %}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">{{ uform.email.label }}</label>
+                {% render_field uform.email class="form-control" %}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">{{ pform.full_name.label }}</label>
+                {% render_field pform.full_name class="form-control" %}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">{{ pform.phone.label }}</label>
+                {% render_field pform.phone class="form-control" %}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">{{ pform.avatar.label }}</label>
+                {% render_field pform.avatar class="form-control" %}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">{{ pform.pincode.label }}</label>
+                {% render_field pform.pincode class="form-control" %}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">{{ pform.address_line1.label }}</label>
+                {% render_field pform.address_line1 class="form-control" %}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">{{ pform.address_line2.label }}</label>
+                {% render_field pform.address_line2 class="form-control" %}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">{{ pform.city.label }}</label>
+                {% render_field pform.city class="form-control" %}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">{{ pform.state.label }}</label>
+                {% render_field pform.state class="form-control" %}
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary mt-4 w-100">Save Changes</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

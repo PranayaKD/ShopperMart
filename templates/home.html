@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Home | ShopperMart{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+
+  <!-- Hero Section -->
+  <div class="bg-primary text-white rounded-4 p-5 mb-5 text-center shadow-lg">
+    <h1 class="display-5 fw-bold">Welcome to ShopperMart 🛒</h1>
+    <p class="lead mb-4">
+      {% if user.is_authenticated %}
+        Explore our latest products and manage your account below.
+      {% else %}
+        Your one-stop shop for amazing products. Login or Sign up to get started!
+      {% endif %}
+    </p>
+    {% if not user.is_authenticated %}
+      <a href="{% url 'register' %}" class="btn btn-light btn-lg me-2">Sign Up</a>
+      <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg">Login</a>
+    {% endif %}
+  </div>
+
+  <!-- Features Section -->
+  <div class="row g-4 text-center mb-5">
+    <div class="col-md-4">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <div class="mb-3 display-4 text-primary">🛍️</div>
+          <h5 class="card-title fw-bold">Wide Range of Products</h5>
+          <p class="card-text text-body-secondary">Browse thousands of products across multiple categories.</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <div class="mb-3 display-4 text-success">💳</div>
+          <h5 class="card-title fw-bold">Secure Payments</h5>
+          <p class="card-text text-body-secondary">Pay with confidence using our secure checkout system.</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <div class="mb-3 display-4 text-warning">🚚</div>
+          <h5 class="card-title fw-bold">Fast Delivery</h5>
+          <p class="card-text text-body-secondary">Get your orders delivered quickly and reliably.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Categories Section -->
+  <div class="text-center mb-4">
+    {% for category in categories %}
+      <a href="{% url 'category_products' category.slug %}" class="btn btn-outline-primary btn-sm m-1">
+        {{ category.name }}
+      </a>
+    {% endfor %}
+  </div>
+
+  <!-- Latest Products Section -->
+  <h2 class="mb-4 text-center">Latest Products</h2>
+  <div class="row g-4">
+    {% for product in products %}
+      <div class="col-md-3">
+        <div class="card h-100 shadow-sm product-card">
+          {% if product.image %}
+            <img src="{{ product.image.url }}" class="card-img-top" style="height:180px; object-fit:cover;">
+          {% else %}
+            <img src="https://via.placeholder.com/180x180?text=No+Image" class="card-img-top">
+          {% endif %}
+          <div class="card-body text-center">
+            <h5 class="card-title">{{ product.name }}</h5>
+            <p class="text-success fw-bold">₹{{ product.price }}</p>
+            <a href="{% url 'product_detail' product.slug %}" class="btn btn-primary btn-sm w-100">View</a><br><br>
+            <a href="{% url 'add_to_cart' product.id %}" class="btn btn-success btn-sm w-100">Add to Cart</a>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <p class="text-center">No products available yet.</p>
+    {% endfor %}
+  </div>
+
+</div>
+
+<!-- Optional CSS for hover effect -->
+<style>
+  .product-card:hover {
+    transform: translateY(-5px);
+    transition: 0.3s ease-in-out;
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
+  }
+</style>
+
+{% endblock %}

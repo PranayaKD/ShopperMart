@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}My Profile | ShopperMart{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row g-4">
+    <!-- User Info Card -->
+    <div class="col-md-4">
+      <div class="card shadow-lg text-center">
+        <div class="card-body">
+          {% if request.user.profile.avatar %}
+            <img src="{{ request.user.profile.avatar.url }}" class="img-fluid rounded-circle mb-3" style="max-width: 150px;">
+          {% else %}
+            <div class="display-3 mb-3">👤</div>
+          {% endif %}
+          <h3 class="h5 mb-1">{{ request.user.username }}</h3>
+          <p class="text-body-secondary mb-3">{{ request.user.email }}</p>
+          <a href="{% url 'profile_edit' %}" class="btn btn-outline-primary btn-sm w-100">Edit Profile</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profile Details Card -->
+    <div class="col-md-8">
+      <div class="card shadow-lg">
+        <div class="card-body">
+          <h4 class="mb-4 fw-bold">Profile Details</h4>
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item"><strong>Full Name:</strong> {{ request.user.profile.full_name|default:"—" }}</li>
+            <li class="list-group-item"><strong>Phone:</strong> {{ request.user.profile.phone|default:"—" }}</li>
+            <li class="list-group-item"><strong>Address:</strong> {{ request.user.profile.address_line1 }} {{ request.user.profile.address_line2 }}</li>
+            <li class="list-group-item"><strong>City/State:</strong> {{ request.user.profile.city }} {{ request.user.profile.state }}</li>
+            <li class="list-group-item"><strong>Pincode:</strong> {{ request.user.profile.pincode|default:"—" }}</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

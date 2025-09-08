@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+
+{% block title %}Login | ShopperMart{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-5">
+    <div class="card shadow-lg border-0 rounded-4">
+      <div class="card-body p-4">
+        <h3 class="text-center mb-3">🔑 Login to your account</h3>
+
+        <form method="POST">
+          {% csrf_token %}
+
+          <!-- Non-field errors -->
+          {% if form.non_field_errors %}
+          <div class="alert alert-danger">
+            {{ form.non_field_errors }}
+          </div>
+          {% endif %}
+
+          <!-- Render each field -->
+          {% for field in form %}
+          <div class="mb-3">
+            <label class="form-label">{{ field.label }}</label>
+            {% render_field field class="form-control" placeholder=field.label %}
+            
+            {% for error in field.errors %}
+            <div class="text-danger small">{{ error }}</div>
+            {% endfor %}
+          </div>
+          {% endfor %}
+
+          <div class="d-grid">
+            <button type="submit" class="btn btn-success">
+              Login
+            </button>
+          </div>
+        </form>
+
+        <p class="text-center mt-3">
+          Don’t have an account? 
+          <a href="{% url 'signup' %}">Create one</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
