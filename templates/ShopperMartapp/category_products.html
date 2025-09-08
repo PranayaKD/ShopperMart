@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}{{ category.name }} | ShopperMart{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+
+  <h2 class="mb-4">Category: {{ category.name }}</h2>
+
+  {% if products %}
+    <div class="row g-4">
+      {% for product in products %}
+        <div class="col-md-4">
+          <div class="card h-100 shadow-sm product-card">
+            {% if product.image %}
+              <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+            {% else %}
+              <img src="https://via.placeholder.com/400x300?text=No+Image" class="card-img-top">
+            {% endif %}
+            <div class="card-body">
+              <h5 class="card-title">{{ product.name }}</h5>
+              <p class="card-text text-muted">₹{{ product.price }}</p>
+              <a href="{% url 'product_detail' product.id %}" class="btn btn-primary btn-sm">View</a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="text-muted">No products available in this category.</p>
+  {% endif %}
+
+</div>
+{% endblock %}
+
+<style>
+  .product-card:hover {
+    transform: translateY(-5px);
+    transition: 0.3s ease-in-out;
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
+  }
+</style>
