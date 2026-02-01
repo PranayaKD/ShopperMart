@@ -2,49 +2,107 @@
 {% block title %}{{ product.name }} | ShopperMart{% endblock %}
 
 {% block content %}
-<div class="container py-5">
+<div class="container py-4">
 
-  <div class="row">
-    <!-- Product Image -->
-    <div class="col-md-6">
+  <div class="grid grid-2" style="gap: 4rem; align-items: start;">
+    <!-- Left Column: Image -->
+    <div style="position: sticky; top: 100px;">
       {% if product.image %}
-        <img src="{{ product.image.url }}" class="img-fluid rounded shadow-sm" alt="{{ product.name }}">
+      <img src="{{ product.image.url }}"
+        style="width: 100%; border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); aspect-ratio: 1/1; object-fit: cover; background: var(--surface-1);"
+        alt="{{ product.name }}">
       {% else %}
-        <img src="https://via.placeholder.com/400x400?text=No+Image" class="img-fluid rounded shadow-sm">
+      <div
+        style="width: 100%; aspect-ratio: 1/1; background: var(--surface-3); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; font-size: 2rem; color: var(--text-muted);">
+        No Image
+      </div>
       {% endif %}
     </div>
 
-    <!-- Product Info -->
-    <div class="col-md-6">
-      <h2 class="fw-bold">{{ product.name }}</h2>
-      <p class="text-muted">{{ product.category.name }}</p>
-      <p>{{ product.description }}</p>
-      <h3 class="text-success">₹{{ product.price }}</h3>
-      
-      {% if product.stock > 0 and product.available %}
+    <!-- Right Column: Details -->
+    <div>
+      <div style="margin-bottom: 2rem;">
+        <span class="badge" style="background: var(--surface-3); color: var(--text-muted); margin-bottom: 1rem;">
+          {{ product.category.name }}
+        </span>
+        <h1 style="font-size: 2.5rem; font-weight: 800; margin-bottom: 1rem; line-height: 1.1;">
+          {{ product.name }}
+        </h1>
+        <p style="font-size: 2rem; color: var(--primary); font-weight: 700; margin-bottom: 1.5rem;">
+          ₹{{ product.price }}
+        </p>
+
+        <div style="color: var(--text-muted); line-height: 1.8; margin-bottom: 2rem; font-size: 1.1rem;">
+          {{ product.description|linebreaks }}
+        </div>
+      </div>
+
+      <div class="card" style="border: 2px solid var(--border-color); background: var(--surface-2);">
+        {% if product.stock > 0 and product.available %}
+        <div
+          style="display: flex; align-items: center; gap: 0.5rem; color: var(--success); font-weight: 600; margin-bottom: 1rem;">
+          <span>●</span> In Stock ({{ product.stock }} available)
+        </div>
+
         <form method="post" action="{% url 'add_to_cart' product.id %}">
           {% csrf_token %}
-          <div class="input-group mb-3" style="max-width:300px;">
-            <!-- Quantity box small -->
-            <input type="number" name="quantity" value="1" min="1" max="{{ product.stock }}" 
-                   class="form-control" style="max-width:80px;">
-            <!-- Add to Cart button -->
-            <button type="submit" class="btn btn-primary">Add to Cart</button>
+          <div class="grid" style="grid-template-columns: 80px 1fr; gap: 1rem;">
+            <input type="number" name="quantity" value="1" min="1" max="{{ product.stock }}" class="form-control"
+              style="text-align: center; padding: 0.75rem;">
+            <button type="submit" class="btn btn-primary w-100">
+              Add to Cart
+            </button>
           </div>
         </form>
-      {% else %}
-        <p class="text-danger">Out of stock</p>
-      {% endif %}
+        {% else %}
+        <div style="text-align: center; color: var(--danger); font-weight: 600; padding: 1rem;">
+          Currently Out of Stock
+        </div>
+        {% endif %}
+      </div>
+
+      <div style="margin-top: 2rem; font-size: 0.9rem; color: var(--text-muted);">
+        <p>✓ Fast Delivery</p>
+        <p>✓ Secure Checkout</p>
+        <p>✓ 30-Day Returns</p>
+      </div>
     </div>
   </div>
 
 </div>
-{% endblock %}
 
-<style>
-  .product-card:hover {
-    transform: translateY(-5px);
-    transition: 0.3s ease-in-out;
-    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
-  }
-</style>
+{% if related_products %}
+<div style="margin-top: 5rem;">
+  <h2
+    style="font-size: 1.5rem; font-weight: 800; margin-bottom: 2rem; border-top: 1px solid var(--border-color); padding-top: 2rem;">
+    You might also like
+  </h2>
+  <div class="grid grid-auto-fit">
+    {% for product in related_products %}
+    <div class="card">
+      <a href="{% url 'product_detail' product.slug %}" style="display: block;">
+        {% if product.image %}
+        <img src="{{ product.image.url }}" class="product-card-img" alt="{{ product.name }}">
+        {% else %}
+        <div class="product-card-img"
+          style="display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-weight: 600;">
+          No Image
+        </div>
+        {% endif %}
+      </a>
+
+      <div style="margin-top: 1rem;">
+        <h3 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.25rem;">
+          <a href="{% url 'product_detail' product.slug %}">{{ product.name }}</a>
+        </h3>
+        <p class="product-price">₹{{ product.price }}</p>
+        <a href="{% url 'product_detail' product.slug %}" class="btn btn-outline btn-sm w-100 mt-2">View</a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+</div>
+{% endblock %}

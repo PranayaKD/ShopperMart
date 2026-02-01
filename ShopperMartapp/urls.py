@@ -30,6 +30,7 @@ urlpatterns = [
     # Checkout & Orders
     path("checkout/", views.checkout, name="checkout"),
     path("my-orders/", views.my_orders, name="my_orders"),
+    path("orders/<int:order_id>/cancel/", views.cancel_order, name="cancel_order"),
     
     # Product Management
     path("products/", views.product_list, name="product_list"),

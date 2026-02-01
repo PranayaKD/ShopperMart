@@ -36,3 +36,16 @@ class ProductForm(forms.ModelForm):
         widgets = {
             "description": forms.Textarea(attrs={"rows": 3}),
         }
+
+class CheckoutForm(forms.Form):
+    full_name = forms.CharField(max_length=100, label="Full Name")
+    email = forms.EmailField(label="Email Address")
+    address = forms.CharField(widget=forms.Textarea(attrs={'rows': 3}), label="Shipping Address")
+    city = forms.CharField(max_length=100, label="City")
+    postal_code = forms.CharField(max_length=20, label="Pincode")
+    payment_method = forms.ChoiceField(choices=[
+        ('card', 'Credit/Debit Card'), 
+        ('upi', 'UPI'), 
+        ('cod', 'Cash on Delivery')
+    ], label="Payment Method")
+

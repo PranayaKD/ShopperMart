@@ -2,39 +2,88 @@
 {% block title %}My Profile | ShopperMart{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-  <div class="row g-4">
+<div class="container py-4">
+  <h1 style="font-size: 2rem; font-weight: 800; margin-bottom: 2rem;">My Profile</h1>
+
+  <div class="grid grid-3" style="grid-template-columns: 1fr 2fr; gap: 2rem;">
     <!-- User Info Card -->
-    <div class="col-md-4">
-      <div class="card shadow-lg text-center">
-        <div class="card-body">
+    <div>
+      <div class="card text-center" style="position: sticky; top: 100px;">
+        <div style="margin-bottom: 1.5rem;">
           {% if request.user.profile.avatar %}
-            <img src="{{ request.user.profile.avatar.url }}" class="img-fluid rounded-circle mb-3" style="max-width: 150px;">
+          <img src="{{ request.user.profile.avatar.url }}"
+            style="width: 150px; height: 150px; object-fit: cover; border-radius: 50%; margin: 0 auto; box-shadow: var(--shadow-md);">
           {% else %}
-            <div class="display-3 mb-3">👤</div>
+          <div
+            style="width: 150px; height: 150px; background: var(--surface-3); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 4rem; margin: 0 auto;">
+            👤
+          </div>
           {% endif %}
-          <h3 class="h5 mb-1">{{ request.user.username }}</h3>
-          <p class="text-body-secondary mb-3">{{ request.user.email }}</p>
-          <a href="{% url 'profile_edit' %}" class="btn btn-outline-primary btn-sm w-100">Edit Profile</a>
         </div>
+
+        <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.25rem;">{{ request.user.username }}</h3>
+        <p style="color: var(--text-muted); margin-bottom: 1.5rem;">{{ request.user.email }}</p>
+
+        <a href="{% url 'profile_edit' %}" class="btn btn-outline w-100">Edit Profile</a>
       </div>
     </div>
 
     <!-- Profile Details Card -->
-    <div class="col-md-8">
-      <div class="card shadow-lg">
-        <div class="card-body">
-          <h4 class="mb-4 fw-bold">Profile Details</h4>
-          <ul class="list-group list-group-flush">
-            <li class="list-group-item"><strong>Full Name:</strong> {{ request.user.profile.full_name|default:"—" }}</li>
-            <li class="list-group-item"><strong>Phone:</strong> {{ request.user.profile.phone|default:"—" }}</li>
-            <li class="list-group-item"><strong>Address:</strong> {{ request.user.profile.address_line1 }} {{ request.user.profile.address_line2 }}</li>
-            <li class="list-group-item"><strong>City/State:</strong> {{ request.user.profile.city }} {{ request.user.profile.state }}</li>
-            <li class="list-group-item"><strong>Pincode:</strong> {{ request.user.profile.pincode|default:"—" }}</li>
-          </ul>
+    <div>
+      <div class="card">
+        <h4
+          style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">
+          Personal Information
+        </h4>
+
+        <div style="display: grid; gap: 1rem;">
+          <div
+            style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem;">
+            <span style="color: var(--text-muted);">Full Name</span>
+            <span style="font-weight: 600;">{{ request.user.profile.full_name|default:"—" }}</span>
+          </div>
+
+          <div
+            style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem;">
+            <span style="color: var(--text-muted);">Phone</span>
+            <span style="font-weight: 600;">{{ request.user.profile.phone|default:"—" }}</span>
+          </div>
+
+          <div
+            style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem;">
+            <span style="color: var(--text-muted);">Address 1</span>
+            <span style="font-weight: 600;">{{ request.user.profile.address_line1|default:"—" }}</span>
+          </div>
+
+          <div
+            style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem;">
+            <span style="color: var(--text-muted);">Address 2</span>
+            <span style="font-weight: 600;">{{ request.user.profile.address_line2|default:"—" }}</span>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div style="background: var(--surface-2); padding: 1rem; border-radius: var(--radius-sm);">
+              <div style="font-size: 0.8rem; color: var(--text-muted);">City/State</div>
+              <div style="font-weight: 600;">{{ request.user.profile.city|default:"-" }} / {{
+                request.user.profile.state|default:"-" }}</div>
+            </div>
+            <div style="background: var(--surface-2); padding: 1rem; border-radius: var(--radius-sm);">
+              <div style="font-size: 0.8rem; color: var(--text-muted);">Pincode</div>
+              <div style="font-weight: 600;">{{ request.user.profile.pincode|default:"-" }}</div>
+            </div>
+          </div>
         </div>
+
       </div>
     </div>
   </div>
 </div>
+
+<style>
+  @media(max-width: 768px) {
+    .grid-3 {
+      grid-template-columns: 1fr !important;
+    }
+  }
+</style>
 {% endblock %}
