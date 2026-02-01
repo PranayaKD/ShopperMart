@@ -2,97 +2,124 @@
 {% block title %}Home | ShopperMart{% endblock %}
 
 {% block content %}
-<div class="container py-5">
 
-  <!-- Hero Section -->
-  <div class="bg-primary text-white rounded-4 p-5 mb-5 text-center shadow-lg">
-    <h1 class="display-5 fw-bold">Welcome to ShopperMart 🛒</h1>
-    <p class="lead mb-4">
+<!-- Hero Section -->
+<section style="
+  background: linear-gradient(135deg, var(--primary), #a855f7);
+  border-radius: var(--radius-lg);
+  padding: 4rem 2rem;
+  color: white;
+  margin-bottom: 3rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+">
+  <!-- Fancy Background Bubble -->
+  <div style="
+    position: absolute;
+    top: -50px; left: -50px;
+    width: 200px; height: 200px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+  "></div>
+
+  <div style="position: relative; z-index: 1;">
+    <h1 style="font-size: 3rem; font-weight: 800; margin-bottom: 1rem; letter-spacing: -1px;">
+      Welcome to ShopperMart 🛒
+    </h1>
+    <p style="font-size: 1.25rem; opacity: 0.9; margin-bottom: 2rem; max-width: 600px; margin-inline: auto;">
       {% if user.is_authenticated %}
-        Explore our latest products and manage your account below.
+      Explore our premium collection curated just for you.
       {% else %}
-        Your one-stop shop for amazing products. Login or Sign up to get started!
+      Your one-stop destination for amazing products. Join us today!
       {% endif %}
     </p>
+
     {% if not user.is_authenticated %}
-      <a href="{% url 'register' %}" class="btn btn-light btn-lg me-2">Sign Up</a>
-      <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg">Login</a>
+    <div style="display: flex; gap: 1rem; justify-content: center;">
+      <a href="{% url 'register' %}" class="btn" style="background: white; color: var(--primary);">Get Started</a>
+      <a href="{% url 'login' %}" class="btn" style="border: 2px solid white; color: white;">Log In</a>
+    </div>
     {% endif %}
   </div>
+</section>
 
-  <!-- Features Section -->
-  <div class="row g-4 text-center mb-5">
-    <div class="col-md-4">
-      <div class="card shadow-sm h-100">
-        <div class="card-body">
-          <div class="mb-3 display-4 text-primary">🛍️</div>
-          <h5 class="card-title fw-bold">Wide Range of Products</h5>
-          <p class="card-text text-body-secondary">Browse thousands of products across multiple categories.</p>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-4">
-      <div class="card shadow-sm h-100">
-        <div class="card-body">
-          <div class="mb-3 display-4 text-success">💳</div>
-          <h5 class="card-title fw-bold">Secure Payments</h5>
-          <p class="card-text text-body-secondary">Pay with confidence using our secure checkout system.</p>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-4">
-      <div class="card shadow-sm h-100">
-        <div class="card-body">
-          <div class="mb-3 display-4 text-warning">🚚</div>
-          <h5 class="card-title fw-bold">Fast Delivery</h5>
-          <p class="card-text text-body-secondary">Get your orders delivered quickly and reliably.</p>
-        </div>
-      </div>
-    </div>
+<!-- Features Grid -->
+<div class="grid grid-3 mb-5">
+  <div class="card text-center">
+    <div style="font-size: 3rem; margin-bottom: 1rem;">🛍️</div>
+    <h3 style="margin-bottom: 0.5rem; font-weight:700;">Wide Range</h3>
+    <p style="color: var(--text-muted);">Browse thousands of products across multiple categories.</p>
   </div>
-
-  <!-- Categories Section -->
-  <div class="text-center mb-4">
-    {% for category in categories %}
-      <a href="{% url 'category_products' category.slug %}" class="btn btn-outline-primary btn-sm m-1">
-        {{ category.name }}
-      </a>
-    {% endfor %}
+  <div class="card text-center">
+    <div style="font-size: 3rem; margin-bottom: 1rem;">💳</div>
+    <h3 style="margin-bottom: 0.5rem; font-weight:700;">Secure Payments</h3>
+    <p style="color: var(--text-muted);">Pay with confidence using our secure checkout system.</p>
   </div>
-
-  <!-- Latest Products Section -->
-  <h2 class="mb-4 text-center">Latest Products</h2>
-  <div class="row g-4">
-    {% for product in products %}
-      <div class="col-md-3">
-        <div class="card h-100 shadow-sm product-card">
-          {% if product.image %}
-            <img src="{{ product.image.url }}" class="card-img-top" style="height:180px; object-fit:cover;">
-          {% else %}
-            <img src="https://via.placeholder.com/180x180?text=No+Image" class="card-img-top">
-          {% endif %}
-          <div class="card-body text-center">
-            <h5 class="card-title">{{ product.name }}</h5>
-            <p class="text-success fw-bold">₹{{ product.price }}</p>
-            <a href="{% url 'product_detail' product.slug %}" class="btn btn-primary btn-sm w-100">View</a><br><br>
-            <a href="{% url 'add_to_cart' product.id %}" class="btn btn-success btn-sm w-100">Add to Cart</a>
-          </div>
-        </div>
-      </div>
-    {% empty %}
-      <p class="text-center">No products available yet.</p>
-    {% endfor %}
+  <div class="card text-center">
+    <div style="font-size: 3rem; margin-bottom: 1rem;">🚚</div>
+    <h3 style="margin-bottom: 0.5rem; font-weight:700;">Fast Delivery</h3>
+    <p style="color: var(--text-muted);">Get your orders delivered quickly and reliably globally.</p>
   </div>
-
 </div>
 
-<!-- Optional CSS for hover effect -->
-<style>
-  .product-card:hover {
-    transform: translateY(-5px);
-    transition: 0.3s ease-in-out;
-    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
-  }
-</style>
+<!-- Search & Categories -->
+<div style="display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; margin-bottom: 3rem;">
+  <!-- Global Search Form Re-integrated Here -->
+  <form class="d-flex" method="get" action="{% url 'home' %}" style="flex: 1; max-width: 400px; gap: 0.5rem;">
+    <input class="form-control" type="search" name="q" placeholder="Search for products..."
+      value="{{ request.GET.q|default:'' }}" />
+    <button class="btn btn-primary" type="submit">Search</button>
+  </form>
+</div>
+
+<div
+  style="display: flex; gap: 0.5rem; overflow-x: auto; padding-bottom: 1rem; margin-bottom: 3rem; justify-content: center;">
+  {% for category in categories %}
+  <a href="{% url 'category_products' category.slug %}" class="btn btn-outline btn-sm"
+    style="border-radius: 2rem; font-weight: 500;">
+    {{ category.name }}
+  </a>
+  {% endfor %}
+</div>
+
+<!-- Latest Products -->
+<h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 1.5rem; text-align: center;">Latest Products</h2>
+
+<div class="grid grid-auto-fit">
+  {% for product in products %}
+  <div class="card">
+    <a href="{% url 'product_detail' product.slug %}" style="display: block;">
+      {% if product.image %}
+      <img src="{{ product.image.url }}" class="product-card-img" alt="{{ product.name }}">
+      {% else %}
+      <div class="product-card-img"
+        style="display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-weight: 600;">
+        No Image
+      </div>
+      {% endif %}
+    </a>
+
+    <div style="margin-top: 1rem;">
+      <h3 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.25rem;">
+        <a href="{% url 'product_detail' product.slug %}">{{ product.name }}</a>
+      </h3>
+      <p class="product-price">₹{{ product.price }}</p>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-top: 1rem;">
+        <a href="{% url 'product_detail' product.slug %}" class="btn btn-outline btn-sm">Details</a>
+        {% if product.stock > 0 %}
+        <a href="{% url 'add_to_cart' product.id %}" class="btn btn-primary btn-sm">Add +</a>
+        {% else %}
+        <button class="btn btn-sm" style="background: var(--surface-3); color: var(--text-muted); cursor: not-allowed;"
+          disabled>Sold Out</button>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <p class="text-center" style="grid-column: 1 / -1; padding: 2rem;">No products found.</p>
+  {% endfor %}
+</div>
 
 {% endblock %}

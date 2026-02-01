@@ -2,40 +2,58 @@
 {% block title %}{{ category.name }} | ShopperMart{% endblock %}
 
 {% block content %}
-<div class="container py-5">
+<div class="container py-4">
 
-  <h2 class="mb-4">Category: {{ category.name }}</h2>
+  <div style="text-align: center; margin-bottom: 3rem;">
+    <div style="margin-bottom: 1rem;">
+      <a href="{% url 'home' %}" class="btn btn-sm btn-outline" style="border-radius: 2rem;">← Back to Store</a>
+    </div>
+    <h1 style="font-size: 2rem; font-weight: 800;">{{ category.name }}</h1>
+    <p style="color: var(--text-muted);">Explore our collection</p>
+  </div>
 
   {% if products %}
-    <div class="row g-4">
-      {% for product in products %}
-        <div class="col-md-4">
-          <div class="card h-100 shadow-sm product-card">
-            {% if product.image %}
-              <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
-            {% else %}
-              <img src="https://via.placeholder.com/400x300?text=No+Image" class="card-img-top">
-            {% endif %}
-            <div class="card-body">
-              <h5 class="card-title">{{ product.name }}</h5>
-              <p class="card-text text-muted">₹{{ product.price }}</p>
-              <a href="{% url 'product_detail' product.id %}" class="btn btn-primary btn-sm">View</a>
-            </div>
-          </div>
+  <div class="grid grid-auto-fit">
+    {% for product in products %}
+    <div class="card">
+      <a href="{% url 'product_detail' product.slug %}" style="display: block;">
+        {% if product.image %}
+        <img src="{{ product.image.url }}" class="product-card-img" alt="{{ product.name }}">
+        {% else %}
+        <div class="product-card-img"
+          style="display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-weight: 600;">
+          No Image
         </div>
-      {% endfor %}
+        {% endif %}
+      </a>
+
+      <div style="margin-top: 1rem;">
+        <h3 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.25rem;">
+          <a href="{% url 'product_detail' product.slug %}">{{ product.name }}</a>
+        </h3>
+        <p class="product-price">₹{{ product.price }}</p>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-top: 1rem;">
+          <a href="{% url 'product_detail' product.slug %}" class="btn btn-outline btn-sm">Details</a>
+          {% if product.stock > 0 %}
+          <a href="{% url 'add_to_cart' product.id %}" class="btn btn-primary btn-sm">Add +</a>
+          {% else %}
+          <button class="btn btn-sm"
+            style="background: var(--surface-3); color: var(--text-muted); cursor: not-allowed;" disabled>Sold
+            Out</button>
+          {% endif %}
+        </div>
+      </div>
     </div>
+    {% endfor %}
+  </div>
   {% else %}
-    <p class="text-muted">No products available in this category.</p>
+  <div style="text-align: center; padding: 4rem; background: var(--surface-2); border-radius: var(--radius-lg);">
+    <h3 style="margin-bottom: 1rem;">No products found</h3>
+    <p style="color: var(--text-muted);">We currently don't have any products in this category.</p>
+    <a href="{% url 'home' %}" class="btn btn-outline mt-3">Browse all products</a>
+  </div>
   {% endif %}
 
 </div>
 {% endblock %}
-
-<style>
-  .product-card:hover {
-    transform: translateY(-5px);
-    transition: 0.3s ease-in-out;
-    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
-  }
-</style>

@@ -1,35 +1,111 @@
 {% extends "base.html" %}
-{% load multiply_filters %}
+{% load multiply_filters widget_tweaks %}
 {% block title %}Checkout | ShopperMart{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-  <h2 class="mb-4">Checkout</h2>
+<div class="container py-4">
+  <h1 style="font-size: 2rem; font-weight: 800; margin-bottom: 2rem;">Checkout</h1>
 
-  <div class="row">
-    <div class="col-md-6">
-      <h4>Billing Details</h4>
-      <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-primary">Place Order</button>
-      </form>
+  <div class="grid grid-2" style="gap: 4rem; align-items: start;">
+
+    <!-- Billing Details -->
+    <div>
+      <div class="card">
+        <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1.5rem;">Shipping Information</h2>
+
+        <form method="post" style="display: flex; flex-direction: column; gap: 1rem;">
+          {% csrf_token %}
+
+          {% if form.non_field_errors %}
+          <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+          {% endif %}
+
+          <div class="form-grid" style="display: grid; gap: 1rem;">
+            <div>
+              <label class="form-label">Full Name</label>
+              {{ form.full_name|add_class:"form-control" }}
+              {{ form.full_name.errors }}
+            </div>
+
+            <div>
+              <label class="form-label">Email Address</label>
+              {{ form.email|add_class:"form-control" }}
+              {{ form.email.errors }}
+            </div>
+
+            <div>
+              <label class="form-label">Shipping Address</label>
+              {{ form.address|add_class:"form-control" }}
+              {{ form.address.errors }}
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+              <div>
+                <label class="form-label">City</label>
+                {{ form.city|add_class:"form-control" }}
+                {{ form.city.errors }}
+              </div>
+              <div>
+                <label class="form-label">Pincode</label>
+                {{ form.postal_code|add_class:"form-control" }}
+                {{ form.postal_code.errors }}
+              </div>
+            </div>
+
+            <div>
+              <label class="form-label">Payment Method</label>
+              {{ form.payment_method|add_class:"form-select" }}
+              {{ form.payment_method.errors }}
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100" style="margin-top: 1rem;">
+            Place Order
+          </button>
+        </form>
+      </div>
     </div>
-    <div class="col-md-6">
-      <h4>Your Order</h4>
-      <ul class="list-group mb-3">
-        {% for item in cart_items %}
-          <li class="list-group-item d-flex justify-content-between">
-            {{ item.product.name }} × {{ item.quantity }}
+
+    <!-- Order Summary -->
+    <div>
+      <div class="card" style="background: var(--surface-2); border: 2px solid var(--border-color);">
+        <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1.5rem;">Order Summary</h2>
+
+        <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.5rem;">
+          {% for item in cart_items %}
+          <div
+            style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem;">
+            <div>
+              <span style="font-weight: 600;">{{ item.product.name }}</span>
+              <span style="color: var(--text-muted); font-size: 0.9rem;"> × {{ item.quantity }}</span>
+            </div>
             <span>₹{{ item.quantity|multiply:item.product.price }}</span>
-          </li>
-        {% endfor %}
-        <li class="list-group-item d-flex justify-content-between fw-bold">
-          Total
-          <span>₹{{ total }}</span>
-        </li>
-      </ul>
+          </div>
+          {% endfor %}
+        </div>
+
+        <div
+          style="display: flex; justify-content: space-between; border-top: 2px solid var(--border-color); padding-top: 1rem; font-weight: 800; font-size: 1.25rem;">
+          <span>Total</span>
+          <span style="color: var(--primary);">₹{{ total }}</span>
+        </div>
+      </div>
+
+      <div style="margin-top: 2rem; color: var(--text-muted); font-size: 0.9rem;">
+        <p>Your personal data will be used to process your order, support your experience throughout this website, and
+          for other purposes described in our privacy policy.</p>
+      </div>
     </div>
+
   </div>
 </div>
+
+<!-- Form Field Styling Hacker -->
+<script>
+  // Helper to add classes to Django rendered form fields without rewriting the form class
+  document.querySelectorAll('input, select, textarea').forEach(el => {
+    el.classList.add('form-control');
+    el.style.marginBottom = '0.5rem';
+  });
+</script>
 {% endblock %}

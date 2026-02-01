@@ -10,15 +10,23 @@ def product_detail_by_id(request, pk):
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.db.models import Q
-from .forms import UserRegistrationForm, UserUpdateForm, ProfileUpdateForm, ProductForm
+from django.contrib.auth import login
+from django.db.models import Q, Case, When, Value, BooleanField
+from .forms import UserRegistrationForm, UserUpdateForm, ProfileUpdateForm, ProductForm, CheckoutForm
 from .models import Product, Category, Cart, CartItem, Order, OrderItem
 
 
 # -------------------- SHOP --------------------
 def shop_home(request):
-    """Display all available products and categories on the homepage."""
-    products = Product.objects.filter(available=True)
+    """Display all available products sorted by Image availability then Newest."""
+    products = Product.objects.filter(available=True).annotate(
+        has_image=Case(
+            When(image__gt='', then=Value(True)),
+            default=Value(False),
+            output_field=BooleanField(),
+        )
+    ).order_by('-has_image', '-created_at')
+
     categories = Category.objects.all()
     return render(request, "home.html", {
         "products": products,
@@ -27,9 +35,16 @@ def shop_home(request):
 
 
 def category_products(request, slug):
-    """Display all products under a specific category."""
+    """Display all products under a specific category, sorted by Image then Newest."""
     category = get_object_or_404(Category, slug=slug)
-    products = Product.objects.filter(category=category, available=True)
+    products = Product.objects.filter(category=category, available=True).annotate(
+        has_image=Case(
+            When(image__gt='', then=Value(True)),
+            default=Value(False),
+            output_field=BooleanField(),
+        )
+    ).order_by('-has_image', '-created_at')
+
     return render(request, "ShopperMartapp/category_products.html", {
         "category": category,
         "products": products
@@ -39,8 +54,13 @@ def category_products(request, slug):
 def product_detail(request, slug):
     """Display detailed information about a single product."""
     product = get_object_or_404(Product, slug=slug, available=True)
+    
+    # Related products logic
+    related_products = Product.objects.filter(category=product.category, available=True).exclude(id=product.id)[:4]
+
     return render(request, "ShopperMartapp/product_detail.html", {
-        "product": product
+        "product": product,
+        "related_products": related_products
     })
 
 
@@ -97,7 +117,7 @@ def cart_view(request):
 
     total = 0
     for item in cart_items:
-        item.subtotal = item.product.price * item.quantity  # add subtotal dynamically
+        # subtotal is a property in the model, no need to calculate/assign it here
         total += item.subtotal
 
     return render(request, "ShopperMartapp/cart.html", {
@@ -161,36 +181,86 @@ def checkout(request):
             messages.error(request, "Your cart is empty.")
             return redirect("cart")
 
-        order = Order.objects.create(user=request.user, total=0)
-        for item in cart_items:
-            OrderItem.objects.create(
-                order=order,
-                product=item.product,
-                quantity=item.quantity,
-                price=item.product.price,
+        form = CheckoutForm(request.POST)
+        if form.is_valid():
+            # Create Order
+            order = Order.objects.create(
+                user=request.user,
+                total=0,
+                full_name=form.cleaned_data["full_name"],
+                email=form.cleaned_data["email"],
+                address=form.cleaned_data["address"],
+                city=form.cleaned_data["city"],
+                postal_code=form.cleaned_data["postal_code"],
+                payment=dict(form.fields['payment_method'].choices)[form.cleaned_data["payment_method"]] # Store label
             )
-        order.total = total
-        order.save()
+            
+            # Check stock first
+            for item in cart_items:
+                if item.quantity > item.product.stock:
+                    messages.error(request, f"Not enough stock for {item.product.name}. Only {item.product.stock} left.")
+                    order.delete() # rollback
+                    return redirect("cart")
 
-        # clear cart
-        cart.items.all().delete()
+            for item in cart_items:
+                # Decrement stock
+                product = item.product
+                product.stock -= item.quantity
+                product.save()
 
-        messages.success(request, "Order placed successfully!")
-        return redirect("my_orders")
+                OrderItem.objects.create(
+                    order=order,
+                    product=product,
+                    quantity=item.quantity,
+                    price=product.price,
+                )
+            
+            order.total = total
+            order.save()
 
-    # GET request: show checkout page
+            # Clear cart
+            cart.items.all().delete()
+            messages.success(request, f"Order placed successfully! Order ID: {order.id}")
+            return redirect("my_orders")
+    else:
+        # Pre-fill form with profile data
+        initial_data = {
+            "full_name": request.user.profile.full_name,
+            "email": request.user.email,
+            "address": f"{request.user.profile.address_line1} {request.user.profile.address_line2}",
+            "city": request.user.profile.city,
+            "postal_code": request.user.profile.pincode
+        }
+        form = CheckoutForm(initial=initial_data)
+
     return render(request, "ShopperMartapp/checkout.html", {
         "cart_items": cart_items,
         "total": total,
-        # add 'form' if you use a form in the template
+        "form": form
     })
 
 
 @login_required
 def my_orders(request):
-    """List all orders of the logged-in user."""
-    orders = Order.objects.filter(user=request.user).order_by('-created_at')
+    """Display a list of orders for the logged-in user."""
+    orders = Order.objects.filter(user=request.user).order_by("-created_at").prefetch_related("items__product")
     return render(request, "ShopperMartapp/my_orders.html", {"orders": orders})
+
+
+@login_required
+def cancel_order(request, order_id):
+    """Cancel an order and restore stock."""
+    order = get_object_or_404(Order, user=request.user, id=order_id)
+    
+    # Restore stock
+    for item in order.items.all():
+        if item.product:
+            item.product.stock += item.quantity
+            item.product.save()
+            
+    order.delete()
+    messages.success(request, f"Order #{order_id} has been cancelled.")
+    return redirect("my_orders")
 
 
 # -------------------- PRODUCT MANAGEMENT --------------------
