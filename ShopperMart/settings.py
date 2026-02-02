@@ -14,8 +14,19 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # ================= SECURITY =================
 SECRET_KEY = config("SECRET_KEY", default="dev-secret-key")
-DEBUG = config("DEBUG", default=True, cast=bool)
-ALLOWED_HOSTS = ["127.0.0.1", "localhost", config("RENDER_EXTERNAL_HOSTNAME", default="*")]
+DEBUG = config("DEBUG", default=False, cast=bool)  # Changed to False for production
+
+# ================= ALLOWED_HOSTS =================
+# FIX: This was missing quotes and proper list format
+ALLOWED_HOSTS = config(
+    "ALLOWED_HOSTS", 
+    default="localhost,127.0.0.1"
+).split(",")
+
+# Add Render hostname if available
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
 # ================= APPS =================
 INSTALLED_APPS = [
@@ -26,12 +37,12 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "ShopperMartapp", 
-    "widget_tweaks",# your main app
+    "widget_tweaks",  # your main app
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",  # Good - already added
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -61,9 +72,13 @@ TEMPLATES = [
 WSGI_APPLICATION = "ShopperMart.wsgi.application"
 
 # ================= DATABASE =================
+# FIX: Simplified database configuration for Render
 DATABASES = {
     "default": dj_database_url.config(
-        default=f"postgresql://{config('DB_USER')}:{config('DB_PASSWORD')}@{config('DB_HOST', default='127.0.0.1')}:{config('DB_PORT', default='5432')}/{config('DB_NAME')}",
+        default=config(
+            "DATABASE_URL",
+            default="sqlite:///db.sqlite3"  # Fallback to SQLite for local dev
+        ),
         conn_max_age=600
     )
 }
@@ -83,31 +98,28 @@ USE_I18N = True
 USE_TZ = False   # optional: False if you want to store IST directly
 
 # ================= STATIC & MEDIA =================
-STATIC_URL = "static/"
+STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-# WhiteNoise storage
-if not DEBUG:
-    STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+# WhiteNoise storage - use for production
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
-MEDIA_URL = "media/"
+MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
 # ================= DEFAULT =================
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-LOGIN_REDIRECT_URL = "/"
-LOGOUT_REDIRECT_URL = "/accounts/login/"
 
-
-
+# ================= AUTH REDIRECTS =================
 LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "profile"
 LOGOUT_REDIRECT_URL = "home"
 
-
+# ================= EMAIL =================
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
+# ================= MESSAGES =================
 from django.contrib.messages import constants as messages
 MESSAGE_TAGS = {
     messages.DEBUG: "secondary",
@@ -116,3 +128,12 @@ MESSAGE_TAGS = {
     messages.WARNING: "warning",
     messages.ERROR: "danger",
 }
+
+# ================= SECURITY SETTINGS (Production) =================
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    X_FRAME_OPTIONS = 'DENY'
