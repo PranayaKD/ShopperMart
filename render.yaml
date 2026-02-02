@@ -15,9 +15,6 @@ services:
         value: "False"
       - key: PYTHON_VERSION
         value: 3.11.0
-      - key: RENDER_EXTERNAL_HOSTNAME
-        value: shoppermart.onrender.com 
-
 databases:
   - name: shoppermart-db
     databaseName: shoppermart
