@@ -18,12 +18,13 @@ DEBUG = config("DEBUG", default=False, cast=bool)  # Changed to False for produc
 
 # ================= ALLOWED_HOSTS =================
 # FIX: This was missing quotes and proper list format
+# ================= ALLOWED_HOSTS =================
 ALLOWED_HOSTS = config(
     "ALLOWED_HOSTS", 
-    default="localhost,127.0.0.1"
+    default="localhost,127.0.0.1,shoppermart.onrender.com"  # Add your Render URL here
 ).split(",")
 
-# Add Render hostname if available
+# Or keep the dynamic approach but with a fallback
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
