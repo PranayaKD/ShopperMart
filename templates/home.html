@@ -75,6 +75,7 @@
 
 <div
   style="display: flex; gap: 0.5rem; overflow-x: auto; padding-bottom: 1rem; margin-bottom: 3rem; justify-content: center;">
+
   {% for category in categories %}
   <a href="{% url 'category_products' category.slug %}" class="btn btn-outline btn-sm"
     style="border-radius: 2rem; font-weight: 500;">
