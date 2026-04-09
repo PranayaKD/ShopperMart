@@ -14,7 +14,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # ================= SECURITY =================
 SECRET_KEY = config("SECRET_KEY", default="django-insecure-x7k!q3m@z9p#r2w$v8u&y1t*e5s0f4g6h")
-DEBUG = config("DEBUG", default=False, cast=bool)  # Changed to False for production
+DEBUG = config("DEBUG", default=True, cast=bool)
 
 # ================= ALLOWED_HOSTS =================
 # FIX: This was missing quotes and proper list format
@@ -172,7 +172,7 @@ MESSAGE_TAGS = {
 
 # ================= SECURITY SETTINGS (Production) =================
 if not DEBUG:
-    SECURE_SSL_REDIRECT = True
+    SECURE_SSL_REDIRECT = config("SECURE_SSL_REDIRECT", default=True, cast=bool)
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     SECURE_BROWSER_XSS_FILTER = True
