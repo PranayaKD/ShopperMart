@@ -1,91 +1,129 @@
 {% extends "base.html" %}
-{% block title %}Your Cart | ShopperMart{% endblock %}
+{% load static %}
+
+{% block title %}Shopping Bag | ShopperMart{% endblock %}
+
+{% block meta_description %}Review your shopping bag at ShopperMart. Manage quantities, view order summaries, and proceed to secure checkout.{% endblock %}
+
+{% block meta_keywords %}shoppermart cart, shopping bag, checkout, order review{% endblock %}
 
 {% block content %}
-<div class="container py-4">
-  <h1 style="font-size: 2rem; font-weight: 800; margin-bottom: 2rem;">🛒 Shopping Cart</h1>
+    {% if cart_items %}
+    <!-- CART HEADER -->
+    <header class="pt-32 pb-16 px-8 md:px-24">
+      <div class="max-w-7xl mx-auto border-b border-outline-variant/10 pb-12">
+        <h1 class="font-serif text-5xl md:text-7xl font-bold tracking-tighter text-black uppercase">Shopping Cart</h1>
+        <p class="font-mono text-[10px] text-on-secondary-container mt-6 uppercase tracking-[0.3em] font-medium">{{ cart_items|length }} items in your bag</p>
+      </div>
+    </header>
 
-  {% if cart_items %}
-  <div class="grid grid-3" style="grid-template-columns: 2fr 1fr; align-items: start; gap: 2rem;">
+    <!-- TWO COLUMN LAYOUT -->
+    <section class="max-w-7xl mx-auto px-8 md:px-24 py-12 grid grid-cols-1 md:grid-cols-12 gap-12 lg:gap-20">
+      
+      <!-- LEFT: CART ITEMS -->
+      <div class="md:col-span-8 space-y-10">
+        {% for item in cart_items %}
+        <div class="flex flex-col sm:flex-row gap-10 py-10 border-b border-outline-variant/10 group last:border-0 first:pt-0">
+          <!-- Product Image -->
+          <div class="w-32 h-40 rounded-2xl overflow-hidden bg-white shadow-sm grow-0 shrink-0 border border-outline-variant/10">
+            {% if item.product.image %}
+            <img src="{{ item.product.image.url }}" class="w-full h-full object-contain p-4 mix-blend-multiply transition-transform duration-700 group-hover:scale-105"/>
+            {% else %}
+            <div class="w-full h-full flex items-center justify-center font-serif text-slate-300 italic">No Image</div>
+            {% endif %}
+          </div>
 
-    <!-- Cart Items List -->
-    <div style="display: flex; flex-direction: column; gap: 1rem;">
-      {% for item in cart_items %}
-      <div class="card"
-        style="display: grid; grid-template-columns: 80px 1fr auto; gap: 1rem; align-items: center; padding: 1rem;">
-        <!-- Image -->
-        {% if item.product.image %}
-        <img src="{{ item.product.image.url }}" class="rounded"
-          style="width: 80px; height: 80px; object-fit: cover; border-radius: var(--radius-sm);" />
-        {% else %}
-        <div style="width: 80px; height: 80px; background: var(--surface-3); border-radius: var(--radius-sm);"></div>
-        {% endif %}
+          <!-- Product Details -->
+          <div class="flex-grow flex flex-col justify-between">
+            <div class="flex justify-between items-start">
+              <div>
+                <span class="font-mono text-[9px] tracking-widest uppercase text-on-secondary-container mb-2 block font-bold italic">{{ item.product.category.name }}</span>
+                <h3 class="font-serif text-2xl font-bold text-black tracking-tight leading-none uppercase">{{ item.product.name }}</h3>
+              </div>
+              <p class="font-mono text-xl font-bold text-black">₹{{ item.product.price }}</p>
+            </div>
 
-        <!-- Details -->
-        <div>
-          <h3 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.25rem;">{{ item.product.name }}</h3>
-          <p style="color: var(--text-muted); font-size: 0.9rem;">Price: ₹{{ item.product.price }}</p>
+            <div class="flex items-center justify-between mt-10">
+              <!-- Quantity Logic (Functional) -->
+              <form method="POST" action="{% url 'update_cart' item.id %}" class="flex items-center gap-4">
+                {% csrf_token %}
+                <div class="flex items-center border border-outline-variant/20 rounded-xl bg-white px-2 py-1 shadow-sm">
+                  <button type="submit" name="quantity" value="{{ item.quantity|add:'-1' }}" 
+                          class="w-10 h-10 flex items-center justify-center hover:bg-slate-50 transition-colors rounded-lg text-lg">−</button>
+                  <input type="number" name="display_qty" value="{{ item.quantity }}" readonly
+                         class="w-12 text-center border-0 focus:ring-0 font-mono text-lg font-bold">
+                  <button type="submit" name="quantity" value="{{ item.quantity|add:'1' }}" 
+                          class="w-10 h-10 flex items-center justify-center hover:bg-slate-50 transition-colors rounded-lg text-lg">+</button>
+                </div>
+              </form>
 
-          <!-- Mobile Actions Row -->
-          <div style="margin-top: 0.5rem; display: flex; align-items: center; gap: 1rem;">
-            <form action="{% url 'update_cart' item.id %}" method="post" style="display: flex; gap: 0.5rem;">
-              {% csrf_token %}
-              <input type="number" name="quantity" value="{{ item.quantity }}" min="1" class="form-control"
-                style="width: 60px; padding: 0.25rem 0.5rem;">
-              <button type="submit" class="btn btn-outline btn-sm">Update</button>
-            </form>
-            <a href="{% url 'remove_from_cart' item.id %}"
-              style="color: var(--danger); font-size: 0.9rem; text-decoration: underline;">Remove</a>
+              <!-- Remove -->
+              <form method="POST" action="{% url 'remove_from_cart' item.id %}">
+                {% csrf_token %}
+                <button type="submit" class="font-mono text-[9px] tracking-widest uppercase text-red-500 hover:text-red-700 transition-all font-bold border-b border-transparent hover:border-red-700 pb-1">Remove Item</button>
+              </form>
+            </div>
           </div>
         </div>
+        {% endfor %}
+      </div>
 
-        <!-- Total Price -->
-        <div style="text-align: right; align-self: start;">
-          <span style="font-weight: 700; font-size: 1.1rem;">₹{{ item.subtotal }}</span>
+      <!-- RIGHT: SUMMARY -->
+      <div class="md:col-span-4 translate-y-4">
+        <div class="sticky top-40 bg-zinc-50 rounded-3xl p-10 shadow-sm border border-outline-variant/10">
+          <h2 class="font-serif text-2xl font-bold text-black mb-10 tracking-tight leading-none uppercase italic opacity-40">Order Summary</h2>
+          
+          <div class="space-y-6 font-mono text-[10px] uppercase tracking-[0.3em] text-on-secondary-container border-b border-outline-variant/10 pb-10">
+            <div class="flex justify-between items-center">
+              <span>Subtotal</span>
+              <span class="text-black font-bold">₹{{ total|default:'0' }}</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span>Delivery</span>
+              <span class="text-green-600 font-bold">Complimentary</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span>GST (Included)</span>
+              <span class="text-black">18%</span>
+            </div>
+          </div>
+
+          <div class="py-10">
+            <span class="font-mono text-[9px] uppercase tracking-[0.4em] text-on-secondary-container font-bold mb-2 block">Total Amount</span>
+            <span class="font-serif text-5xl font-bold text-black leading-none">₹{{ total|default:'0' }}</span>
+          </div>
+
+          <a href="{% url 'checkout' %}" class="js-require-auth w-full flex items-center justify-center bg-black text-white py-6 rounded-2xl font-bold tracking-[0.3em] text-[12px] uppercase hover:opacity-90 transition-all shadow-2xl hover:scale-[1.02] active:scale-95 duration-500">
+            Checkout now
+          </a>
+          
+          <div class="mt-8 flex items-center justify-center gap-4 opacity-30">
+             <span class="material-symbols-outlined text-sm">lock</span>
+             <p class="font-mono text-[8px] uppercase tracking-[0.4em]">Encrypted checkout</p>
+          </div>
         </div>
       </div>
-      {% endfor %}
-    </div>
+    </section>
 
-    <!-- Summary Panel -->
-    <div class="card" style="position: sticky; top: 100px;">
-      <h3 style="margin-bottom: 1.5rem;">Order Summary</h3>
-      <div style="display: flex; justify-content: space-between; margin-bottom: 1rem; font-size: 1.1rem;">
-        <span>Total</span>
-        <span style="font-weight: 700;">₹{{ total }}</span>
+    {% else %}
+    <!-- EMPTY STATE (Professional/Clean) -->
+    <section class="py-32 px-8 flex flex-col items-center justify-center text-center min-h-[75vh] bg-zinc-50/30">
+      <div class="relative mb-20 group">
+        <div class="w-32 h-32 bg-white rounded-full flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform duration-[2s]">
+           <span class="material-symbols-outlined text-5xl text-black/10">shopping_bag</span>
+        </div>
+        <div class="absolute -bottom-2 -right-2 w-12 h-12 bg-black rounded-full flex items-center justify-center text-white text-xl font-serif italic shadow-2xl">0</div>
       </div>
-      <a href="{% url 'checkout' %}" class="btn btn-primary w-100 mb-3" style="text-align: center; display: block;">
-        Proceed to Checkout
+      
+      <span class="font-mono text-[9px] uppercase tracking-[0.6em] text-black/30 font-bold mb-6 block italic">Bag manifest: null</span>
+      <h2 class="font-headline text-[clamp(3.5rem,8vw,6rem)] font-bold text-black leading-[0.8] mb-12 tracking-tighter uppercase italic">Your bag <br/>is currently <br/>void.</h2>
+      
+      <p class="text-on-secondary-container font-headline italic text-2xl max-w-sm leading-relaxed mb-16 opacity-60">Establish your presence. Discover our latest collection and define your style.</p>
+      
+      <a href="{% url 'home' %}" class="bg-black text-white px-20 py-8 rounded-2xl font-bold tracking-[0.4em] text-[11px] uppercase hover:opacity-90 transition-all shadow-2xl hover:scale-105 active:scale-95 duration-500 flex items-center gap-4">
+        Discover Products
+        <span class="material-symbols-outlined text-sm">east</span>
       </a>
-      <a href="{% url 'home' %}"
-        style="display: block; text-align: center; color: var(--text-muted); font-size: 0.9rem;">
-        &larr; Continue Shopping
-      </a>
-    </div>
-
-  </div>
-
-  {% else %}
-  <div class="card text-center py-5">
-    <div style="font-size: 4rem; margin-bottom: 1rem;">🛒</div>
-    <h3 style="margin-bottom: 1rem;">Your cart is empty</h3>
-    <a href="{% url 'home' %}" class="btn btn-primary">Start Shopping</a>
-  </div>
-  {% endif %}
-</div>
-
-<!-- Responsive Adjustments -->
-<style>
-  @media (max-width: 768px) {
-    .grid-3 {
-      grid-template-columns: 1fr !important;
-    }
-
-    .card {
-      grid-template-columns: 60px 1fr !important;
-    }
-
-    /* Stack logic better for mobile if needed */
-  }
-</style>
+    </section>
+    {% endif %}
 {% endblock %}

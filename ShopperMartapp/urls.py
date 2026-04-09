@@ -1,39 +1,47 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
-from . import views
+from django.views.generic import TemplateView
+from .views import catalog, cart, orders, account
 
 urlpatterns = [
     # Home / Shop
-    path("", views.shop_home, name="home"),
+    path("", catalog.shop_home, name="home"),
+    path("store/", catalog.public_store, name="public_store"),
 
     # Categories & Products
-    path("category/<slug:slug>/", views.category_products, name="category_products"),
-    path("product/<int:pk>/", views.product_detail_by_id, name="product_detail_by_id"),
-    path("product/<slug:slug>/", views.product_detail, name="product_detail"),
+    path("category/<slug:slug>/", catalog.category_products, name="category_products"),
+    path("product/<int:pk>/", catalog.product_detail_by_id, name="product_detail_by_id"),
+    path("product/<slug:slug>/", catalog.product_detail, name="product_detail"),
 
     # Auth
-    path("register/", views.register_view, name="register"),
-    path("signup/", views.register_view, name="signup"),  
+    path("register/", account.register_view, name="register"),
+    path("signup/", account.register_view, name="signup"),  
     path("login/", auth_views.LoginView.as_view(template_name="registration/login.html"), name="login"),
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),
 
     # Profile
-    path("profile/", views.profile_view, name="profile"),
-    path("profile/edit/", views.profile_edit_view, name="profile_edit"),
+    path("profile/", account.profile_view, name="profile"),
+    path("profile/edit/", account.profile_edit_view, name="profile_edit"),
 
     # Cart
-    path("cart/", views.cart_view, name="cart"),
-    path("cart/add/<int:product_id>/", views.add_to_cart, name="add_to_cart"),
-    path("cart/remove/<int:item_id>/", views.remove_from_cart, name="remove_from_cart"),  # fixed
-    path("cart/update/<int:item_id>/", views.update_cart, name="update_cart"),            # fixed
+    path("cart/", cart.cart_view, name="cart"),
+    path("cart/add/<int:product_id>/", cart.add_to_cart, name="add_to_cart"),
+    path("cart/remove/<int:item_id>/", cart.remove_from_cart, name="remove_from_cart"),
+    path("cart/update/<int:item_id>/", cart.update_cart, name="update_cart"),
 
     # Checkout & Orders
-    path("checkout/", views.checkout, name="checkout"),
-    path("my-orders/", views.my_orders, name="my_orders"),
-    path("orders/<int:order_id>/cancel/", views.cancel_order, name="cancel_order"),
+    path("checkout/", orders.checkout, name="checkout"),
+    path("order-success/", orders.order_success, name="order_success"),
+    path("my-orders/", orders.my_orders, name="my_orders"),
+    path("orders/<int:order_id>/cancel/", orders.cancel_order, name="cancel_order"),
     
+    # Brand
+    path("about/", catalog.about_view, name="about"),
+    path("contact/", catalog.contact_view, name="contact"),
+    path("legal/", TemplateView.as_view(template_name="stub.html"), name="legal"),
+
     # Product Management
-    path("products/", views.product_list, name="product_list"),
-    path("products/<int:pk>/update/", views.product_update, name="product_update"),
-    path("products/<int:pk>/delete/", views.product_delete, name="product_delete"),
+    path("products/", catalog.product_list, name="product_list"),
+    path("products/<int:pk>/update/", catalog.product_update, name="product_update"),
+    path("products/<int:pk>/delete/", catalog.product_delete, name="product_delete"),
 ]

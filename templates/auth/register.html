@@ -1,58 +1,134 @@
 {% extends "base.html" %}
-{% load widget_tweaks %}
+{% load static %}
+{% load socialaccount %}
 
-{% block title %}Sign Up | ShopperMart{% endblock %}
+{% block title %}Create Account | ShopperMart{% endblock %}
+
+{% block meta_description %}Create your ShopperMart account to unlock exclusive collections, track orders, and build your modern wardrobe.{% endblock %}
 
 {% block content %}
-<div class="container py-5" style="display: flex; justify-content: center; align-items: center; min-height: 80vh;">
-  <div class="card"
-    style="width: 100%; max-width: 500px; padding: 2rem; border: 2px solid var(--border-color); background: var(--surface-1);">
-
-    <div style="text-align: center; margin-bottom: 2rem;">
-      <div style="font-size: 3rem; margin-bottom: 1rem;">📝</div>
-      <h1 style="font-size: 2rem; font-weight: 800; margin-bottom: 0.5rem;">Create Account</h1>
-      <p style="color: var(--text-muted);">Join ShopperMart for an amazing shopping experience.</p>
+<section class="min-h-screen pt-32 pb-16 px-4 sm:px-8 md:px-16 flex items-center justify-center bg-zinc-50/50">
+  <div class="flex flex-col lg:flex-row w-full max-w-5xl bg-white shadow-2xl rounded-[3rem] overflow-hidden border border-black/5">
+    
+    <!-- LEFT SIDE: EDITORIAL IMAGE -->
+  <div class="hidden lg:flex lg:w-1/2 relative items-center justify-center p-12 overflow-hidden bg-black">
+    <div class="absolute inset-0 bg-black/40 z-10"></div>
+    <img src="https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=1200" 
+         class="absolute inset-0 w-full h-full object-cover opacity-80 mix-blend-overlay transition-transform duration-[20s] hover:scale-105" />
+    
+    <div class="relative z-20 text-center px-8">
+      <h1 class="font-serif text-4xl md:text-5xl font-bold text-white tracking-widest uppercase drop-shadow-lg mb-4">ShopperMart</h1>
+      <div class="w-16 h-1 bg-white/50 mx-auto my-6 rounded-full"></div>
+      <p class="font-mono text-white text-[10px] uppercase tracking-[0.4em] font-medium opacity-90 leading-relaxed max-w-sm">
+        Join the definitive collection.<br>Redefine your modern wardrobe.
+      </p>
     </div>
+  </div>
 
-    <form method="POST" class="auth-form" style="display: flex; flex-direction: column; gap: 1rem;">
-      {% csrf_token %}
-
-      {% if form.non_field_errors %}
-      <div
-        style="background: var(--danger); color: white; padding: 0.75rem; border-radius: var(--radius-sm); font-size: 0.9rem;">
-        {{ form.non_field_errors }}
+  <!-- RIGHT SIDE: REGISTER FORM -->
+  <div class="w-full lg:w-1/2 flex items-center justify-center p-6 md:p-12 bg-white">
+    <div class="w-full max-w-md">
+      
+      <!-- ERRORS LOG -->
+      {% if form.errors %}
+      <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl">
+         <p class="text-red-700 text-[10px] font-mono font-bold uppercase tracking-widest mb-3 border-b border-red-100 pb-2">Please correct the following:</p>
+         <ul class="space-y-1">
+           {% for field, errors in form.errors.items %}
+             {% for error in errors %}
+               <li class="text-red-600 font-mono text-[9px] uppercase tracking-wider font-semibold">
+                 • {{ field|title }}: {{ error }}
+               </li>
+             {% endfor %}
+           {% endfor %}
+         </ul>
       </div>
       {% endif %}
 
-      {% for field in form %}
-      <div style="text-align: left;">
-        <label style="font-weight: 600; margin-bottom: 0.5rem; display: block;">{{ field.label }}</label>
-        {% render_field field class="form-control" placeholder=field.label %}
+      <header class="mb-8 text-center lg:text-left">
+        <h2 class="font-serif text-3xl font-bold text-black mb-2 tracking-tight uppercase">Create Account</h2>
+        <p class="text-slate-500 font-mono text-[10px] uppercase tracking-widest">Register to start building your collection.</p>
+      </header>
 
-        {% if field.help_text %}
-        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">
-          {{ field.help_text|safe }}
+      <form method="POST" action="{% url 'register' %}" class="space-y-5">
+        {% csrf_token %}
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+           <div>
+              <label class="block font-mono text-[9px] tracking-widest uppercase text-slate-500 mb-2 font-bold px-2">Username</label>
+              <input class="w-full bg-slate-50 border border-slate-200 rounded-full px-6 py-4 text-sm focus:border-black focus:ring-0 transition-colors" 
+                       name="username" type="text" required value="{{ form.username.value|default:'' }}"/>
+           </div>
+           <div>
+              <label class="block font-mono text-[9px] tracking-widest uppercase text-slate-500 mb-2 font-bold px-2">Email</label>
+              <input class="w-full bg-slate-50 border border-slate-200 rounded-full px-6 py-4 text-sm focus:border-black focus:ring-0 transition-colors" 
+                       name="email" type="email" pattern="[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}" placeholder="user@gmail.com" required value="{{ form.email.value|default:'' }}"/>
+           </div>
         </div>
-        {% endif %}
 
-        {% if field.errors %}
-        <div style="color: var(--danger); font-size: 0.8rem; margin-top: 0.25rem;">
-          {{ field.errors.0 }}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+           <div>
+              <label class="block font-mono text-[9px] tracking-widest uppercase text-slate-500 mb-2 font-bold px-2">Password</label>
+              <div class="relative">
+                <input class="w-full bg-slate-50 border border-slate-200 rounded-full pl-6 pr-12 py-4 text-sm focus:border-black focus:ring-0 transition-colors" 
+                         id="password" name="password1" type="password" required title="Minimum 6 characters, one number, one special character, one uppercase, one lowercase" pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{6,}$" placeholder="••••••••" />
+                <button type="button" onclick="togglePassword('password', 'eye-icon-1')" class="absolute inset-y-0 right-4 flex items-center justify-center text-slate-400 hover:text-black transition-colors" aria-label="Toggle password visibility">
+                  <span id="eye-icon-1" class="material-symbols-outlined text-[18px]">visibility</span>
+                </button>
+              </div>
+           </div>
+           <div>
+              <label class="block font-mono text-[9px] tracking-widest uppercase text-slate-500 mb-2 font-bold px-2">Confirm Password</label>
+              <div class="relative">
+                <input class="w-full bg-slate-50 border border-slate-200 rounded-full pl-6 pr-12 py-4 text-sm focus:border-black focus:ring-0 transition-colors" 
+                         id="password_confirm" name="password2" type="password" required placeholder="••••••••" />
+                <button type="button" onclick="togglePassword('password_confirm', 'eye-icon-2')" class="absolute inset-y-0 right-4 flex items-center justify-center text-slate-400 hover:text-black transition-colors" aria-label="Toggle confirm password visibility">
+                  <span id="eye-icon-2" class="material-symbols-outlined text-[18px]">visibility</span>
+                </button>
+              </div>
+           </div>
         </div>
-        {% endif %}
-      </div>
-      {% endfor %}
 
-      <button type="submit" class="btn btn-primary w-100" style="margin-top: 1rem; padding: 1rem; font-size: 1.1rem;">
-        Create Account
-      </button>
-    </form>
+        <div class="pt-4 space-y-4">
+          <button type="submit" class="w-full bg-black text-white py-5 rounded-full font-bold tracking-[0.3em] text-[11px] uppercase hover:bg-zinc-800 transition-colors active:scale-95 shadow-md">
+            Complete Registration
+          </button>
 
-    <div style="margin-top: 2rem; text-align: center; color: var(--text-muted);">
-      <p>Already have an account? <a href="{% url 'login' %}" style="color: var(--primary); font-weight: 600;">Log
-          in</a></p>
+          <div class="relative flex py-1 items-center">
+             <div class="flex-grow border-t border-slate-100"></div>
+             <span class="flex-shrink-0 mx-4 text-slate-400 font-mono text-[8px] uppercase tracking-widest">Or</span>
+             <div class="flex-grow border-t border-slate-100"></div>
+          </div>
+
+          <a href="{% provider_login_url 'google' %}" class="w-full bg-white border-2 border-slate-100 text-black py-5 rounded-full font-bold tracking-[0.2em] text-[11px] uppercase hover:border-black transition-colors active:scale-95 shadow-sm flex items-center justify-center gap-3">
+            <svg viewBox="0 0 24 24" class="w-4 h-4"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/><path d="M1 1h22v22H1z" fill="none"/></svg>
+            Sign up with Google
+          </a>
+        </div>
+
+        <div class="flex justify-center pt-8 mt-6 border-t border-slate-100">
+           <p class="font-mono text-[9px] uppercase tracking-widest text-slate-500">
+             Already a member? 
+             <a href="{% url 'login' %}" class="text-black font-bold ml-1 hover:underline">Back to Login</a>
+           </p>
+        </div>
+      </form>
+
     </div>
-
   </div>
-</div>
+</section>
+
+<script>
+  function togglePassword(inputId, iconId) {
+    const input = document.getElementById(inputId);
+    const icon = document.getElementById(iconId);
+    if (input.type === 'password') {
+      input.type = 'text';
+      icon.textContent = 'visibility_off';
+    } else {
+      input.type = 'password';
+      icon.textContent = 'visibility';
+    }
+  }
+</script>
 {% endblock %}

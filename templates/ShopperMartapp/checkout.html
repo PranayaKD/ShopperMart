@@ -1,111 +1,298 @@
 {% extends "base.html" %}
-{% load multiply_filters widget_tweaks %}
-{% block title %}Checkout | ShopperMart{% endblock %}
+{% load static %}
+
+{% block title %}Ordering Manifest | ShopperMart Secure Checkout{% endblock %}
+
+{% block meta_description %}Complete your high-performance order with ShopperMart’s secure ordering manifest. Integrated shipping and premium payment protection.{% endblock %}
 
 {% block content %}
-<div class="container py-4">
-  <h1 style="font-size: 2rem; font-weight: 800; margin-bottom: 2rem;">Checkout</h1>
+    <!-- PREMIUM CHECKOUT HEADER (CINEMATIC) -->
+    <header class="pt-40 pb-20 px-8 md:px-24 bg-white relative overflow-hidden">
+      <!-- Background Accents -->
+      <div class="absolute top-0 right-0 w-1/3 h-full bg-zinc-50 -z-10 translate-x-1/2 skew-x-12 opacity-50"></div>
+      
+      <div class="max-w-7xl mx-auto">
+        <div class="flex flex-col gap-6">
+          <nav class="flex items-center gap-10 font-mono text-[9px] tracking-[0.6em] uppercase text-black/30 font-bold">
+            <span class="flex items-center gap-2 text-black opacity-100 border-b border-black pb-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-black"></span> 01 Manifest
+            </span>
+            <span class="material-symbols-outlined text-[10px]">drag_handle</span>
+            <span class="flex items-center gap-2">02 Secure Payment</span>
+            <span class="material-symbols-outlined text-[10px]">drag_handle</span>
+            <span class="flex items-center gap-2">03 Confirmation</span>
+          </nav>
+          
+          <h1 class="font-serif text-6xl md:text-9xl font-bold tracking-[-0.04em] text-black leading-[0.85] uppercase italic">
+            The Ordering<br/><span class="text-zinc-300">Manifest.</span>
+          </h1>
+          
+          <p class="font-newsreader text-xl md:text-2xl text-black/60 max-w-2xl mt-4 leading-relaxed italic">
+            Finalize your selection and secure your delivery details below. Every order is crafted for high-performance delivery.
+          </p>
+        </div>
+      </div>
+    </header>
 
-  <div class="grid grid-2" style="gap: 4rem; align-items: start;">
-
-    <!-- Billing Details -->
-    <div>
-      <div class="card">
-        <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1.5rem;">Shipping Information</h2>
-
-        <form method="post" style="display: flex; flex-direction: column; gap: 1rem;">
+    <!-- MAIN CHECKOUT SECTION -->
+    <section class="bg-white border-t border-black/5">
+      <div class="max-w-7xl mx-auto px-8 md:px-24 py-24 pb-64">
+        <form method="POST" action="{% url 'checkout' %}" class="grid grid-cols-1 lg:grid-cols-12 gap-24 items-start">
           {% csrf_token %}
-
-          {% if form.non_field_errors %}
-          <div class="alert alert-danger">{{ form.non_field_errors }}</div>
-          {% endif %}
-
-          <div class="form-grid" style="display: grid; gap: 1rem;">
-            <div>
-              <label class="form-label">Full Name</label>
-              {{ form.full_name|add_class:"form-control" }}
-              {{ form.full_name.errors }}
-            </div>
-
-            <div>
-              <label class="form-label">Email Address</label>
-              {{ form.email|add_class:"form-control" }}
-              {{ form.email.errors }}
-            </div>
-
-            <div>
-              <label class="form-label">Shipping Address</label>
-              {{ form.address|add_class:"form-control" }}
-              {{ form.address.errors }}
-            </div>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-              <div>
-                <label class="form-label">City</label>
-                {{ form.city|add_class:"form-control" }}
-                {{ form.city.errors }}
+          
+          <!-- LEFT: SHIPPING & PAYMENT -->
+          <div class="lg:col-span-7 space-y-32">
+            
+            <!-- SECTION 01: SHIPPING -->
+            <div class="space-y-16">
+              <div class="flex items-center gap-6">
+                <span class="w-10 h-10 rounded-full border border-black/10 flex items-center justify-center font-mono text-[10px] font-bold">01</span>
+                <h2 class="font-serif text-3xl font-bold text-black tracking-tight uppercase leading-none">Shipping Destination</h2>
               </div>
-              <div>
-                <label class="form-label">Pincode</label>
-                {{ form.postal_code|add_class:"form-control" }}
-                {{ form.postal_code.errors }}
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-16">
+                <!-- Full Name -->
+                <div class="relative group md:col-span-2">
+                  <input class="block w-full px-0 py-5 text-black bg-transparent border-0 border-b border-black/10 focus:ring-0 focus:border-black transition-all duration-700 peer font-serif text-4xl font-bold placeholder:opacity-0" 
+                         id="id_full_name" name="full_name" placeholder="Full Name" type="text" required 
+                         value="{{ form.full_name.value|default:'' }}"/>
+                  <label class="absolute left-0 top-0 text-black/30 font-mono text-[9px] tracking-[0.4em] uppercase pointer-events-none transition-all duration-500 origin-left peer-focus:-translate-y-8 peer-focus:scale-90 peer-focus:text-black peer-not-placeholder-shown:-translate-y-8 peer-not-placeholder-shown:scale-90" 
+                         for="id_full_name">Legal Name</label>
+                </div>
+
+                <!-- Email -->
+                <div class="relative group">
+                  <input class="block w-full px-0 py-5 text-black bg-transparent border-0 border-b border-black/10 focus:ring-0 focus:border-black transition-all duration-700 peer font-mono text-xl font-bold placeholder:opacity-0" 
+                         id="id_email" name="email" placeholder="Email" type="email" required 
+                         value="{{ form.email.value|default:'' }}"/>
+                   <label class="absolute left-0 top-0 text-black/30 font-mono text-[9px] tracking-[0.4em] uppercase pointer-events-none transition-all duration-500 origin-left peer-focus:-translate-y-8 peer-focus:scale-90 peer-focus:text-black peer-not-placeholder-shown:-translate-y-8 peer-not-placeholder-shown:scale-90" 
+                         for="id_email">Digital Contact</label>
+                </div>
+
+                <!-- Pincode -->
+                <div class="relative group">
+                  <input class="block w-full px-0 py-5 text-black bg-transparent border-0 border-b border-black/10 focus:ring-0 focus:border-black transition-all duration-700 peer font-mono text-xl font-bold tracking-[0.3em] placeholder:opacity-0" 
+                         id="id_postal_code" name="postal_code" placeholder="Pincode" type="text" required 
+                         value="{{ form.postal_code.value|default:'' }}"/>
+                   <label class="absolute left-0 top-0 text-black/30 font-mono text-[9px] tracking-[0.4em] uppercase pointer-events-none transition-all duration-500 origin-left peer-focus:-translate-y-8 peer-focus:scale-90 peer-focus:text-black peer-not-placeholder-shown:-translate-y-8 peer-not-placeholder-shown:scale-90" 
+                         for="id_postal_code">Pincode / Zip</label>
+                </div>
+
+                <!-- Address (Full Width) -->
+                <div class="relative group md:col-span-2">
+                  <textarea class="block w-full px-0 py-5 text-black bg-transparent border-0 border-b border-black/10 focus:ring-0 focus:border-black transition-all duration-700 peer font-newsreader text-2xl leading-relaxed placeholder:opacity-0 resize-none" 
+                            id="id_address" name="address" placeholder="Address" autocomplete="off" required rows="2">{{ form.address.value|default:'' }}</textarea>
+                  <label class="absolute left-0 top-0 text-black/30 font-mono text-[9px] tracking-[0.4em] uppercase pointer-events-none transition-all duration-500 origin-left peer-focus:-translate-y-8 peer-focus:scale-90 peer-focus:text-black peer-not-placeholder-shown:-translate-y-8 peer-not-placeholder-shown:scale-90" 
+                         for="id_address">Delivery Domicile</label>
+                  <ul id="address_suggestions_list" class="absolute z-50 left-0 right-0 top-[80%] mt-2 bg-white rounded-[1.5rem] shadow-2xl border border-black/5 overflow-hidden hidden max-h-60 overflow-y-auto w-full"></ul>
+                </div>
+
+                <!-- City -->
+                <div class="relative group md:col-span-2">
+                  <input class="block w-full px-0 py-5 text-black bg-transparent border-0 border-b border-black/10 focus:ring-0 focus:border-black transition-all duration-700 peer font-serif text-xl uppercase tracking-widest placeholder:opacity-0" 
+                         id="id_city" name="city" placeholder="City" type="text" required 
+                         value="{{ form.city.value|default:'' }}"/>
+                  <label class="absolute left-0 top-0 text-black/30 font-mono text-[9px] tracking-[0.4em] uppercase pointer-events-none transition-all duration-500 origin-left peer-focus:-translate-y-8 peer-focus:scale-90 peer-focus:text-black peer-not-placeholder-shown:-translate-y-8 peer-not-placeholder-shown:scale-90" 
+                         for="id_city">Urban Center / City</label>
+                </div>
               </div>
             </div>
 
-            <div>
-              <label class="form-label">Payment Method</label>
-              {{ form.payment_method|add_class:"form-select" }}
-              {{ form.payment_method.errors }}
+            <!-- SECTION 02: PAYMENT -->
+            <div class="space-y-16">
+              <div class="flex items-center gap-6">
+                <span class="w-10 h-10 rounded-full border border-black/10 flex items-center justify-center font-mono text-[10px] font-bold">02</span>
+                <h2 class="font-serif text-3xl font-bold text-black tracking-tight uppercase leading-none">Financial Settlement</h2>
+              </div>
+              
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                <!-- Card -->
+                <label class="cursor-pointer group flex-grow">
+                   <input type="radio" name="payment_method" value="card" class="peer hidden" checked>
+                   <div class="px-8 py-10 border border-black/10 rounded-3xl bg-white transition-all peer-checked:bg-black peer-checked:text-white shadow-sm hover:shadow-2xl hover:border-black group-hover:-translate-y-2 duration-700 flex flex-col items-center text-center">
+                     <span class="material-symbols-outlined mb-6 text-2xl opacity-40 peer-checked:opacity-100">credit_card</span>
+                     <span class="font-mono text-[9px] uppercase tracking-[0.4em] font-bold">Digital Card</span>
+                     <p class="font-newsreader text-[11px] mt-4 italic opacity-40">256-bit secure gateway</p>
+                   </div>
+                </label>
+                
+                <!-- UPI -->
+                <label class="cursor-pointer group flex-grow">
+                   <input type="radio" name="payment_method" value="upi" class="peer hidden">
+                   <div class="px-8 py-10 border border-black/10 rounded-3xl bg-white transition-all peer-checked:bg-black peer-checked:text-white shadow-sm hover:shadow-2xl hover:border-black group-hover:-translate-y-2 duration-700 flex flex-col items-center text-center">
+                     <span class="material-symbols-outlined mb-6 text-2xl opacity-40 peer-checked:opacity-100">qr_code_2</span>
+                     <span class="font-mono text-[9px] uppercase tracking-[0.4em] font-bold">Insta UPI</span>
+                     <p class="font-newsreader text-[11px] mt-4 italic opacity-40">Rapid wallet transfer</p>
+                   </div>
+                </label>
+
+                <!-- COD -->
+                <label class="cursor-pointer group flex-grow">
+                   <input type="radio" name="payment_method" value="cod" class="peer hidden">
+                   <div class="px-8 py-10 border border-black/10 rounded-3xl bg-white transition-all peer-checked:bg-black peer-checked:text-white shadow-sm hover:shadow-2xl hover:border-black group-hover:-translate-y-2 duration-700 flex flex-col items-center text-center">
+                     <span class="material-symbols-outlined mb-6 text-2xl opacity-40 peer-checked:opacity-100">handshake</span>
+                     <span class="font-mono text-[9px] uppercase tracking-[0.4em] font-bold">Cash on Deliv.</span>
+                     <p class="font-newsreader text-[11px] mt-4 italic opacity-40">Settle upon arrival</p>
+                   </div>
+                </label>
+              </div>
+            </div>
+
+            <!-- CTA -->
+            <div class="pt-16 pb-12">
+               <button type="submit" class="w-full bg-black text-white py-10 rounded-full font-bold tracking-[0.5em] text-[13px] uppercase hover:bg-zinc-800 transition-all shadow-[0_32px_64px_-16px_rgba(0,0,0,0.3)] hover:scale-[1.01] active:scale-95 duration-500">
+                 Complete Ordering Manifest
+               </button>
+               <div class="mt-12 flex flex-col items-center gap-4 text-center">
+                  <div class="flex items-center gap-8 font-mono text-[8px] uppercase tracking-[0.4em] opacity-40 font-bold italic">
+                     <span class="flex items-center gap-2"><span class="material-symbols-outlined text-[12px]">verified_user</span> Verified Protection</span>
+                     <span class="flex items-center gap-2"><span class="material-symbols-outlined text-[12px]">local_shipping</span> Global Transit</span>
+                  </div>
+                  <p class="font-newsreader text-[13px] text-black/40 italic max-w-sm">By completing this manifest, you agree to our curated terms of service and high-performance delivery standards.</p>
+               </div>
             </div>
           </div>
 
-          <button type="submit" class="btn btn-primary w-100" style="margin-top: 1rem;">
-            Place Order
-          </button>
+          <!-- RIGHT: THE MANIFEST (STICKY) -->
+          <div class="lg:col-span-5 relative">
+             <div class="sticky top-40 bg-zinc-50 border border-black/5 rounded-[3rem] p-12 shadow-sm overflow-hidden">
+                <!-- Watermark -->
+                <div class="absolute -top-10 -right-10 font-serif text-[180px] font-bold text-black/[0.02] -rotate-12 select-none">MART</div>
+                
+                <div class="relative z-10">
+                  <div class="flex justify-between items-start mb-16">
+                    <div>
+                      <span class="font-mono text-[9px] uppercase tracking-[0.55em] text-black/30 block mb-4 font-bold italic">Ordering Manifest</span>
+                      <h3 class="font-serif text-3xl font-bold text-black uppercase tracking-tighter">Your Bag.</h3>
+                    </div>
+                    <div class="text-right">
+                       <span class="font-mono text-[9px] uppercase tracking-widest text-black/20 block mb-2">Internal Ref.</span>
+                       <span class="font-mono text-[10px] font-bold text-black">#{{ cart_items.0.id|default:'8291' }}–SM</span>
+                    </div>
+                  </div>
+                  
+                  <!-- Items List -->
+                  <div class="space-y-10 mb-12 pb-12 border-b border-black/10 max-h-[400px] overflow-y-auto pr-4 no-scrollbar">
+                    {% for item in cart_items %}
+                    <div class="flex justify-between items-start group">
+                      <div class="flex items-center gap-8">
+                        <div class="w-20 h-24 rounded-2xl bg-white overflow-hidden grow-0 shrink-0 border border-black/5 shadow-sm transition-all duration-700 group-hover:shadow-xl group-hover:scale-105 p-3">
+                           {% if item.product.image %}
+                           <img src="{{ item.product.image.url }}" class="w-full h-full object-contain mix-blend-multiply"/>
+                           {% else %}
+                           <div class="w-full h-full flex items-center justify-center font-serif text-xs text-black/10 italic">N/A</div>
+                           {% endif %}
+                        </div>
+                        <div class="space-y-2">
+                          <h4 class="font-serif text-[16px] font-bold text-black leading-tight uppercase tracking-tight group-hover:italic transition-all">{{ item.product.name }}</h4>
+                          <div class="flex items-center gap-6 font-mono text-[9px] uppercase tracking-widest font-bold opacity-30">
+                             <span>QTY: {{ item.quantity }}</span>
+                             <span class="w-1 h-1 rounded-full bg-black/20"></span>
+                             <span>₹{{ item.product.price|floatformat:0 }}</span>
+                          </div>
+                        </div>
+                      </div>
+                      <span class="font-mono text-[15px] font-bold text-black">₹{{ item.subtotal|floatformat:0 }}</span>
+                    </div>
+                    {% endfor %}
+                  </div>
+
+                  <!-- Financial Recap -->
+                  <div class="space-y-5 pt-2">
+                    <div class="flex justify-between font-mono text-[10px] uppercase tracking-[0.4em] text-black/40 font-bold">
+                      <span>Selection Total</span>
+                      <span class="text-black">₹{{ total|default:'0'|floatformat:0 }}</span>
+                    </div>
+                    <div class="flex justify-between font-mono text-[10px] uppercase tracking-[0.4em] text-black/40 font-bold">
+                      <span>Expedited Delivery</span>
+                      <span class="text-emerald-700 italic border-b border-emerald-700/20">COMPLIMENTARY</span>
+                    </div>
+                  </div>
+
+                  <!-- The Total -->
+                  <div class="pt-16 mt-16 border-t border-black/10 flex flex-col items-end">
+                    <span class="font-mono text-[9px] uppercase tracking-[0.6em] text-black/30 font-bold italic mb-6">Manifest Final Total</span>
+                    <div class="flex items-start gap-2">
+                       <span class="font-mono text-2xl font-bold text-black mt-2">₹</span>
+                       <span class="font-serif text-[84px] md:text-[100px] font-bold text-black leading-[0.8] tracking-tighter">{{ total|default:'0'|floatformat:0 }}</span>
+                    </div>
+                    <p class="font-newsreader text-[11px] text-black/30 italic mt-8 text-right max-w-[200px]">Applicable taxes included at high-performance rates.</p>
+                  </div>
+                </div>
+             </div>
+          </div>
         </form>
       </div>
-    </div>
+    </section>
 
-    <!-- Order Summary -->
-    <div>
-      <div class="card" style="background: var(--surface-2); border: 2px solid var(--border-color);">
-        <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1.5rem;">Order Summary</h2>
+    <!-- Geographic Auto-Complete Engine (Free OpenStreetMap) -->
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        let timeout = null;
+        
+        const setupAutocomplete = (inputId, listId) => {
+            const input = document.getElementById(inputId);
+            const list = document.getElementById(listId);
+            if (!input || !list) return;
 
-        <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.5rem;">
-          {% for item in cart_items %}
-          <div
-            style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem;">
-            <div>
-              <span style="font-weight: 600;">{{ item.product.name }}</span>
-              <span style="color: var(--text-muted); font-size: 0.9rem;"> × {{ item.quantity }}</span>
-            </div>
-            <span>₹{{ item.quantity|multiply:item.product.price }}</span>
-          </div>
-          {% endfor %}
-        </div>
+            input.addEventListener('input', (e) => {
+                clearTimeout(timeout);
+                const query = e.target.value;
+                if (query.length < 3) {
+                    list.classList.add('hidden');
+                    return;
+                }
+                
+                timeout = setTimeout(async () => {
+                    try {
+                        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&q=${encodeURIComponent(query)}&limit=5`, {
+                            headers: { 'Accept-Language': 'en-US,en;q=0.9' }
+                        });
+                        const data = await res.json();
+                        
+                        list.innerHTML = '';
+                        if (data.length > 0) {
+                            list.classList.remove('hidden');
+                            data.forEach(place => {
+                                const li = document.createElement('li');
+                                li.className = 'px-5 py-4 hover:bg-slate-50 cursor-pointer border-b border-black/5 text-[13px] transition-colors text-slate-700 font-sans leading-relaxed';
+                                
+                                const mainName = place.name || place.display_name.split(',')[0];
+                                const subName = place.display_name.replace(mainName, '').replace(/^,\s*/, '');
+                                li.innerHTML = `<span class="font-bold text-black block">${mainName}</span><span class="text-[10px] text-slate-400 mt-1 block">${subName}</span>`;
+                                
+                                li.addEventListener('click', () => {
+                                    input.value = mainName;
+                                    
+                                    if (place.address) {
+                                        const city = place.address.city || place.address.town || place.address.village || place.address.state_district || '';
+                                        const postcode = place.address.postcode || '';
+                                        
+                                        if (document.getElementById('id_city') && city) document.getElementById('id_city').value = city;
+                                        // Note: checkout uses id_postal_code instead of id_pincode
+                                        if (document.getElementById('id_postal_code') && postcode) document.getElementById('id_postal_code').value = postcode;
+                                    }
+                                    list.classList.add('hidden');
+                                });
+                                list.appendChild(li);
+                            });
+                        } else {
+                            list.classList.add('hidden');
+                        }
+                    } catch (err) {
+                        console.error("OSM Nominatim error:", err);
+                    }
+                }, 800); 
+            });
 
-        <div
-          style="display: flex; justify-content: space-between; border-top: 2px solid var(--border-color); padding-top: 1rem; font-weight: 800; font-size: 1.25rem;">
-          <span>Total</span>
-          <span style="color: var(--primary);">₹{{ total }}</span>
-        </div>
-      </div>
+            document.addEventListener('click', (e) => {
+                if (!input.contains(e.target) && !list.contains(e.target)) {
+                    list.classList.add('hidden');
+                }
+            });
+        };
 
-      <div style="margin-top: 2rem; color: var(--text-muted); font-size: 0.9rem;">
-        <p>Your personal data will be used to process your order, support your experience throughout this website, and
-          for other purposes described in our privacy policy.</p>
-      </div>
-    </div>
-
-  </div>
-</div>
-
-<!-- Form Field Styling Hacker -->
-<script>
-  // Helper to add classes to Django rendered form fields without rewriting the form class
-  document.querySelectorAll('input, select, textarea').forEach(el => {
-    el.classList.add('form-control');
-    el.style.marginBottom = '0.5rem';
-  });
-</script>
+        setupAutocomplete('id_address', 'address_suggestions_list');
+    });
+    </script>
 {% endblock %}

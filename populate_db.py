@@ -36,40 +36,50 @@ def populate():
     # 2. Create Products
     products_data = [
         # Electronics
-        {"name": "Smartphone X", "cat": "Electronics", "price": 699.00},
-        {"name": "4K Ultra HD TV", "cat": "Electronics", "price": 450.00},
-        {"name": "Wireless Noise Cancelling Headphones", "cat": "Electronics", "price": 199.99},
+        {"name": "Apple iPhone 15 Pro", "cat": "Electronics", "price": 134900.00, "rating": 4.9, "reviews": 1280},
+        {"name": "Samsung Galaxy S24 Ultra", "cat": "Electronics", "price": 129999.00, "rating": 4.8, "reviews": 950},
+        {"name": "OnePlus 12 5G", "cat": "Electronics", "price": 64999.00, "rating": 4.6, "reviews": 420},
+        {"name": "Sony WH-1000XM5 Wireless", "cat": "Electronics", "price": 29990.00, "rating": 4.9, "reviews": 2100},
+        {"name": "MacBook Air M2", "cat": "Electronics", "price": 99900.00, "rating": 4.7, "reviews": 1500},
         
         # Fashion
-        {"name": "Men's Denim Jacket", "cat": "Fashion", "price": 49.99},
-        {"name": "Summer Floral Dress", "cat": "Fashion", "price": 35.50},
-        {"name": "Classic Leather Sneakers", "cat": "Fashion", "price": 89.00},
+        {"name": "Premium Linen Tailored Shirt", "cat": "Fashion", "price": 2499.00, "rating": 4.4, "reviews": 320},
+        {"name": "Banarasi Silk Designer Saree", "cat": "Fashion", "price": 15999.00, "rating": 4.8, "reviews": 85},
+        {"name": "Italian Leather Laptop Bag", "cat": "Fashion", "price": 4499.00, "rating": 4.5, "reviews": 110},
+        {"name": "Classic Aviator Sunglasses", "cat": "Fashion", "price": 1299.00, "rating": 4.2, "reviews": 560},
         
-        # Home
-        {"name": "Modern Coffee Table", "cat": "Home & Living", "price": 120.00},
-        {"name": "Ceramic Plant Pot Set", "cat": "Home & Living", "price": 25.00},
+        # Home & Living
+        {"name": "Minimalist Coffee Table Pro", "cat": "Home & Living", "price": 8999.00, "rating": 4.3, "reviews": 140},
+        {"name": "Royal Velvet Cushion Set", "cat": "Home & Living", "price": 1899.00, "rating": 4.7, "reviews": 90},
+        {"name": "Ergonomic Mesh Office Chair", "cat": "Home & Living", "price": 12500.00, "rating": 4.5, "reviews": 280},
+        
+        # Books
+        {"name": "Atomic Habits - Hardcover", "cat": "Books", "price": 799.00, "rating": 4.9, "reviews": 15000},
+        {"name": "The Psychology of Money", "cat": "Books", "price": 399.00, "rating": 4.8, "reviews": 8900},
         
         # Sports
-        {"name": "Yoga Mat Premium", "cat": "Sports", "price": 20.00},
-        {"name": "Resistance Bands Set", "cat": "Sports", "price": 15.00},
+        {"name": "Smart Fitness Watch Ultra", "cat": "Sports", "price": 2499.00, "rating": 4.1, "reviews": 3400},
+        {"name": "Pro Yoga Mat Thick", "cat": "Sports", "price": 1499.00, "rating": 4.6, "reviews": 1200},
     ]
 
     for p in products_data:
-        prod, created = Product.objects.get_or_create(
-            name=p["name"],
+        prod, created = Product.objects.update_or_create(
+            slug=slugify(p["name"]),
             defaults={
-                "slug": slugify(p["name"]),
+                "name": p["name"],
                 "category": cat_objs[p["cat"]],
-                "description": f"This is a high-quality {p['name']} from our {p['cat']} collection.",
+                "description": f"Experience the pinnacle of {p['cat']} with the {p['name']}. Meticulously crafted for the discerning Indian consumer, this object defines modern excellence.",
                 "price": p["price"],
-                "stock": random.randint(5, 50),
+                "rating": p.get("rating", 4.5),
+                "reviews_count": p.get("reviews", 120),
+                "stock": random.randint(10, 100),
                 "available": True
             }
         )
         if created:
             print(f"Created Product: {p['name']}")
         else:
-            print(f"Product already exists: {p['name']}")
+            print(f"Updated Product: {p['name']}")
 
     print("Database population completed successfully!")
 

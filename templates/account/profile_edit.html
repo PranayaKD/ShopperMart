@@ -1,98 +1,214 @@
 {% extends "base.html" %}
-{% load widget_tweaks %}
+{% load static %}
 
 {% block title %}Edit Profile | ShopperMart{% endblock %}
 
 {% block content %}
-<div class="container py-4">
-  <div style="max-width: 800px; margin: 0 auto;">
-    <h1 style="font-size: 2rem; font-weight: 800; margin-bottom: 2rem;">Edit Profile</h1>
+    <section class="max-w-5xl mx-auto px-6 pt-24 pb-16 min-h-[85vh]">
+       <header class="mb-10 text-center">
+         <h1 class="font-serif text-3xl md:text-4xl font-bold tracking-tight text-black">Edit Profile</h1>
+         <p class="font-mono text-[10px] tracking-widest uppercase text-slate-500 mt-3">Update your account settings</p>
+       </header>
 
-    <div class="card">
-      <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
+       <form method="POST" action="{% url 'profile_edit' %}" enctype="multipart/form-data" class="bg-white rounded-[3rem] p-8 md:p-14 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-black/5">
+          {% csrf_token %}
+          
+          {% if uform.errors or pform.errors %}
+          <div class="bg-red-50 border border-red-100 p-4 rounded-xl mb-8">
+             <p class="font-mono text-[10px] uppercase tracking-widest text-red-600 font-bold mb-2">Please correct the following errors:</p>
+             <ul class="font-sans text-xs text-red-500 space-y-1">
+                {% for field, errors in uform.errors.items %}<li>{{ field|title }}: {{ errors|striptags }}</li>{% endfor %}
+                {% for field, errors in pform.errors.items %}<li>{{ field|title }}: {{ errors|striptags }}</li>{% endfor %}
+             </ul>
+          </div>
+          {% endif %}
 
-        <h4
-          style="margin-bottom: 1rem; color: var(--primary); border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
-          Account Info</h4>
-        <div class="form-grid mb-4" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-          <div>
-            <label class="form-label">{{ uform.username.label }}</label>
-            {% render_field uform.username class="form-control" %}
-          </div>
-          <div>
-            <label class="form-label">{{ uform.email.label }}</label>
-            {% render_field uform.email class="form-control" %}
-          </div>
-        </div>
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+             
+             <!-- LEFT COL: Identity & Avatar -->
+             <div class="lg:col-span-5 flex flex-col gap-8">
+                <!-- Avatar Section -->
+                <div class="flex items-center gap-6 p-6 bg-slate-50/50 rounded-[2rem] border border-black/5">
+                   <div class="w-20 h-20 shrink-0 rounded-full bg-slate-100 flex items-center justify-center font-serif text-3xl border-4 border-white shadow-md overflow-hidden text-black ring-1 ring-black/5">
+                     {% if pform.instance.avatar %}
+                     <img src="{{ pform.instance.avatar.url }}" class="w-full h-full object-cover">
+                     {% else %}
+                     {{ user.username|first|upper }}
+                     {% endif %}
+                   </div>
+                   <div class="flex-grow">
+                     <label class="font-mono text-[8px] uppercase tracking-widest text-slate-400 font-bold block mb-2">Profile Image</label>
+                     <input type="file" name="avatar" id="id_avatar" class="block w-full text-xs text-slate-500 file:mr-4 file:py-1.5 file:px-4 file:rounded-full file:border-0 file:text-[9px] file:font-semibold file:uppercase file:bg-black file:text-white file:cursor-pointer hover:file:opacity-90">
+                   </div>
+                </div>
 
-        <h4
-          style="margin-bottom: 1rem; color: var(--primary); border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
-          Personal Details</h4>
-        <div class="form-grid mb-4" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-          <div style="grid-column: 1 / -1;">
-            <label class="form-label">{{ pform.full_name.label }}</label>
-            {% render_field pform.full_name class="form-control" %}
-          </div>
-          <div>
-            <label class="form-label">{{ pform.phone.label }}</label>
-            {% render_field pform.phone class="form-control" %}
-          </div>
-          <div>
-            <label class="form-label">{{ pform.avatar.label }}</label>
-            {% render_field pform.avatar class="form-control" style="padding: 0.4rem;" %}
-          </div>
-        </div>
+                <!-- Identity Fields -->
+                <div class="space-y-4">
+                   <h2 class="font-serif text-lg font-bold text-black border-b border-black/5 pb-2 mb-4">Identity</h2>
+                   
+                   <div>
+                     <label class="block font-mono text-[9px] uppercase tracking-widest text-slate-500 mb-2 px-2" for="id_username">Username *</label>
+                     <input class="w-full bg-slate-50 border border-slate-200 rounded-full px-6 py-4 text-sm focus:border-black focus:ring-0 transition-colors" 
+                            id="id_username" name="username" type="text" required value="{{ uform.username.value|default:'' }}"/>
+                   </div>
+                   
+                   <div>
+                     <label class="block font-mono text-[9px] uppercase tracking-widest text-slate-500 mb-2 px-2" for="id_email">Email Address *</label>
+                     <input class="w-full bg-slate-50 border border-slate-200 rounded-full px-6 py-4 text-sm focus:border-black focus:ring-0 transition-colors" 
+                            id="id_email" name="email" type="email" required value="{{ uform.email.value|default:'' }}"/>
+                   </div>
 
-        <h4
-          style="margin-bottom: 1rem; color: var(--primary); border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
-          Address</h4>
-        <div class="form-grid mb-4" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-          <div style="grid-column: 1 / -1;">
-            <label class="form-label">{{ pform.address_line1.label }}</label>
-            {% render_field pform.address_line1 class="form-control" %}
-          </div>
-          <div style="grid-column: 1 / -1;">
-            <label class="form-label">{{ pform.address_line2.label }}</label>
-            {% render_field pform.address_line2 class="form-control" %}
+                   <div>
+                     <label class="block font-mono text-[9px] uppercase tracking-widest text-slate-500 mb-2 px-2" for="id_full_name">Full Name</label>
+                     <input class="w-full bg-slate-50 border border-slate-200 rounded-full px-6 py-4 text-sm focus:border-black focus:ring-0 transition-colors" 
+                            id="id_full_name" name="full_name" type="text" value="{{ pform.full_name.value|default:'' }}"/>
+                   </div>
+
+                   <div>
+                     <label class="block font-mono text-[9px] uppercase tracking-widest text-slate-500 mb-2 px-2" for="id_phone">Phone Number</label>
+                     <input class="w-full bg-slate-50 border border-slate-200 rounded-full px-6 py-4 text-sm focus:border-black focus:ring-0 transition-colors" 
+                            id="id_phone" name="phone" type="text" value="{{ pform.phone.value|default:'' }}"/>
+                   </div>
+                </div>
+             </div>
+
+             <!-- RIGHT COL: Delivery & Bio -->
+             <div class="lg:col-span-7 flex flex-col gap-8">
+                <!-- Delivery Details -->
+                <div class="space-y-4">
+                   <h2 class="font-serif text-lg font-bold text-black border-b border-black/5 pb-2 mb-4">Delivery Details</h2>
+                   
+                   <div class="relative">
+                     <label class="block font-mono text-[9px] uppercase tracking-widest text-slate-500 mb-2 px-2" for="id_address_line1">Street Address</label>
+                     <input class="w-full bg-slate-50 border border-slate-200 rounded-full px-6 py-4 text-sm focus:border-black focus:ring-0 transition-colors address-autocomplete-input" 
+                            id="id_address_line1" name="address_line1" type="text" autocomplete="off" placeholder="Start typing your address..." value="{{ pform.address_line1.value|default:'' }}"/>
+                     <ul id="address_line1_suggestions_list" class="absolute z-50 left-0 right-0 top-full mt-2 bg-white rounded-[1.5rem] shadow-2xl border border-black/5 overflow-hidden hidden max-h-60 overflow-y-auto w-full"></ul>
+                   </div>
+
+                   <div class="relative">
+                     <label class="block font-mono text-[9px] uppercase tracking-widest text-slate-500 mb-2 px-2" for="id_landmark">Landmark</label>
+                     <input class="w-full bg-slate-50 border border-slate-200 rounded-full px-6 py-4 text-sm focus:border-black focus:ring-0 transition-colors address-autocomplete-input" 
+                            id="id_landmark" name="landmark" type="text" autocomplete="off" placeholder="Near a famous building, park, etc." value="{{ pform.landmark.value|default:'' }}"/>
+                     <ul id="landmark_suggestions_list" class="absolute z-50 left-0 right-0 top-full mt-2 bg-white rounded-[1.5rem] shadow-2xl border border-black/5 overflow-hidden hidden max-h-60 overflow-y-auto w-full"></ul>
+                   </div>
+
+                   <div class="grid grid-cols-6 gap-4">
+                     <div class="col-span-6 sm:col-span-3">
+                        <label class="block font-mono text-[9px] uppercase tracking-widest text-slate-500 mb-2 px-2" for="id_city">City</label>
+                        <input class="w-full bg-slate-50 border border-slate-200 rounded-full px-6 py-4 text-sm focus:border-black focus:ring-0 transition-colors" 
+                               id="id_city" name="city" type="text" value="{{ pform.city.value|default:'' }}"/>
+                     </div>
+                     <div class="col-span-3 sm:col-span-2">
+                        <label class="block font-mono text-[9px] uppercase tracking-widest text-slate-500 mb-2 px-2" for="id_state">State</label>
+                        <input class="w-full bg-slate-50 border border-slate-200 rounded-full px-6 py-4 text-sm focus:border-black focus:ring-0 transition-colors" 
+                               id="id_state" name="state" type="text" value="{{ pform.state.value|default:'' }}"/>
+                     </div>
+                     <div class="col-span-3 sm:col-span-1">
+                        <label class="block font-mono text-[9px] uppercase tracking-widest text-slate-500 mb-2 px-2" for="id_pincode">Pincode</label>
+                        <input class="w-full bg-slate-50 border border-slate-200 rounded-full px-6 py-4 text-sm focus:border-black focus:ring-0 transition-colors" 
+                               id="id_pincode" name="pincode" type="text" value="{{ pform.pincode.value|default:'' }}"/>
+                     </div>
+                   </div>
+                </div>
+
+                <!-- Bio / About -->
+                <div class="space-y-4">
+                   <h2 class="font-serif text-lg font-bold text-black border-b border-black/5 pb-2 mb-4">About You</h2>
+                   <div>
+                     <label class="block font-mono text-[9px] uppercase tracking-widest text-slate-500 mb-2 px-2" for="id_bio">Biography</label>
+                     <textarea class="w-full bg-slate-50 border border-slate-200 rounded-[2rem] px-6 py-5 text-sm focus:border-black focus:ring-0 transition-colors resize-y h-32" 
+                               id="id_bio" name="bio">{{ pform.bio.value|default:'' }}</textarea>
+                   </div>
+                </div>
+             </div>
           </div>
 
-          <div>
-            <label class="form-label">{{ pform.city.label }}</label>
-            {% render_field pform.city class="form-control" %}
+          <div class="mt-10 pt-6 border-t border-black/5 flex flex-col-reverse sm:flex-row items-center justify-end gap-6">
+             <a href="{% url 'profile' %}" class="text-[10px] font-mono uppercase tracking-[0.2em] font-bold text-slate-400 hover:text-black transition-colors">
+               Cancel
+             </a>
+             <button type="submit" class="w-full sm:w-auto bg-black text-white px-10 py-5 rounded-full font-bold tracking-[0.3em] text-[11px] uppercase hover:bg-zinc-800 transition-colors active:scale-95 shadow-md">
+               Save Changes
+             </button>
           </div>
-          <div>
-            <label class="form-label">{{ pform.state.label }}</label>
-            {% render_field pform.state class="form-control" %}
-          </div>
-          <div>
-            <label class="form-label">{{ pform.pincode.label }}</label>
-            {% render_field pform.pincode class="form-control" %}
-          </div>
-        </div>
 
-        <div style="display: flex; gap: 1rem; margin-top: 2rem;">
-          <button type="submit" class="btn btn-primary w-100">Save Changes</button>
-          <a href="{% url 'profile' %}" class="btn btn-outline">Cancel</a>
-        </div>
+       </form>
+    </section>
 
-      </form>
-    </div>
-  </div>
-</div>
+    <!-- Geographic Auto-Complete Engine (Free OpenStreetMap) -->
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        let timeout = null;
+        
+        const setupAutocomplete = (inputId, listId) => {
+            const input = document.getElementById(inputId);
+            const list = document.getElementById(listId);
+            if (!input || !list) return;
 
-<style>
-  .form-label {
-    font-weight: 500;
-    font-size: 0.9rem;
-    margin-bottom: 0.25rem;
-    display: block;
-  }
+            input.addEventListener('input', (e) => {
+                clearTimeout(timeout);
+                const query = e.target.value;
+                if (query.length < 3) {
+                    list.classList.add('hidden');
+                    return;
+                }
+                
+                // Debounce to respect Nominatim's 1 request/sec rate limit
+                timeout = setTimeout(async () => {
+                    try {
+                        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&q=${encodeURIComponent(query)}&limit=5`, {
+                            headers: { 'Accept-Language': 'en-US,en;q=0.9' }
+                        });
+                        const data = await res.json();
+                        
+                        list.innerHTML = '';
+                        if (data.length > 0) {
+                            list.classList.remove('hidden');
+                            data.forEach(place => {
+                                const li = document.createElement('li');
+                                li.className = 'px-5 py-4 hover:bg-slate-50 cursor-pointer border-b border-black/5 text-[13px] transition-colors text-slate-700 font-sans leading-relaxed';
+                                
+                                // Bold the main name
+                                const mainName = place.name || place.display_name.split(',')[0];
+                                const subName = place.display_name.replace(mainName, '').replace(/^,\s*/, '');
+                                li.innerHTML = `<span class="font-bold text-black block">${mainName}</span><span class="text-[10px] text-slate-400 mt-1 block">${subName}</span>`;
+                                
+                                li.addEventListener('click', () => {
+                                    input.value = mainName;
+                                    
+                                    // Algorithmic Auto-Fill parsing
+                                    if (place.address) {
+                                        const city = place.address.city || place.address.town || place.address.village || place.address.state_district || '';
+                                        const state = place.address.state || '';
+                                        const postcode = place.address.postcode || '';
+                                        
+                                        if (document.getElementById('id_city') && city) document.getElementById('id_city').value = city;
+                                        if (document.getElementById('id_state') && state) document.getElementById('id_state').value = state;
+                                        if (document.getElementById('id_pincode') && postcode) document.getElementById('id_pincode').value = postcode;
+                                    }
+                                    list.classList.add('hidden');
+                                });
+                                list.appendChild(li);
+                            });
+                        } else {
+                            list.classList.add('hidden');
+                        }
+                    } catch (err) {
+                        console.error("OSM Nominatim error:", err);
+                    }
+                }, 800); 
+            });
 
-  @media(max-width: 600px) {
-    .form-grid {
-      grid-template-columns: 1fr !important;
-    }
-  }
-</style>
+            // Auto-collapse when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!input.contains(e.target) && !list.contains(e.target)) {
+                    list.classList.add('hidden');
+                }
+            });
+        };
+
+        setupAutocomplete('id_address_line1', 'address_line1_suggestions_list');
+        setupAutocomplete('id_landmark', 'landmark_suggestions_list');
+    });
+    </script>
 {% endblock %}

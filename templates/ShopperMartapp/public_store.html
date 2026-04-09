@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}ShopperMart | The Store - High Performance Catalog{% endblock %}
+
+{% block content %}
+<section class="pt-44 pb-24 px-8 md:px-24 bg-background min-h-screen">
+    <div class="flex flex-col md:flex-row gap-16">
+        
+        <!-- SIDEBAR FILTERS -->
+        <aside class="w-full md:w-64 shrink-0">
+            <div class="sticky top-44 space-y-12">
+                <div>
+                    <span class="font-mono text-[10px] tracking-[.3em] text-on-surface-variant uppercase mb-6 block font-bold opacity-40">Categories</span>
+                    <div class="flex flex-col gap-4">
+                        <a href="{% url 'public_store' %}" class="font-serif text-xl {% if not selected_category %}italic font-bold underline decoration-primary/20{% else %}text-on-surface-variant opacity-60 hover:opacity-100{% endif %}">All Objects</a>
+                        {% for cat in categories %}
+                        <a href="?category={{ cat.slug }}" class="font-serif text-xl {% if selected_category == cat.slug %}italic font-bold underline decoration-primary/20{% else %}text-on-surface-variant opacity-60 hover:opacity-100{% endif %}">
+                            {{ cat.name }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <form method="GET" action="{% url 'public_store' %}" class="space-y-8">
+                    {% if selected_category %}<input type="hidden" name="category" value="{{ selected_category }}">{% endif %}
+                    {% if query %}<input type="hidden" name="q" value="{{ query }}">{% endif %}
+                    
+                    <div>
+                        <span class="font-mono text-[10px] tracking-[.3em] text-on-surface-variant uppercase mb-6 block font-bold opacity-40">Price Range</span>
+                        <div class="grid grid-cols-2 gap-4">
+                            <input type="number" name="min_price" value="{{ min_price }}" placeholder="Min" class="bg-surface-container-low border-0 rounded-xl px-4 py-3 text-xs font-mono outline-none focus:ring-1 focus:ring-black/10">
+                            <input type="number" name="max_price" value="{{ max_price }}" placeholder="Max" class="bg-surface-container-low border-0 rounded-xl px-4 py-3 text-xs font-mono outline-none focus:ring-1 focus:ring-black/10">
+                        </div>
+                    </div>
+
+                    <div>
+                        <span class="font-mono text-[10px] tracking-[.3em] text-on-surface-variant uppercase mb-6 block font-bold opacity-40">Sort By</span>
+                        <select name="sort" onchange="this.form.submit()" class="w-full bg-surface-container-low border-0 rounded-xl px-4 py-3 text-xs font-mono outline-none focus:ring-1 focus:ring-black/10 appearance-none">
+                            <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Recently Added</option>
+                            <option value="price_asc" {% if sort == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
+                            <option value="price_desc" {% if sort == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
+                            <option value="rating" {% if sort == 'rating' %}selected{% endif %}>Top Rated</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="w-full bg-black text-white py-4 rounded-xl font-mono text-[10px] tracking-widest uppercase font-bold hover:bg-zinc-800 transition-all">Apply Filter</button>
+                    <a href="{% url 'public_store' %}" class="block text-center font-mono text-[9px] uppercase tracking-widest text-black/40 hover:text-black">Reset All</a>
+                </form>
+            </div>
+        </aside>
+
+        <!-- PRODUCT GRID -->
+        <div class="flex-grow">
+            <div class="mb-16">
+                <span class="font-mono text-[10px] tracking-[.3em] text-on-surface-variant uppercase mb-4 block font-bold">Catalog</span>
+                <h2 class="font-serif text-5xl md:text-7xl font-bold tracking-tighter italic lowercase">
+                    {% if selected_category %}{{ selected_category }}{% elif query %}Search: {{ query }}{% else %}The collection.{% endif %}
+                </h2>
+                <p class="font-mono text-[10px] text-on-surface-variant mt-6 uppercase tracking-widest font-bold opacity-40">{{ products|length }} objects currently available</p>
+            </div>
+
+            {% if products %}
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-24">
+                {% for product in products %}
+                <div class="group">
+                    <div class="aspect-square bg-white mb-8 overflow-hidden relative border border-black/5 rounded-2xl group-hover:border-primary/20 group-hover:shadow-lg transition-all duration-500">
+                        <a href="{% url 'product_detail' product.slug %}" class="block w-full h-full">
+                            {% if product.image %}
+                            <img src="{{ product.image.url }}" class="w-full h-full object-contain p-6 group-hover:scale-105 transition-transform duration-1000"/>
+                            {% else %}
+                            <div class="w-full h-full flex items-center justify-center font-serif text-surface-container text-4xl italic">Object</div>
+                            {% endif %}
+                        </a>
+                        <!-- Add to Cart: Always Visible Fix -->
+                        <form method="POST" action="{% url 'add_to_cart' product.id %}" class="js-require-auth absolute bottom-6 right-6 z-20 transition-all duration-500">
+                            {% csrf_token %}
+                            <input type="hidden" name="quantity" value="1">
+                            <button type="submit" class="bg-primary text-white w-14 h-14 flex items-center justify-center hover:bg-primary-container transition-all shadow-2xl rounded-full active:scale-95">
+                                <span class="material-symbols-outlined text-sm">shopping_bag</span>
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <div class="space-y-2 px-1">
+                        <p class="font-mono text-[10px] uppercase text-on-surface-variant tracking-[0.3em] font-bold">{{ product.category.name }}</p>
+                        <h4 class="font-sans text-[16px] font-semibold text-on-background tracking-tight uppercase leading-snug">{{ product.name }}</h4>
+                        
+                        <div class="flex items-center gap-2 pt-1 border-t border-primary/5 mt-4">
+                            <div class="flex items-center gap-1">
+                                <span class="material-symbols-outlined text-primary text-[14px] fill-current">star</span>
+                                <span class="font-mono text-[12px] font-bold text-on-background">{{ product.rating }}</span>
+                            </div>
+                            <!-- Verified terminology consistent with user request -->
+                            <span class="font-mono text-[10px] text-on-surface-variant italic opacity-60">({{ product.reviews_count }} verified)</span>
+                        </div>
+                        
+                        <p class="font-mono text-lg pt-3 font-bold text-primary italic">₹{{ product.price }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="py-32 flex flex-col items-center justify-center text-center opacity-40">
+                <span class="material-symbols-outlined text-6xl mb-8">inventory_2</span>
+                <h3 class="font-serif text-3xl italic">No matches found.</h3>
+                <p class="font-sans text-sm mt-4 italic">Adjust your filters or try a different search term.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}

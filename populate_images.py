@@ -26,8 +26,8 @@ def populate_images():
             # If default is missing, we can't do much, but we proceed
             
     # Keywords for categorization
-    FASHION_KEYWORDS = ["shirt", "dress", "jacket", "hoodie", "jeans", "t-shirt", "kurta", "saree"]
-    TECH_KEYWORDS = ["mixer", "grinder", "kettle", "iron", "phone", "mobile", "laptop", "watch", "speaker", "earphone", "headphone", "t.v", "tv", "macbook", "iphone", "sony", "samsung"]
+    FASHION_KEYWORDS = ["shirt", "dress", "jacket", "hoodie", "jeans", "t-shirt", "kurta", "saree", "bag", "sunglasses"]
+    TECH_KEYWORDS = ["mixer", "grinder", "kettle", "iron", "phone", "mobile", "laptop", "watch", "speaker", "earphone", "headphone", "t.v", "tv", "macbook", "iphone", "sony", "samsung", "oneplus"]
     
     products = Product.objects.all()
     print(f"Processing {products.count()} products...")

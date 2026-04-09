@@ -1,109 +1,580 @@
-<!DOCTYPE html>
 {% load static %}
-<html lang="en" data-theme="light">
-
+<!DOCTYPE html>
+<html class="light" lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>{% block title %}ShopperMart{% endblock %}</title>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  
+  <!-- SEO INFRASTRUCTURE -->
+  <title>{% block title %}ShopperMart | High-Performance E-commerce{% endblock %}</title>
+  <meta name="description" content="{% block meta_description %}A high-performance digital boutique specializing in the essential modern wardrobe. Crafted for those who define style on their own terms.{% endblock %}">
+  <meta name="keywords" content="{% block meta_keywords %}e-commerce, fashion, boutique, high-performance, modern wardrobe, ShopperMart{% endblock %}">
+  
+  <!-- OpenGraph / Social SEO -->
+  <meta property="og:title" content="ShopperMart | Modern E-commerce">
+  <meta property="og:description" content="Crafted for the high-performance modern wardrobe.">
+  <meta property="og:type" content="website">
+  <meta name="robots" content="index, follow">
+  
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,700;0,800;1,400;1,700&family=Newsreader:ital,wght@0,400;0,700;1,400;1,600&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script id="tailwind-config">
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            "on-tertiary-fixed": "#271902",
+            "surface-container": "#eeeeec",
+            "on-primary-container": "#7c839b",
+            "on-surface-variant": "#45464d",
+            "inverse-primary": "#bec6e0",
+            "surface-variant": "#e2e3e1",
+            "secondary-fixed-dim": "#bec5e5",
+            "on-tertiary-container": "#97805e",
+            "surface-container-highest": "#e2e3e1",
+            "inverse-on-surface": "#f1f1ef",
+            "secondary-fixed": "#dbe1ff",
+            "outline": "#76777d",
+            "on-error-container": "#93000a",
+            "inverse-surface": "#2f3130",
+            "secondary": "#565e79",
+            "tertiary-container": "#271902",
+            "on-tertiary": "#ffffff",
+            "primary-container": "#131b2e",
+            "primary-fixed-dim": "#bec6e0",
+            "on-surface": "#1a1c1b",
+            "on-primary": "#ffffff",
+            "on-secondary-container": "#5a627d",
+            "on-secondary-fixed": "#121b32",
+            "surface-bright": "#f9f9f7",
+            "on-secondary-fixed-variant": "#3e4660",
+            "surface-container-low": "#f4f4f2",
+            "tertiary-fixed-dim": "#dec39c",
+            "secondary-container": "#d7dfff",
+            "primary": "#000000",
+            "on-error": "#ffffff",
+            "on-primary-fixed": "#131b2e",
+            "on-secondary": "#ffffff",
+            "surface-container-lowest": "#ffffff",
+            "on-background": "#1a1c1b",
+            "error-container": "#ffdad6",
+            "on-primary-fixed-variant": "#3f465b",
+            "on-tertiary-fixed-variant": "#564426",
+            "error": "#ba1a1a",
+            "outline-variant": "#c6c6cd",
+            "surface-dim": "#dadad8",
+            "background": "#f9f9f7",
+            "surface-tint": "#565e74",
+            "primary-fixed": "#dae2fc",
+            "surface-container-high": "#e8e8e6",
+            "tertiary": "#000000",
+            "surface": "#f9f9f7",
+            "tertiary-fixed": "#fbdeb6"
+          },
+          borderRadius: {
+            "DEFAULT": "0px",
+            "lg": "0px",
+            "xl": "0px",
+            "full": "9999px"
+          },
+          fontFamily: {
+            "serif": ["Playfair Display", "serif"],
+            "newsreader": ["Newsreader", "serif"],
+            "sans": ["Inter", "sans-serif"],
+            "mono": ["JetBrains Mono", "monospace"],
+            "label": ["Space Grotesk", "sans-serif"],
+            "headline": ["Newsreader", "serif"]
+          }
+        }
+      }
+    }
+  </script>
 
-  <!-- Modern CSS -->
-  <link rel="stylesheet" href="{% static 'css/modern.css' %}">
+  <style>
+    body { background-color: #ffffff; scroll-behavior: smooth; overflow-x: hidden; }
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
+    
+    /* ENHANCED GLASSMORPHISM NAV */
+    .capsule-nav {
+      background: rgba(255, 255, 255, 0.3);
+      backdrop-filter: blur(28px) saturate(180%);
+      -webkit-backdrop-filter: blur(28px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.05);
+      transition: all 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+    }
+    .capsule-nav.scrolled {
+       background: rgba(255, 255, 255, 0.85);
+       transform: scale(0.98);
+       box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+       border: 1px solid rgba(255, 255, 255, 0.7);
+    }
+    
+    /* SIDEBAR STYLES */
+    #sidebar-drawer {
+      transform: translateX(-100%);
+      transition: transform 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+      box-shadow: 40px 0 100px rgba(0,0,0,0.1);
+    }
+    #sidebar-drawer.open {
+      transform: translateX(0);
+    }
+    .sidebar-trigger-zone {
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 30px;
+      z-index: 90;
+    }
+    
+    /* CUSTOM SCROLLBAR */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: #d1d5db; }
+    
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+
+    /* BONEYARD SHIMMER EFFECT */
+    .boneyard-theme-shimmer {
+      background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.2) 20%, rgba(255,255,255,0.5) 60%, rgba(255,255,255,0) 100%);
+      background-size: 200% 100%;
+      animation: boneyardShimmer 2s infinite linear;
+    }
+    @keyframes boneyardShimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* LOGIN MODAL STYLES */
+    #auth-modal {
+      backdrop-filter: blur(20px);
+      transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+    }
+    #auth-modal.hidden {
+      display: none;
+      opacity: 0;
+      pointer-events: none;
+    }
+    #auth-modal.flex {
+      display: flex;
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .modal-content {
+      transform: scale(0.95);
+      transition: transform 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+    }
+    #auth-modal.flex .modal-content {
+      transform: scale(1);
+    }
+  </style>
+  {% block extra_head %}{% endblock %}
 </head>
 
-<body>
-  <!-- Navbar -->
-  <nav class="navbar">
-    <div class="container navbar-content">
-      <a class="nav-brand" href="{% url 'home' %}">🛒 ShopperMart</a>
+<body class="font-sans text-primary antialiased selection:bg-black selection:text-white">
 
-      <button class="mobile-toggle" id="mobileToggle" aria-label="Toggle Menu">
-        ☰
-      </button>
+  <!-- SIDEBAR TRIGGER ZONE (HOVER TO OPEN) -->
+  <div class="sidebar-trigger-zone" id="hover-trigger"></div>
 
-      <div class="nav-links" id="navLinks">
-        <a class="nav-link" href="{% url 'home' %}">Store</a>
-        <a class="nav-link" href="{% url 'cart' %}">Cart</a>
-        <a class="nav-link" href="{% url 'checkout' %}">Checkout</a>
-        {% if user.is_authenticated %}
-        <a class="nav-link" href="{% url 'my_orders' %}">Orders</a>
-        {% endif %}
-      </div>
+  <!-- SIDEBAR DRAWER (EDITORIAL THEME) -->
+  <aside id="sidebar-drawer" class="fixed left-0 top-0 bottom-0 w-[85vw] md:w-[400px] bg-black text-white z-[120] flex flex-col p-12 md:p-20 overflow-y-auto no-scrollbar shadow-[20px_0_100px_rgba(0,0,0,0.5)]">
+    <div class="flex justify-between items-center mb-24">
+       <span class="font-serif italic text-2xl font-bold tracking-tighter uppercase">ShopperMart</span>
+       <button id="close-sidebar" class="material-symbols-outlined text-white/40 hover:text-white transition-colors">close</button>
+    </div>
 
-      <div class="nav-actions">
-        <!-- Search Icon Toggle for Mobile could go here -->
-        <button id="themeToggle" class="btn btn-outline btn-sm">
-          🌓
-        </button>
+    <nav class="flex flex-col gap-10">
+       <span class="font-mono text-[9px] uppercase tracking-[0.4em] text-white/30 font-bold mb-2">Main Store</span>
+       <h2 class="font-serif text-5xl font-bold text-white italic">Directory</h2>
+       <a href="{% url 'home' %}" class="font-serif text-4xl font-bold hover:italic hover:translate-x-4 transition-all duration-500">Store Front</a>
+       <a href="{% url 'about' %}" class="font-serif text-4xl font-bold hover:italic hover:translate-x-4 transition-all duration-500 text-white/60 hover:text-white">Our Story</a>
+       <a href="{% url 'contact' %}" class="font-serif text-4xl font-bold hover:italic hover:translate-x-4 transition-all duration-500 text-white/60 hover:text-white">Contact Lab</a>
+       
+       <div class="mt-8 space-y-4 border-t border-white/5 pt-8">
+          <span class="font-mono text-[9px] uppercase tracking-[0.4em] text-white/30 font-bold block mb-4">Categories</span>
+          <div class="grid grid-cols-1 gap-4">
+            {% for cat in categories %}
+            <a href="{% url 'category_products' cat.slug %}" class="font-serif text-2xl font-bold hover:italic hover:translate-x-3 transition-all duration-500 opacity-60 hover:opacity-100">{{ cat.name }}</a>
+            {% endfor %}
+          </div>
+       </div>
+       
+       <div class="mt-12 space-y-6 border-t border-white/5 pt-8">
+          <span class="font-mono text-[9px] uppercase tracking-[0.4em] text-white/30 font-bold block mb-4">Account Control</span>
+          {% if user.is_authenticated %}
+          <a href="{% url 'profile' %}" class="js-require-auth flex items-center gap-4 group">
+             <span class="material-symbols-outlined text-white/40 group-hover:text-white transition-colors">person</span>
+             <span class="font-mono text-[11px] uppercase tracking-[0.3em] font-bold">{{ user.username }} profile</span>
+          </a>
+          <a href="{% url 'my_orders' %}" class="js-require-auth flex items-center gap-4 group">
+             <span class="material-symbols-outlined text-white/40 group-hover:text-white transition-colors">receipt_long</span>
+             <span class="font-mono text-[11px] uppercase tracking-[0.3em] font-bold">Order manifest</span>
+          </a>
+          <a href="{% url 'logout' %}" class="flex items-center gap-4 group text-red-500 mt-12">
+             <span class="material-symbols-outlined text-red-400">logout</span>
+             <span class="font-mono text-[11px] uppercase tracking-[0.3em] font-bold">Sign out</span>
+          </a>
+          {% else %}
+          <a href="{% url 'login' %}" class="flex items-center gap-4 group">
+             <span class="material-symbols-outlined text-white/40 group-hover:text-white transition-colors">login</span>
+             <span class="font-mono text-[11px] uppercase tracking-[0.3em] font-bold">Member access</span>
+          </a>
+          {% endif %}
+       </div>
+    </nav>
 
-        {% if user.is_authenticated %}
-        <a href="{% url 'profile' %}" class="btn btn-primary btn-sm user-btn">
-          {{ user.username|slice:":1"|upper }}
-        </a>
-        <form action="{% url 'logout' %}" method="post" style="display:inline;">
-          {% csrf_token %}
-          <button type="submit" class="btn btn-outline btn-sm" style="border:none; color:var(--danger)">Log Out</button>
-        </form>
-        {% else %}
-        <a class="btn btn-outline btn-sm" href="{% url 'login' %}">Log In</a>
-        <a class="btn btn-primary btn-sm" href="{% url 'register' %}">Sign Up</a>
-        {% endif %}
+    <div class="mt-auto pt-24 pb-8">
+       <p class="font-mono text-[9px] uppercase tracking-[0.5em] text-white/20 leading-relaxed font-bold">Crafted for the high-performance modern wardrobe.</p>
+    </div>
+  <!-- SIDEBAR OVERLAY -->
+  <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[110] hidden opacity-0 transition-opacity duration-700"></div>
+  </aside>
+
+  <!-- LOGIN/SIGNUP MODAL -->
+  <div id="auth-modal" class="fixed inset-0 z-[300] hidden items-center justify-center p-8 bg-black/60">
+    <div class="modal-content bg-white w-full max-w-md rounded-[2.5rem] overflow-hidden shadow-[0_32px_64px_-16px_rgba(0,0,0,0.3)] relative">
+      <button onclick="closeAuthModal()" class="absolute top-8 right-8 material-symbols-outlined text-black/20 hover:text-black transition-colors z-10">close</button>
+      
+      <div class="p-12 md:p-16 text-center">
+        <div class="w-20 h-20 bg-surface-container-low rounded-full flex items-center justify-center mx-auto mb-10 border border-black/5">
+             <span class="material-symbols-outlined text-3xl text-primary">lock_open</span>
+        </div>
+        <span class="font-mono text-[9px] uppercase tracking-[0.4em] text-black/30 font-bold mb-4 block">Membership Required</span>
+        <h3 class="font-serif text-4xl font-bold italic mb-6">Unlock the Store.</h3>
+        <p class="font-sans text-sm text-on-surface-variant leading-relaxed italic mb-12 opacity-70">To purchase curated items, manage your cart, or track your wardrobe history, please authenticate with your ShopperMart credentials.</p>
+        
+        <div class="flex flex-col gap-4">
+            <a href="{% url 'login' %}" class="bg-black text-white py-5 rounded-full font-mono text-[10px] tracking-[0.3em] uppercase font-bold hover:bg-zinc-800 transition-all shadow-xl active:scale-95">
+                Sign In
+            </a>
+            <a href="{% url 'register' %}" class="bg-surface-container-low text-black py-5 rounded-full font-mono text-[10px] tracking-[0.3em] uppercase font-bold hover:bg-black/5 transition-all border border-black/5 active:scale-95">
+                Create Account
+            </a>
+        </div>
+        <p class="mt-10 font-mono text-[9px] uppercase tracking-widest text-black/20">Secure biometric verification standard</p>
       </div>
     </div>
-  </nav>
+  </div>
 
-  <!-- Main Content -->
-  <main class="container py-4">
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toast-container" class="fixed bottom-10 right-10 z-[200] flex flex-col gap-4 pointer-events-none">
     {% if messages %}
-    <div class="messages mb-4">
       {% for message in messages %}
-      <div class="card" style="padding: 1rem; border-left: 4px solid var(--primary); margin-bottom:1rem;">
-        {{ message }}
+      <div class="toast-item pointer-events-auto bg-black/90 backdrop-blur-xl text-white px-8 py-5 rounded-2xl shadow-2xl border border-white/10 flex items-center gap-6 min-w-[320px] transition-all duration-700 transform translate-x-full opacity-0">
+        <div class="w-10 h-10 rounded-full flex items-center justify-center 
+          {% if message.tags == 'success' %}bg-emerald-500/20 text-emerald-400{% elif message.tags == 'error' %}bg-red-500/20 text-red-100{% else %}bg-blue-500/20 text-blue-400{% endif %}">
+          <span class="material-symbols-outlined text-[20px]">
+            {% if message.tags == 'success' %}check_circle{% elif message.tags == 'error' %}error{% else %}info{% endif %}
+          </span>
+        </div>
+        <div class="flex flex-col w-full">
+          <div class="flex items-center justify-between mb-2">
+            <span class="font-mono text-[9px] uppercase tracking-widest opacity-40 font-bold">Store Update</span>
+            <span class="text-[9px] font-mono tracking-widest uppercase bg-white text-black px-2 py-1">New</span>
+          </div>
+          <p class="font-serif text-[13px] tracking-tight">{{ message }}</p>
+        </div>
+        <button class="ml-auto material-symbols-outlined text-white/20 hover:text-white transition-colors text-[18px]" onclick="this.parentElement.remove()">close</button>
       </div>
       {% endfor %}
-    </div>
     {% endif %}
+  </div>
 
+  <!-- MASTER CAPSULE NAV (GLASSMORPHISM) -->
+  <header class="fixed top-8 inset-x-0 mx-auto w-[94vw] max-w-6xl z-[100]">
+    <nav id="master-nav" class="capsule-nav rounded-2xl px-6 md:px-8 py-3 flex gap-6 md:gap-10 items-center transition-all group">
+      
+      <!-- BRAND & HAMBURGER -->
+      <div class="flex items-center gap-6 shrink-0">
+        <button id="hamburger-btn" class="material-symbols-outlined text-black/70 hover:text-black cursor-pointer text-[22px]">menu</button>
+        <a href="{% url 'home' %}" class="font-serif italic text-xl font-bold tracking-tighter uppercase hidden sm:block">ShopperMart</a>
+      </div>
+
+      <!-- NAV LINKS (Compact for High Performance) -->
+      <div class="hidden lg:flex items-center gap-8 shrink-0">
+        <a href="{% url 'public_store' %}" class="font-mono text-[9px] uppercase tracking-[0.4em] font-bold text-black/40 hover:text-black transition-all">The Store</a>
+        <a href="{% url 'about' %}" class="font-mono text-[9px] uppercase tracking-[0.4em] font-bold text-black/40 hover:text-black transition-all">Vision</a>
+        <a href="{% url 'contact' %}" class="font-mono text-[9px] uppercase tracking-[0.4em] font-bold text-black/40 hover:text-black transition-all">Contact</a>
+      </div>
+
+      <!-- INTEGRATED SEARCH BAR (Amazon/Flipkart Style) -->
+      <div class="flex-grow max-w-xl mx-auto">
+        <form action="{% url 'home' %}" method="GET" class="relative group/search">
+          <input type="text" name="q" value="{{ query|default:'' }}" 
+                 placeholder="Search products..." 
+                 class="w-full bg-black/5 border-0 rounded-xl px-12 py-3 text-[13px] font-mono tracking-wider focus:bg-white focus:ring-1 focus:ring-black/10 transition-all placeholder:text-black/20 outline-none">
+          <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-black/20 text-[18px] group-focus-within/search:text-black transition-colors">search</span>
+          {% if query %}
+          <a href="{% url 'home' %}" class="absolute right-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-black/20 hover:text-black text-[18px]">close</a>
+          {% endif %}
+        </form>
+      </div>
+
+      <!-- ACTIONS -->
+      <div class="flex items-center gap-4 md:gap-8 shrink-0">
+        {% if user.is_authenticated %}
+          <div class="flex items-center gap-5 border-r border-black/10 pr-5">
+            <a href="{% url 'profile' %}" class="flex items-center gap-2 group/user transition-colors" title="Profile">
+              <span class="material-symbols-outlined text-black/70 group-hover/user:text-black text-[22px]">account_circle</span>
+              <span class="hidden lg:block text-[9px] font-bold uppercase tracking-widest text-black/50 group-hover/user:text-black">{{ user.username }}</span>
+            </a>
+            <form method="post" action="{% url 'logout' %}" class="m-0 p-0 flex items-center">
+              {% csrf_token %}
+              <button type="submit" class="flex items-center group/logout transition-colors" title="Sign out">
+                <span class="material-symbols-outlined text-black/30 group-hover/logout:text-red-500 text-[20px] transition-colors">logout</span>
+              </button>
+            </form>
+          </div>
+        {% else %}
+          <a href="{% url 'login' %}" class="text-[10px] font-bold uppercase tracking-[0.2em] text-black/60 hover:text-black transition-all">Login</a>
+        {% endif %}
+        
+        <a href="{% url 'cart' %}" class="js-require-auth relative flex items-center gap-2 group/cart bg-black text-white px-5 py-2.5 rounded-xl hover:opacity-90 transition-all shadow-md">
+          <span class="material-symbols-outlined text-[18px]">shopping_bag</span>
+          <span class="text-[10px] font-bold uppercase tracking-widest">Bag</span>
+        </a>
+      </div>
+    </nav>
+  </header>
+
+  <!-- CONTENT WRAPPER -->
+  <main class="min-h-screen pt-16">
     {% block content %}{% endblock %}
   </main>
 
-  <!-- Footer -->
-  <footer class="text-center py-5"
-    style="color: var(--text-muted); border-top: 1px solid var(--border-color); margin-top: 4rem;">
-    <div class="container">
-      <p>&copy; {% now "Y" %} ShopperMart. Crafted with <span style="color:var(--danger)">❤</span></p>
+  <!-- FOOTER -->
+  <footer class="bg-primary-container text-white py-20 px-8 md:px-24 mt-24">
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-12 w-full max-w-7xl mx-auto">
+      <div class="md:col-span-1">
+        <div class="text-3xl font-serif mb-8 text-white italic">ShopperMart</div>
+        <div class="flex gap-3">
+          <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 hover:scale-110 transition-all">
+            <svg class="w-4 h-4 fill-white" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+          </a>
+          <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 hover:scale-110 transition-all">
+            <svg class="w-4 h-4 fill-white" viewBox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/></svg>
+          </a>
+          <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 hover:scale-110 transition-all">
+            <svg class="w-4 h-4 fill-white" viewBox="0 0 24 24"><path d="M22.675 0h-21.35C.597 0 0 .597 0 1.325v21.351C0 23.403.597 24 1.325 24h11.495v-9.294H9.691v-3.622h3.129V8.413c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.795.143v3.24l-1.918.001c-1.504 0-1.795.715-1.795 1.763v2.313h3.587l-.467 3.622h-3.12V24h6.116c.73 0 1.323-.597 1.323-1.325V1.325C24 .597 23.403 0 22.675 0z"/></svg>
+          </a>
+        </div>
+      </div>
+      <div>
+        <h6 class="font-serif text-lg mb-6">The Brand</h6>
+        <ul class="space-y-3 font-sans text-sm text-zinc-600 dark:text-zinc-400">
+          <li><a class="hover:text-zinc-900 dark:hover:text-zinc-50 transition-all underline decoration-1 font-mono text-[10px] uppercase tracking-widest" href="{% url 'public_store' %}">The Store</a></li>
+          <li><a class="hover:text-zinc-900 dark:hover:text-zinc-50 transition-all underline decoration-1 font-mono text-[10px] uppercase tracking-widest" href="#">The Collection</a></li>
+          <li><a class="hover:text-zinc-900 dark:hover:text-zinc-50 transition-all font-mono text-[10px] uppercase tracking-widest" href="#">Sustainability</a></li>
+        </ul>
+      </div>
+      <div>
+        <h6 class="font-serif text-lg mb-6">Legal</h6>
+        <ul class="space-y-3 font-sans text-sm text-zinc-600 dark:text-zinc-400">
+          <li><a class="hover:text-zinc-900 dark:hover:text-zinc-50 transition-all font-mono text-[10px] uppercase tracking-widest" href="{% url 'legal' %}">Privacy Policy</a></li>
+          <li><a class="hover:text-zinc-900 dark:hover:text-zinc-50 transition-all font-mono text-[10px] uppercase tracking-widest" href="{% url 'legal' %}">Terms of Service</a></li>
+          <li><a class="hover:text-zinc-900 dark:hover:text-zinc-50 transition-all font-mono text-[10px] uppercase tracking-widest" href="{% url 'legal' %}">Returns</a></li>
+        </ul>
+      </div>
+      <div>
+        <h6 class="font-serif text-lg mb-6">Contact</h6>
+        <ul class="space-y-3 font-sans text-sm text-zinc-600 dark:text-zinc-400">
+          <li><a class="hover:text-zinc-900 dark:hover:text-zinc-50 transition-all font-mono text-[10px] uppercase tracking-widest" href="{% url 'contact' %}">Help Center</a></li>
+          <li><a class="hover:text-zinc-900 dark:hover:text-zinc-50 transition-all font-mono text-[10px] uppercase tracking-widest" href="{% url 'legal' %}">Store Locator</a></li>
+          <li><a class="hover:text-zinc-900 dark:hover:text-zinc-50 transition-all font-mono text-[10px] uppercase tracking-widest" href="{% url 'legal' %}">Shipping</a></li>
+        </ul>
+      </div>
+      <div class="md:col-span-1">
+        <h6 class="font-serif text-lg mb-6 text-white">Mailing List</h6>
+        <p class="text-xs font-sans text-white/60 mb-6 font-mono uppercase tracking-widest">Receive early access to drop announcements and store sales.</p>
+        <form class="flex flex-col gap-3">
+          <input class="bg-transparent border-b border-white/20 py-2 text-sm focus:border-white focus:ring-0 placeholder:text-white/40 outline-none text-white" placeholder="Email Address" type="email"/>
+          <button type="submit" class="bg-white text-primary px-6 py-3 font-mono uppercase text-xs tracking-widest active:scale-95 transition-all text-center hover:bg-surface-container-low">
+            Join Now
+          </button>
+        </form>
+      </div>
+    </div>
+    <div class="mt-20 pt-8 border-t border-white/10 flex justify-between items-center text-[10px] font-mono tracking-widest text-white/50 uppercase max-w-7xl mx-auto">
+      <span>Developed by <a href="https://pranayakd.in/" target="_blank" class="hover:text-white transition-colors underline underline-offset-4 decoration-white/30 hover:decoration-white">Pranaya Kumar Dash</a></span>
+      <span>Est. 2025 in Bhadrak, Odisha</span>
     </div>
   </footer>
 
-  <!-- Scripts -->
+  <!-- BACK TO TOP BUTTON -->
+  <button id="back-to-top" class="fixed bottom-10 right-10 bg-primary text-white w-14 h-14 rounded-full flex items-center justify-center shadow-2xl opacity-0 translate-y-10 pointer-events-none transition-all duration-500 z-50 hover:bg-black hover:scale-110 active:scale-95 border border-white/20">
+    <span class="material-symbols-outlined text-[20px]">arrow_upward</span>
+  </button>
+
   <script>
-    // Mobile Menu Toggle
-    const toggle = document.getElementById('mobileToggle');
-    const nav = document.getElementById('navLinks');
-
-    toggle?.addEventListener('click', () => {
-      nav.classList.toggle('active');
+    const backToTopBtn = document.getElementById('back-to-top');
+    window.addEventListener('scroll', () => {
+       if (window.scrollY > 400) {
+          backToTopBtn.classList.remove('opacity-0', 'translate-y-10', 'pointer-events-none');
+          backToTopBtn.classList.add('opacity-100', 'translate-y-0');
+       } else {
+          backToTopBtn.classList.add('opacity-0', 'translate-y-10', 'pointer-events-none');
+          backToTopBtn.classList.remove('opacity-100', 'translate-y-0');
+       }
     });
-
-    // Dark Mode Toggle
-    const themeBtn = document.getElementById("themeToggle");
-    const root = document.documentElement;
-    const stored = localStorage.getItem("theme") || "light";
-
-    root.setAttribute("data-theme", stored);
-
-    themeBtn?.addEventListener("click", () => {
-      const current = root.getAttribute("data-theme");
-      const next = current === "dark" ? "light" : "dark";
-      root.setAttribute("data-theme", next);
-      localStorage.setItem("theme", next);
+    backToTopBtn.addEventListener('click', () => {
+       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
   </script>
-</body>
 
+  <script src="{% static 'js/boneyard.js' %}"></script>
+  {% block scripts %}{% endblock %}
+  <script>
+    const nav = document.getElementById('master-nav');
+    const sidebar = document.getElementById('sidebar-drawer');
+    const overlay = document.getElementById('sidebar-overlay');
+    const hoverTrigger = document.getElementById('hover-trigger');
+    const hamburgerBtn = document.getElementById('hamburger-btn');
+    const closeSidebar = document.getElementById('close-sidebar');
+
+    let isSidebarSticky = false;
+
+    function openNav() {
+      sidebar.classList.add('open');
+      overlay.classList.remove('hidden');
+      setTimeout(() => overlay.classList.add('opacity-100'), 10);
+    }
+
+    function closeNav() {
+      if (isSidebarSticky) return;
+      sidebar.classList.remove('open');
+      overlay.classList.remove('opacity-100');
+      setTimeout(() => {
+        if (!sidebar.classList.contains('open')) {
+          overlay.classList.add('hidden');
+        }
+      }, 700);
+    }
+
+    // Toggle Sticky (for click)
+    function toggleNav() {
+      if (sidebar.classList.contains('open')) {
+        isSidebarSticky = false;
+        closeNav();
+      } else {
+        isSidebarSticky = true;
+        openNav();
+      }
+    }
+
+    // Hover Interaction (Stable)
+    hoverTrigger.addEventListener('mouseenter', openNav);
+    sidebar.addEventListener('mouseenter', () => { isSidebarSticky = false; openNav(); });
+    
+    // Close when leaving the combined area of sidebar AND trigger
+    document.addEventListener('mousemove', (e) => {
+        if (sidebar.classList.contains('open') && !isSidebarSticky) {
+            const sidebarRect = sidebar.getBoundingClientRect();
+            const triggerRect = hoverTrigger.getBoundingClientRect();
+            const isInSidebar = e.clientX <= sidebarRect.right;
+            
+            if (!isInSidebar && e.clientX > 30) {
+                closeNav();
+            }
+        }
+    });
+
+    hamburgerBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleNav();
+    });
+
+    closeSidebar.addEventListener('click', (e) => {
+        isSidebarSticky = false;
+        closeNav();
+    });
+
+    overlay.addEventListener('click', () => {
+        isSidebarSticky = false;
+        closeNav();
+    });
+
+    // TOAST SYSTEM (Auto-sequence)
+    document.querySelectorAll('.toast-item').forEach((toast, index) => {
+        setTimeout(() => {
+            toast.classList.remove('translate-x-full', 'opacity-0');
+            toast.classList.add('translate-x-0', 'opacity-100');
+        }, 300 * (index + 1));
+        
+        // Auto-dismiss after 5s
+        setTimeout(() => {
+            toast.classList.add('translate-x-full', 'opacity-0');
+            setTimeout(() => toast.remove(), 1000);
+        }, 5000 + (300 * index));
+    });
+
+    function openAuthModal() {
+        console.log("AuthModal: Triggering modal display.");
+        const modal = document.getElementById('auth-modal');
+        if (!modal) return;
+        modal.style.display = 'flex';
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        document.body.style.overflow = 'hidden';
+    }
+    function closeAuthModal() {
+        const modal = document.getElementById('auth-modal');
+        if (!modal) return;
+        modal.style.display = 'none';
+        modal.classList.remove('flex');
+        modal.classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+
+  </script>
+
+  <!-- ISOLATED MEMBERSHIP GATING (isolated to prevent script interference) -->
+  <script>
+    {% if not user.is_authenticated %}
+    console.log("AuthInterceptor: System Initialized.");
+    
+    document.addEventListener('click', (e) => {
+        const target = e.target.closest('.js-require-auth');
+        if (target) {
+            console.log("AuthInterceptor: Intercepted click on", target);
+            e.preventDefault();
+            e.stopPropagation();
+            openAuthModal();
+        }
+    }, true);
+
+    document.addEventListener('submit', (e) => {
+        const isGated = e.target.classList.contains('js-require-auth') || 
+                       e.target.querySelector('.js-require-auth') || 
+                       (e.submitter && e.submitter.classList.contains('js-require-auth'));
+        
+        if (isGated) {
+            console.log("AuthInterceptor: Intercepted submit on", e.target);
+            e.preventDefault();
+            e.stopPropagation();
+            openAuthModal();
+        }
+    }, true);
+    {% else %}
+    console.log("AuthInterceptor: User authenticated, gating bypassed.");
+    {% endif %}
+
+    // Close modal on escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeAuthModal();
+    });
+
+    // Scroll effect (Header transformation)
+    window.addEventListener('scroll', () => {
+      if (window.pageYOffset > 50) {
+        nav.classList.add('scrolled');
+      } else {
+        nav.classList.remove('scrolled');
+      }
+    }, { passive: true });
+  </script>
+</body>
 </html>

@@ -1,90 +1,95 @@
 {% extends "base.html" %}
-{% block title %}My Orders | ShopperMart{% endblock %}
+{% load static %}
+
+{% block title %}Order History | ShopperMart{% endblock %}
+
+{% block meta_description %}Track and manage your ShopperMart orders. View order status, shipment details, and purchase history.{% endblock %}
+
+{% block meta_keywords %}shoppermart orders, order history, track shipment, purchase history{% endblock %}
 
 {% block content %}
-<div class="container py-4">
-  <div style="text-align: center; margin-bottom: 3rem;">
-    <div style="font-size: 3rem; margin-bottom: 0.5rem;">📦</div>
-    <h1 style="font-size: 2rem; font-weight: 800;">My Orders</h1>
-  </div>
-
-  {% if orders %}
-  <div style="display: flex; flex-direction: column; gap: 2rem; max-width: 800px; margin: 0 auto;">
-    {% for order in orders %}
-    <div class="card" style="padding: 0; overflow: hidden; border: 2px solid var(--border-color);">
-
-      <!-- Order Header -->
-      <div
-        style="background: var(--surface-2); padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color);">
-        <div>
-          <span style="font-weight: 700; color: var(--primary);">Order #{{ order.id }}</span>
-          <div style="font-size: 0.85rem; color: var(--text-muted);">{{ order.created_at|date:"M d, Y" }}</div>
-        </div>
-
-        <div style="text-align: right;">
-          <span style="font-weight: 700; font-size: 1.1rem;">₹{{ order.total }}</span>
-          <div style="font-size: 0.8rem; font-weight: 600; color: var(--success);">
-            {% if order.payment == 'cod' %}Cash on Delivery
-            {% elif order.payment == 'card' %}Credit/Debit Card
-            {% elif order.payment == 'upi' %}UPI
-            {% else %}{{ order.payment|upper }}{% endif %}
-          </div>
-        </div>
+    <!-- PAGE HEADER -->
+    <header class="pt-32 pb-16 px-8 md:px-24">
+      <div class="max-w-7xl mx-auto border-b border-outline-variant/10 pb-12">
+        <h1 class="font-serif text-5xl md:text-8xl font-bold tracking-tighter text-black uppercase leading-none">Your Orders</h1>
+        <p class="font-mono text-[10px] text-on-secondary-container mt-6 uppercase tracking-[0.3em] font-medium">{{ orders|length }} orders found in your account</p>
       </div>
+    </header>
 
-      <!-- Order Items -->
-      <div style="padding: 1rem 1.5rem;">
-        {% for item in order.items.all %}
-        <div
-          style="display: flex; justify-content: space-between; align-items: center; padding-block: 0.75rem; border-bottom: 1px solid var(--border-color);">
-          <div style="display: flex; align-items: center; gap: 1rem;">
-            {% if item.product.image %}
-            <img src="{{ item.product.image.url }}"
-              style="width: 50px; height: 50px; border-radius: var(--radius-sm); object-fit: cover;"
-              alt="{{ item.product.name }}">
-            {% else %}
-            <div
-              style="background: var(--surface-3); width: 50px; height: 50px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
-              🛍️
+    <!-- CONTENT -->
+    <section class="max-w-7xl mx-auto px-8 md:px-24 pb-44 py-12">
+      {% if orders %}
+      <div class="space-y-8">
+        {% for order in orders %}
+        <div class="p-10 border border-outline-variant/10 rounded-3xl bg-white shadow-sm hover:shadow-xl transition-all duration-500 group">
+          <div class="grid grid-cols-1 md:grid-cols-12 items-start gap-10">
+            
+            <!-- Left: Order Core Info -->
+            <div class="md:col-span-7 lg:col-span-8">
+               <div class="flex flex-col sm:flex-row sm:items-center gap-4 mb-8">
+                  <span class="font-mono text-[10px] tracking-widest uppercase bg-zinc-100 px-4 py-1.5 rounded-lg font-bold text-black border border-black/5">Order ID #{{ order.id }}</span>
+                  <span class="font-mono text-[9px] tracking-widest uppercase text-slate-400 italic">{{ order.created_at|date:"d M Y @ H:i" }}</span>
+               </div>
+               
+               <div class="space-y-6">
+                  <p class="text-on-secondary-container font-light text-lg leading-relaxed italic">
+                     {% for item in order.items.all %}
+                        <span class="font-bold text-black underline decoration-black/10">{{ item.product.name }}</span> 
+                        <span class="text-xs font-mono font-bold ml-1 text-slate-400">×{{ item.quantity }}</span>{% if not forloop.last %}, {% endif %}
+                     {% endfor %}
+                  </p>
+               </div>
             </div>
-            {% endif %}
-            <div>
-              <div style="font-weight: 600;">{{ item.product.name }}</div>
-              <div style="font-size: 0.85rem; color: var(--text-muted);">Qty: {{ item.quantity }}</div>
+
+            <!-- Total Column -->
+            <div class="md:col-span-2 md:pt-4 border-l border-outline-variant/10 pl-6 h-full">
+               <span class="font-mono text-[9px] uppercase tracking-[0.4em] text-slate-400 block mb-3 font-bold">Total Paid</span>
+                <span class="font-serif text-3xl font-bold text-black leading-none">₹{{ order.total }}</span>
             </div>
+
+            <!-- Status Column -->
+            <div class="md:col-span-3 lg:col-span-2 md:pt-4 border-l border-outline-variant/10 pl-6 h-full">
+               <span class="font-mono text-[9px] uppercase tracking-[0.4em] text-slate-400 block mb-4 font-bold">Status</span>
+               
+                {% if order.status == 'pending' %}
+                <div class="inline-flex items-center gap-3 bg-zinc-50 px-4 py-2 rounded-xl border border-black/5">
+                   <div class="w-2 h-2 rounded-full bg-slate-300 animate-pulse"></div>
+                   <span class="text-slate-500 font-mono text-[10px] tracking-widest uppercase font-bold">Processing</span>
+                </div>
+                {% elif order.status == 'paid' or order.status == 'shipped' %}
+                <div class="inline-flex items-center gap-3 bg-blue-50 px-4 py-2 rounded-xl border border-blue-100">
+                   <div class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
+                   <span class="text-blue-600 font-mono text-[10px] tracking-widest uppercase font-bold">Shipped</span>
+                </div>
+                {% elif order.status == 'delivered' %}
+                <div class="inline-flex items-center gap-3 bg-green-50 px-4 py-2 rounded-xl border border-green-100">
+                   <div class="w-2 h-2 rounded-full bg-green-600"></div>
+                   <span class="text-green-700 font-mono text-[10px] tracking-widest uppercase font-bold italic">Delivered</span>
+                </div>
+                {% else %}
+                <div class="inline-flex items-center gap-3 bg-red-50 px-4 py-2 rounded-xl border border-red-100">
+                   <span class="text-red-600 font-mono text-[10px] tracking-widest uppercase font-bold italic">{{ order.status }}</span>
+                </div>
+                {% endif %}
+            </div>
+
           </div>
-          <div style="font-weight: 600;">₹{{ item.price }}</div>
         </div>
         {% endfor %}
-
-        <!-- Shipping & Actions -->
-        <div
-          style="margin-top: 1rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem;">
-          <div style="color: var(--text-muted);">
-            <strong>Shipping to:</strong> {{ order.full_name }}<br>
-            {{ order.address }}, {{ order.city }} - {{ order.postal_code }}
-          </div>
-
-          <form method="POST" action="{% url 'cancel_order' order.id %}"
-            onsubmit="return confirm('Are you sure you want to cancel this order?');">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-outline btn-sm"
-              style="color: var(--danger); border-color: var(--danger);">
-              Cancel Order
-            </button>
-          </form>
-        </div>
       </div>
 
-    </div>
-    {% endfor %}
-  </div>
-  {% else %}
-  <div class="card text-center py-5" style="max-width: 600px; margin: 0 auto;">
-    <h3 style="margin-bottom: 1rem;">No orders yet</h3>
-    <p style="color: var(--text-muted); margin-bottom: 2rem;">Looks like you haven't bought anything yet.</p>
-    <a href="{% url 'home' %}" class="btn btn-primary">Start Shopping</a>
-  </div>
-  {% endif %}
-</div>
+      {% else %}
+      <!-- EMPTY STATE (Functional Shop Style) -->
+      <div class="py-44 flex flex-col items-center justify-center text-center">
+        <div class="w-32 h-32 bg-slate-50 rounded-full flex items-center justify-center mb-12 shadow-inner group">
+           <span class="material-symbols-outlined text-5xl text-slate-200 group-hover:scale-110 transition-transform">receipt_long</span>
+        </div>
+        <h2 class="font-serif text-5xl font-bold text-black leading-none mb-6">No orders found.</h2>
+        <p class="text-on-secondary-container mt-6 font-light text-xl max-w-md leading-relaxed opacity-60">You haven't placed any orders yet. Once you complete a purchase, your order history will appear here.</p>
+        <a href="{% url 'home' %}" class="mt-16 bg-black text-white px-20 py-7 rounded-full font-bold tracking-[0.4em] text-[12px] uppercase hover:opacity-90 transition-all shadow-2xl hover:scale-105 active:scale-95 duration-500">
+          Start Shopping
+        </a>
+      </div>
+      {% endif %}
+    </section>
 {% endblock %}

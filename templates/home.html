@@ -1,126 +1,299 @@
 {% extends "base.html" %}
-{% block title %}Home | ShopperMart{% endblock %}
+{% load static %}
+
+{% block title %}ShopperMart | The Daily Standard - Premium Essentials Mart{% endblock %}
+
+{% block meta_description %}Your everyday, optimized. ShopperMart is a curated mart for high-performance daily essentials, premium home goods, and modern lifestyle products.{% endblock %}
+
+{% block meta_keywords %}daily essentials mart, modern living, curated home products, premium essentials, lifestyle boutique, ShopperMart india{% endblock %}
 
 {% block content %}
+    {% if query %}
+    <!-- SEARCH RESULTS VIEW -->
+    <section class="pt-44 pb-24 px-8 md:px-24 bg-background">
+      <span class="font-mono text-[10px] tracking-[.3em] text-on-surface-variant uppercase mb-4 block font-bold">Store Search</span>
+      <h2 class="font-serif text-5xl md:text-7xl font-bold tracking-tighter italic">Search Results</h2>
+      <p class="font-mono text-[10px] text-on-surface-variant mt-6 uppercase tracking-widest font-bold">{{ products|length }} items identified in store</p>
 
-<!-- Hero Section -->
-<section style="
-  background: linear-gradient(135deg, var(--primary), #a855f7);
-  border-radius: var(--radius-lg);
-  padding: 4rem 2rem;
-  color: white;
-  margin-bottom: 3rem;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-">
-  <!-- Fancy Background Bubble -->
-  <div style="
-    position: absolute;
-    top: -50px; left: -50px;
-    width: 200px; height: 200px;
-    background: rgba(255,255,255,0.1);
-    border-radius: 50%;
-  "></div>
-
-  <div style="position: relative; z-index: 1;">
-    <h1 style="font-size: 3rem; font-weight: 800; margin-bottom: 1rem; letter-spacing: -1px;">
-      Welcome to ShopperMart 🛒
-    </h1>
-    <p style="font-size: 1.25rem; opacity: 0.9; margin-bottom: 2rem; max-width: 600px; margin-inline: auto;">
-      {% if user.is_authenticated %}
-      Explore our premium collection curated just for you.
+      {% if products %}
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-8 gap-y-16 mt-24">
+        {% for product in products %}
+        <div class="group">
+          <div class="aspect-square bg-surface-container-low mb-6 overflow-hidden relative">
+            <a href="{% url 'product_detail' product.slug %}" class="block w-full h-full">
+               {% if product.image %}
+               <img data-boneyard="pulse" data-boneyard-bg="bg-black/5" data-boneyard-class="w-full h-full" src="{{ product.image.url }}" class="w-full h-full object-contain p-8 group-hover:scale-110 transition-transform duration-700"/>
+               {% else %}
+               <div class="w-full h-full flex items-center justify-center font-serif text-slate-200 italic">No Selection</div>
+               {% endif %}
+            </a>
+            <form method="POST" action="{% url 'add_to_cart' product.id %}" class="absolute bottom-4 right-4 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+                {% csrf_token %}
+                <input type="hidden" name="quantity" value="1">
+                <button type="submit" class="bg-primary text-white p-4 hover:bg-primary-container transition-colors shadow-2xl">
+                   <span class="material-symbols-outlined text-sm">shopping_bag</span>
+                </button>
+            </form>
+          </div>
+          <div class="space-y-1">
+             <p class="font-mono text-[10px] uppercase text-on-surface-variant tracking-widest">{{ product.category.name }}</p>
+             <h4 class="font-sans text-sm font-medium uppercase tracking-tight">{{ product.name }}</h4>
+             <div class="flex items-center gap-1.5 pt-1">
+                <span class="material-symbols-outlined text-primary text-[12px] fill-current">star</span>
+                <span class="font-mono text-[11px] font-bold text-on-background">{{ product.rating }}</span>
+                <span class="font-mono text-[10px] text-on-surface-variant">({{ product.reviews_count }})</span>
+             </div>
+             <p class="font-mono text-sm pt-2 font-bold italic">₹{{ product.price }}</p>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
       {% else %}
-      Your one-stop destination for amazing products. Join us today!
+      <div class="py-44 flex flex-col items-center justify-center text-center">
+         <div class="col-span-full border-t border-black border-dashed pt-20 mt-10">
+           <h2 class="font-serif text-6xl italic">No Results.</h2>
+           <p class="text-on-surface-variant mt-10 font-light text-xl max-w-sm italic">No items found matching your store request.</p>
+           <a href="{% url 'home' %}" class="mt-16 bg-primary text-white px-12 py-5 font-mono text-[10px] uppercase tracking-[0.4em] hover:bg-primary-container transition-all inline-block">Clear Search</a>
+         </div>
+      </div>
       {% endif %}
-    </p>
+    </section>
 
-    {% if not user.is_authenticated %}
-    <div style="display: flex; gap: 1rem; justify-content: center;">
-      <a href="{% url 'register' %}" class="btn" style="background: white; color: var(--primary);">Get Started</a>
-      <a href="{% url 'login' %}" class="btn" style="border: 2px solid white; color: white;">Log In</a>
+    {% else %}
+    <!-- HERO SECTION -->
+    <section class="flex flex-col md:flex-row min-h-screen -mt-16 pt-[120px] overflow-hidden bg-[#FAFAF8]">
+      <div class="w-full md:w-[55%] flex flex-col justify-center px-12 md:px-24 py-20 relative">
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_var(--tw-gradient-stops))] from-surface-container-low/40 via-transparent to-transparent -z-10"></div>
+        <span class="font-mono text-xs tracking-[0.4em] uppercase text-on-surface-variant mb-8 block font-bold opacity-60">Established 2025 / Bhadrak</span>
+        <h1 class="font-serif text-6xl md:text-[clamp(4rem,8vw,7.5rem)] leading-[0.95] text-on-background mb-14 tracking-tighter font-bold">
+          The Daily <span class="text-primary italic">Standard.</span> <br>Elevated <span class="font-newsreader italic font-normal text-on-surface-variant opacity-70 underline decoration-primary/5">Essentials.</span>
+        </h1>
+        <p class="font-sans text-on-surface-variant text-lg leading-relaxed max-w-lg mb-16 opacity-80 italic">Discover a curated collection of high-performance daily essentials. From premium home goods to technical wardrobe pieces, we redefine the modern mart experience.</p>
+        <div class="flex items-center gap-10">
+          <a href="#collection" class="bg-primary text-white px-12 py-5 font-mono text-[10px] tracking-[0.4em] uppercase hover:bg-primary-container transition-all shadow-2xl hover:scale-105 duration-500">
+            Shop Now
+          </a>
+          <a href="{% url 'about' %}" class="font-newsreader italic text-xl border-b border-primary/20 pb-2 hover:border-primary transition-all duration-500">The Manifesto</a>
+        </div>
+      </div>
+      <div class="w-full md:w-[45%] relative min-h-[50vh] md:min-h-0">
+        <img data-boneyard="shimmer" data-boneyard-bg="bg-surface-dim" data-boneyard-class="w-full h-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBnXy0ovzuRKbp5IdsSsEehZUoSLcdfSqhkRprbaVE3C5Z8IPuLEPRwWJWoS6zDcyP4Bw2sV4xv_37RXRUCDh9zyBPT4W4I76WQSWIkQpAN05Pds3z_NfDRo8gA7ivRvw2YPMz5F3V6HQE3FPE2ln8xKr9PevlkXWtNU-7KpjxORxLci-yo_mQPjUSKq55lKIVPIXAcS546IVirxvAprstN7E1LIG-cO9WLaRtUZo5zS4gFN2JNGrPJKzoGNA6KSnWjoF4tHSSvBjQ" 
+             class="w-full h-full object-cover grayscale-[20%] brightness-95"/>
+        <div class="absolute inset-0 bg-primary/5 pointer-events-none"></div>
+      </div>
+    </section>
+
+    <!-- MARQUEE RIBBON -->
+    <div class="h-[60px] bg-primary flex items-center overflow-hidden whitespace-nowrap border-y border-white/5">
+      <div class="flex animate-marquee items-center gap-16 font-mono text-[11px] tracking-[0.5em] uppercase text-white/95 font-bold">
+        <span>New Arrivals Drop 001</span><span class="text-tertiary-fixed text-xl">★</span>
+        <span>Worldwide Shipping</span><span class="text-tertiary-fixed text-xl">★</span>
+        <span>Limited Edition</span><span class="text-tertiary-fixed text-xl">★</span>
+        <span>Premium Daily Goods</span><span class="text-tertiary-fixed text-xl">★</span>
+        <span>New Arrivals Drop 001</span><span class="text-tertiary-fixed text-xl">★</span>
+        <span>Worldwide Shipping</span><span class="text-tertiary-fixed text-xl">★</span>
+        <span>Limited Edition</span><span class="text-tertiary-fixed text-xl">★</span>
+        <span>Premium Daily Goods</span><span class="text-tertiary-fixed text-xl">★</span>
+      </div>
     </div>
+
+    <!-- CATEGORY BENTO GRID -->
+    <section class="px-8 md:px-24 py-32 bg-surface">
+      <div class="mb-20 flex flex-col md:flex-row justify-between items-end gap-10">
+        <div class="max-w-xl">
+          <span class="font-mono text-[9px] tracking-[0.5em] text-on-surface-variant uppercase mb-4 block font-bold opacity-40">Classification</span>
+          <h2 class="font-serif text-5xl md:text-6xl font-bold tracking-tighter text-on-background uppercase">The Collections</h2>
+          <p class="font-sans text-on-surface-variant mt-6 text-lg italic opacity-70">Refining the digital shopping experience through a focused lens of quality and architectural form.</p>
+        </div>
+        <span class="font-mono text-xs text-on-surface-variant font-bold tracking-widest opacity-30">VOL 04 / 2024</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-8 h-auto md:h-[900px]">
+        {% with cat=categories %}
+        <!-- Large: Primary Category -->
+        <div class="md:col-span-8 relative group overflow-hidden bg-surface-container-low cursor-pointer">
+          {% if cat.0 %}
+          <a href="{{ cat.0.get_absolute_url }}" class="block w-full h-full">
+            <img data-boneyard="shimmer" data-boneyard-bg="bg-black/20" data-boneyard-class="w-full h-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAau4fKHwJOQIy_d9gHLtHTMO4aPt-fF_k5V2uDGc9wQqOkTUytjKJuv1gg5RgEPkENO8Zo78EH0vdGGGaRYG895HI7k84f2_XpgbLwOGb_8ojxAwifkTOJad7h-p62JuDW7zdck6eZ_4b7_zWEScscec6jU9nwkW5EPkL_Sl5WdtpU7hZBwkumHWIvfdQQ0UhxNtspuh61t6qkt4Y9DgMHddsG3_M8tWLAfRa0B2wVJEo4RK1YpTJL6t438NhdrrIM6bR1ChklOFo" 
+                 class="w-full h-full object-cover desaturate-[20%] group-hover:scale-110 transition-transform duration-[4s]"/>
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity"></div>
+            <div class="absolute bottom-12 left-12 right-12 text-white flex flex-col md:flex-row md:items-end justify-between gap-6">
+              <div>
+                <p class="font-mono text-[10px] uppercase tracking-[0.5em] mb-4 font-bold opacity-60 italic">Top Pick</p>
+                <h3 class="font-serif text-5xl md:text-6xl font-bold tracking-tighter uppercase leading-none">Electronics</h3>
+              </div>
+              <span class="inline-flex items-center gap-2 font-mono text-[10px] tracking-widest uppercase border border-white/30 px-6 py-3 rounded-full hover:bg-white hover:text-black transition-colors shrink-0">
+                 View Collection <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+              </span>
+            </div>
+          </a>
+          {% endif %}
+        </div>
+        <!-- Tall: Secondary Category -->
+        <div class="md:col-span-4 relative group overflow-hidden bg-surface-container-low cursor-pointer">
+          {% if cat.1 %}
+          <a href="{{ cat.1.get_absolute_url }}" class="block w-full h-full">
+            <img data-boneyard="shimmer" data-boneyard-bg="bg-black/20" data-boneyard-class="w-full h-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNHFu3wkse4Natwz3HradWMEHdtVh8l5WU27ilDwrD4Y5_RRv9l7QCyaFhOtYV6i9fRK9qQhsT0WTdRsKARGqCVOi2_3xHocifF3R-PjnqdqYeGjFGaMG2rVw-yTouD9Kdf3MS9jvmc_9C-BI-vf27CBhYFy3qIQMaZm7lVT5lwvEoS-ELbdqQ0aWz3aUZBc_Mxyzu50sp82FB7FrcMcdi3R6XQlGiRB0y3Rw0kH1MK50M2934Id0G8Q1l7EZE-QR7-3uZZfdkShw" 
+                 class="w-full h-full object-cover desaturate-[30%] group-hover:scale-110 transition-transform duration-[4s]"/>
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-60"></div>
+            <div class="absolute bottom-12 left-12 right-12 text-white flex flex-col md:flex-row md:items-end justify-between gap-6">
+              <div>
+                <p class="font-mono text-[10px] uppercase tracking-[0.5em] mb-4 font-bold opacity-60 italic">Seasonal</p>
+                <h3 class="font-serif text-4xl font-bold tracking-tighter uppercase leading-none">Fashion</h3>
+              </div>
+              <span class="inline-flex items-center gap-2 font-mono text-[10px] tracking-widest uppercase border border-white/30 px-6 py-3 rounded-full hover:bg-white hover:text-black transition-colors shrink-0">
+                 View Collection <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+              </span>
+            </div>
+          </a>
+          {% endif %}
+        </div>
+        <!-- Small: Home Category -->
+        <div class="md:col-span-6 relative group overflow-hidden bg-surface-container-low h-[400px] cursor-pointer">
+          {% if cat.2 %}
+          <a href="{{ cat.2.get_absolute_url }}" class="js-require-auth block w-full h-full">
+            <img data-boneyard="shimmer" data-boneyard-bg="bg-black/20" data-boneyard-class="w-full h-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBeKaSNQW_xJY8ETKuE2uWZGrgkQn6suOl1nk0YjXivV1jIdeQyagjJb_3dwoU7P16NalsAx1JoMEomLRhqtPPD-syrLrj0Yn8oaWQTl5AGo0jHQUMQ8yB0_3DTIqHgzL4yBdaFq5leih3IX0l_Zk6uZIwi20axnRYgToVu-Xmg8wcU8-_3wy15vYf9m_wZGTDAMrOYZdPDQH3ncRM9WyAt_8LIOokSDX-zHKSwWfQqUPrltQO12YEY3NfsiDAlds91Yd2gTr-alwo" 
+                 class="w-full h-full object-cover desaturate-[10%] group-hover:scale-110 transition-transform duration-[4s]"/>
+            <div class="absolute inset-0 bg-black/20 group-hover:bg-black/60 transition-colors"></div>
+            <div class="absolute bottom-10 left-10 right-10 text-white flex flex-col xl:flex-row xl:items-end justify-between gap-6">
+              <h3 class="font-serif text-3xl font-bold tracking-tighter uppercase">The Studio Home</h3>
+              <span class="inline-flex items-center gap-2 font-mono text-[10px] tracking-widest uppercase border border-white/30 px-6 py-3 rounded-full hover:bg-white hover:text-black transition-colors shrink-0">
+                 View Collection <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+              </span>
+            </div>
+          </a>
+          {% endif %}
+        </div>
+        <!-- Small: Aesthetic Category -->
+        <div class="md:col-span-6 relative group overflow-hidden bg-surface-container-low h-[400px] cursor-pointer">
+          {% if cat.3 %}
+          <a href="{{ cat.3.get_absolute_url }}" class="js-require-auth block w-full h-full">
+            <img data-boneyard="shimmer" data-boneyard-bg="bg-black/20" data-boneyard-class="w-full h-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCe-3MfIALFCBmVIba7e-qq8p09HUX_y1om-5k_dqaElpY-4ueBx2XQu5sgb5iXrqT_QHf-IVbW71yadbLpS82eI6wy2sYCDdauB2gs-xz5z9faWxS81ANvPUH7rcmfCYa8Scq5KkmspWRoF_gTLR_nhoIflBDEKes7Lk-TvkIF_c_G_5JhRtoqhoralu3qhRt7mRBhaUcLjg5aF8OGBhgNQXEvieZM0zN4k4JMBfcradnVa5nRwFtUS6B_z4IJF64M2Hd_AK2C61M" 
+                 class="w-full h-full object-cover object-bottom desaturate-[20%] group-hover:scale-110 transition-transform duration-[4s]"/>
+            <div class="absolute inset-0 bg-black/20 group-hover:bg-black/60 transition-colors"></div>
+            <div class="absolute bottom-10 left-10 right-10 text-white flex flex-col xl:flex-row xl:items-end justify-between gap-6">
+              <h3 class="font-serif text-3xl font-bold tracking-tighter uppercase">Apothecary</h3>
+              <span class="inline-flex items-center gap-2 font-mono text-[10px] tracking-widest uppercase border border-white/30 px-6 py-3 rounded-full hover:bg-white hover:text-black transition-colors shrink-0">
+                 View Collection <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+              </span>
+            </div>
+          </a>
+          {% endif %}
+        </div>
+        {% endwith %}
+      </div>
+    </section>
+
+    <!-- PRODUCT CATALOG -->
+    <section id="collection" class="px-8 md:px-24 py-32 bg-surface-container-lowest">
+      <div class="flex flex-col md:flex-row md:items-end justify-between mb-24 gap-12">
+        <div>
+           <span class="font-mono text-[9px] tracking-[0.5em] text-on-surface-variant uppercase mb-4 block font-bold opacity-40">The Curator's Choice</span>
+           <h2 class="font-serif text-5xl md:text-7xl font-bold tracking-tighter text-on-background uppercase leading-none">Latest Objects</h2>
+        </div>
+        <div class="flex items-center gap-10 border-b border-primary/10 pb-4">
+           <span class="font-mono text-[10px] tracking-[.4em] uppercase text-on-surface-variant font-bold italic">Top Verified Picks</span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-12 gap-y-24">
+        {% for product in products|slice:":8" %}
+        <div class="group">
+          <!-- Image Container -->
+          <div class="aspect-square bg-white mb-8 overflow-hidden relative border border-black/5 rounded-2xl group-hover:border-primary/20 group-hover:shadow-lg transition-all duration-500">
+            <a href="{% url 'product_detail' product.slug %}" class="block w-full h-full">
+               {% if product.image %}
+               <img data-boneyard="pulse" data-boneyard-bg="bg-black/5" data-boneyard-class="w-full h-full" src="{{ product.image.url }}" class="w-full h-full object-contain p-6 group-hover:scale-105 transition-transform duration-1000"/>
+               {% else %}
+               <div class="w-full h-full flex items-center justify-center font-serif text-surface-container text-4xl italic">Object</div>
+               {% endif %}
+            </a>
+            <form method="POST" action="{% url 'add_to_cart' product.id %}" class="js-require-auth absolute bottom-6 right-6 z-20 transition-all duration-500">
+                {% csrf_token %}
+                <input type="hidden" name="quantity" value="1">
+                <button type="submit" class="bg-primary text-white w-14 h-14 flex items-center justify-center hover:bg-primary-container transition-all shadow-2xl rounded-full active:scale-95">
+                   <span class="material-symbols-outlined text-sm">shopping_bag</span>
+                </button>
+            </form>
+          </div>
+          
+          <!-- Product Meta -->
+          <div class="space-y-2 px-1">
+             <p class="font-mono text-[10px] uppercase text-on-surface-variant tracking-[0.3em] font-bold">{{ product.category.name }}</p>
+             <h4 class="font-sans text-[16px] font-semibold text-on-background tracking-tight uppercase leading-snug">{{ product.name }}</h4>
+             
+             <div class="flex items-center gap-2 pt-1 border-t border-primary/5 mt-4">
+                <div class="flex items-center gap-1">
+                   <span class="material-symbols-outlined text-primary text-[14px] fill-current">star</span>
+                   <span class="font-mono text-[12px] font-bold text-on-background">{{ product.rating }}</span>
+                </div>
+                <span class="font-mono text-[10px] text-on-surface-variant italic opacity-60">({{ product.reviews_count }} verified)</span>
+             </div>
+             
+             <p class="font-mono text-lg pt-3 font-bold text-primary italic">₹{{ product.price }}</p>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      
+      <div class="mt-24 flex justify-center border-t border-primary/5 pt-16">
+         <a href="{% url 'product_list' %}" class="font-mono text-[11px] tracking-[0.3em] uppercase border border-primary/20 px-10 py-5 hover:bg-primary hover:text-white transition-all duration-300">
+            View All Products
+         </a>
+      </div>
+    </section>
+
+    <!-- SALE BANNER -->
+    <section class="mx-8 md:mx-24 my-32 bg-primary-container py-32 px-12 md:px-32 flex flex-col items-center text-center relative overflow-hidden group rounded-3xl">
+      <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-white/10 via-transparent to-transparent opacity-50 group-hover:scale-110 transition-transform duration-[10s]"></div>
+      <span class="font-mono text-xs tracking-[0.5em] uppercase text-tertiary-fixed mb-10 font-bold opacity-60">Limited Time Access</span>
+      
+      <h2 class="font-serif text-5xl md:text-7xl font-bold text-white mb-10 tracking-tighter leading-none"><span class="italic text-tertiary-fixed">The Mid-Season</span> Curated Sale</h2>
+      
+      <p class="font-sans text-white/50 mb-16 max-w-xl text-lg italic leading-relaxed">Access private reductions on selected premium pieces and daily essentials from past collections. Available until the next drop.</p>
+      <a href="{% url 'product_list' %}" class="px-12 py-5 bg-white text-primary font-mono text-[10px] tracking-[0.4em] uppercase hover:bg-tertiary-fixed transition-colors hover:scale-105 transition-transform duration-300 font-bold tracking-widest rounded-full relative z-10 shadow-lg block mx-auto">
+         Shop The Sale
+      </a>
+    </section>
+
+    <!-- TRUST FEATURES -->
+    <section class="max-w-7xl mx-auto px-8 md:px-24 py-24 mb-12">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+        <div class="flex flex-col items-center text-center group bg-white border border-black/5 p-12 rounded-[2rem] shadow-sm hover:shadow-xl transition-all duration-500">
+           <div class="w-16 h-16 bg-surface-container-low rounded-full flex items-center justify-center mb-10 group-hover:bg-primary group-hover:text-white transition-all duration-500">
+              <span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'wght' 200;">inventory_2</span>
+           </div>
+           <h5 class="font-serif text-xl mb-4 font-bold tracking-tight uppercase">Global Logistics</h5>
+           <p class="font-sans text-sm text-on-surface-variant leading-relaxed italic opacity-70">Insured worldwide shipping on all premium orders. Crafted for global mobility.</p>
+        </div>
+        <div class="flex flex-col items-center text-center group bg-white border border-black/5 p-12 rounded-[2rem] shadow-sm hover:shadow-xl transition-all duration-500">
+           <div class="w-16 h-16 bg-surface-container-low rounded-full flex items-center justify-center mb-10 group-hover:bg-primary group-hover:text-white transition-all duration-500">
+              <span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'wght' 200;">shield_with_heart</span>
+           </div>
+           <h5 class="font-serif text-xl mb-4 font-bold tracking-tight uppercase">Authenticity Lab</h5>
+           <p class="font-sans text-sm text-on-surface-variant leading-relaxed italic opacity-70">Every item is hand-inspected by our curators in Mumbai before dispatch to ensure perfection.</p>
+        </div>
+        <div class="flex flex-col items-center text-center group bg-white border border-black/5 p-12 rounded-[2rem] shadow-sm hover:shadow-xl transition-all duration-500">
+           <div class="w-16 h-16 bg-surface-container-low rounded-full flex items-center justify-center mb-10 group-hover:bg-primary group-hover:text-white transition-all duration-500">
+              <span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'wght' 200;">eco</span>
+           </div>
+           <h5 class="font-serif text-xl mb-4 font-bold tracking-tight uppercase">Conscious Cycle</h5>
+           <p class="font-sans text-sm text-on-surface-variant leading-relaxed italic opacity-70">Offsetting our carbon footprint with every curated release. Thoughtfully sourced essentials.</p>
+        </div>
+      </div>
+    </section>
     {% endif %}
-  </div>
-</section>
 
-<!-- Features Grid -->
-<div class="grid grid-3 mb-5">
-  <div class="card text-center">
-    <div style="font-size: 3rem; margin-bottom: 1rem;">🛍️</div>
-    <h3 style="margin-bottom: 0.5rem; font-weight:700;">Wide Range</h3>
-    <p style="color: var(--text-muted);">Browse thousands of products across multiple categories.</p>
-  </div>
-  <div class="card text-center">
-    <div style="font-size: 3rem; margin-bottom: 1rem;">💳</div>
-    <h3 style="margin-bottom: 0.5rem; font-weight:700;">Secure Payments</h3>
-    <p style="color: var(--text-muted);">Pay with confidence using our secure checkout system.</p>
-  </div>
-  <div class="card text-center">
-    <div style="font-size: 3rem; margin-bottom: 1rem;">🚚</div>
-    <h3 style="margin-bottom: 0.5rem; font-weight:700;">Fast Delivery</h3>
-    <p style="color: var(--text-muted);">Get your orders delivered quickly and reliably globally.</p>
-  </div>
-</div>
-
-<!-- Search & Categories -->
-<div style="display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; margin-bottom: 3rem;">
-  <!-- Global Search Form Re-integrated Here -->
-  <form class="d-flex" method="get" action="{% url 'home' %}" style="flex: 1; max-width: 400px; gap: 0.5rem;">
-    <input class="form-control" type="search" name="q" placeholder="Search for products..."
-      value="{{ request.GET.q|default:'' }}" />
-    <button class="btn btn-primary" type="submit">Search</button>
-  </form>
-</div>
-
-<div
-  style="display: flex; gap: 0.5rem; overflow-x: auto; padding-bottom: 1rem; margin-bottom: 3rem; justify-content: center;">
-
-  {% for category in categories %}
-  <a href="{% url 'category_products' category.slug %}" class="btn btn-outline btn-sm"
-    style="border-radius: 2rem; font-weight: 500;">
-    {{ category.name }}
-  </a>
-  {% endfor %}
-</div>
-
-<!-- Latest Products -->
-<h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 1.5rem; text-align: center;">Latest Products</h2>
-
-<div class="grid grid-auto-fit">
-  {% for product in products %}
-  <div class="card">
-    <a href="{% url 'product_detail' product.slug %}" style="display: block;">
-      {% if product.image %}
-      <img src="{{ product.image.url }}" class="product-card-img" alt="{{ product.name }}">
-      {% else %}
-      <div class="product-card-img"
-        style="display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-weight: 600;">
-        No Image
-      </div>
-      {% endif %}
-    </a>
-
-    <div style="margin-top: 1rem;">
-      <h3 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.25rem;">
-        <a href="{% url 'product_detail' product.slug %}">{{ product.name }}</a>
-      </h3>
-      <p class="product-price">₹{{ product.price }}</p>
-
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-top: 1rem;">
-        <a href="{% url 'product_detail' product.slug %}" class="btn btn-outline btn-sm">Details</a>
-        {% if product.stock > 0 %}
-        <a href="{% url 'add_to_cart' product.id %}" class="btn btn-primary btn-sm">Add +</a>
-        {% else %}
-        <button class="btn btn-sm" style="background: var(--surface-3); color: var(--text-muted); cursor: not-allowed;"
-          disabled>Sold Out</button>
-        {% endif %}
-      </div>
-    </div>
-  </div>
-  {% empty %}
-  <p class="text-center" style="grid-column: 1 / -1; padding: 2rem;">No products found.</p>
-  {% endfor %}
-</div>
-
+    <style>
+      @keyframes marquee {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-50%); }
+      }
+      .animate-marquee {
+        animation: marquee 40s linear infinite;
+        display: flex;
+        width: 200%;
+      }
+      .animate-marquee:hover { animation-play-state: paused; }
+    </style>
 {% endblock %}

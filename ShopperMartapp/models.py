@@ -9,6 +9,7 @@ class Profile(models.Model):
     avatar = models.ImageField(upload_to="avatars/", blank=True, null=True)
     address_line1 = models.CharField(max_length=255, blank=True)
     address_line2 = models.CharField(max_length=255, blank=True)
+    landmark = models.CharField(max_length=255, blank=True)
     city = models.CharField(max_length=80, blank=True)
     state = models.CharField(max_length=80, blank=True)
     pincode = models.CharField(max_length=10, blank=True)
@@ -34,6 +35,8 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     stock = models.PositiveIntegerField(default=0)
     available = models.BooleanField(default=True)
+    rating = models.DecimalField(max_digits=3, decimal_places=1, default=4.5)
+    reviews_count = models.PositiveIntegerField(default=120)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     image = models.ImageField(upload_to="products/", blank=True, null=True)
@@ -41,26 +44,21 @@ class Product(models.Model):
     def __str__(self):
         return self.name
     
-class OldProduct(models.Model):
-    name = models.CharField(max_length=100)
-    description = models.TextField(blank=True, null=True)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
-    stock = models.IntegerField(default=0)
-    created_at = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
-        return self.name
 
 
 class Cart(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="cart")
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="cart", null=True, blank=True)
+    session_key = models.CharField(max_length=100, null=True, blank=True, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Cart of {self.user.username}"
+        if self.user:
+            return f"Cart of {self.user.username}"
+        return f"Guest Cart ({self.session_key})"
 
     def total_price(self):
-        return sum(item.subtotal() for item in self.items.all())
+        return sum(item.subtotal for item in self.items.all())
 
 
 class CartItem(models.Model):
@@ -85,6 +83,17 @@ class Order(models.Model):
     postal_code = models.CharField(max_length=20)
     payment = models.CharField(max_length=50)
     total = models.DecimalField(max_digits=10, decimal_places=2)
+    status = models.CharField(
+        max_length=20, 
+        choices=[
+            ('pending', 'Pending'),
+            ('paid', 'Paid'),
+            ('shipped', 'Shipped'),
+            ('delivered', 'Delivered'),
+            ('cancelled', 'Cancelled')
+        ],
+        default='pending'
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
