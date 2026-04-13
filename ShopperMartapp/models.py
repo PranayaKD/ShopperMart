@@ -238,18 +238,11 @@ class Order(models.Model):
         return f"Order #{self.id} - {self.full_name}"
 
     def change_status(self, new_status, user=None, note=""):
-        """Safely transition order status with audit log and validation."""
-        valid_transitions = {
-            'pending': ['processing', 'cancelled'],
-            'processing': ['shipped', 'cancelled'],
-            'shipped': ['out_for_delivery'],
-            'out_for_delivery': ['delivered'],
-            'delivered': [],
-            'cancelled': []
-        }
-        
-        if new_status not in valid_transitions.get(self.status, []):
-            raise ValueError(f"Illegal status transition from {self.status} to {new_status}")
+        """Safely transition order status with audit log. Validation relaxed for admin flexibility."""
+        # Check if the status is valid at all
+        status_keys = [choice[0] for choice in ORDER_STATUS_CHOICES]
+        if new_status not in status_keys:
+            raise ValueError(f"Invalid status: {new_status}")
             
         old_status = self.status
         self.status = new_status
