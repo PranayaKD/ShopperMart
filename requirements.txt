@@ -19,6 +19,9 @@ python-decouple==3.8
 python-dotenv==1.2.2
 pytz==2025.2
 requests==2.32.5
+requests-oauthlib==2.0.0
+oauthlib==3.3.1
+PyJWT==2.10.1
 sqlparse==0.5.5
 tzdata==2025.3
 whitenoise==6.7.0
