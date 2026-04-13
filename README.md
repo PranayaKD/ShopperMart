@@ -52,31 +52,26 @@ ShopperMart/
 │
 │── templates/ # Templates
 │ ├── account/
-│ │ ├── profile.html
-│ │ └── profile_edit.html
 │ ├── auth/
 │ ├── registration/
-│ ├── ShopperMartapp/
 │ ├── base.html
-│ ├── home.html
-│ └── product.html
+│ └── ShopperMartapp/ # App Templates
 │
 │── .env # Environment variables
+│── render.yaml # Infrastructure as Code
 │── manage.py
 │── requirements.txt
 
 
 ---
 
-## 🚀 Features  
+## 🚀 Features & Technical Highlights
 
-✅ User Authentication (register, login, logout)  
-✅ Profile Management (edit profile, upload avatar)  
-✅ Product Management (CRUD operations with images)  
-✅ Shopping Cart (add/remove/update products)  
-✅ Order Checkout & Tracking  
-✅ Responsive UI with Bootstrap 5  
-✅ Dark/Light Theme Support 🌙☀️  
+✅ **Advanced Authentication**: Google Single Sign-On (OAuth 2.0) and custom User Models.
+✅ **Secure Payment Gateway**: Real-time integration with the official Razorpay SDK handling encrypted tokens, callback webhooks, and cryptographic signature verification.
+✅ **Shopping Cart & Inventory**: Atomic database transactions to prevent race conditions during high-concurrency checkouts, with live inventory stock management.
+✅ **Responsive Design**: Mobile-first, desktop-optimized UI using raw CSS and Bootstrap 5 utilities, featuring dynamic scroll-drawers and hardware-accelerated animations.
+✅ **Production Infrastructure**: Hosted on Render with PostgreSQL, utilizing WhiteNoise for high-speed static asset compression and caching.
 
 ---
 
@@ -135,22 +130,21 @@ Start Command
 
 gunicorn ShopperMart.wsgi
 
-🖼️ Screenshots
-🏠 Home Page
-<img src="https://via.placeholder.com/800x400.png?text=Home+Page" alt="Home Page" width="700"/>
-📦 Product Page
-<img src="https://via.placeholder.com/800x400.png?text=Product+Page" alt="Product Page" width="700"/>
-👤 Profile Page
-<img src="https://via.placeholder.com/800x400.png?text=Profile+Page" alt="Profile Page" width="700"/>
-🛠️ Tech Stack
+## 🖼️ Application Showcase
+*Note: Include high-quality screenshots from your deployed application here to impress recruiters!*
+- **Home & Product Catalog**: Showcase the hero section and generated product grids.
+- **Secure Checkout**: Demonstrate the Razorpay Drop-in UI overlay.
+- **Order Tracking**: Highlight the responsive Order Lifecycle status bar.
 
-Backend: Django 5.2 🐍
+## 🛠️ Tech Stack
 
-Frontend: Bootstrap 5 🎨 + Custom CSS
-
-Database: SQLite (default) / PostgreSQL (prod) 🗄️
-
-Deployment: Render / Railway / PythonAnywhere ☁️
+**Backend System:** Django 5.2 🐍 Python 3.11  
+**Database Architecture:** PostgreSQL 🗄️ (Production) | SQLite (Development)  
+**High-Performance Serving:** Gunicorn | WhiteNoise (Compressed Static Asset Pipeline)  
+**Payment Gateway:** Razorpay SDK (Cryptographic Webhooks)  
+**Authentication:** Django-Allauth (Google OAuth)  
+**Frontend Aesthetics:** Vanilla CSS3 | Bootstrap 5 Utilities | OSM Autocomplete JS  
+**Deployment & Ops:** Render (Infrastructure as Code via render.yaml) ☁️
 
 🤝 Contributing
 
