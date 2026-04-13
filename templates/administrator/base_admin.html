@@ -33,7 +33,6 @@
     </script>
 
     <style>
-        * { transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1); }
         body { background-color: #f9f9f7; }
         .sidebar-item-active { 
             background-color: #000000; 
@@ -44,9 +43,15 @@
             background: #ffffff;
             border: 1px solid rgba(0,0,0,0.05);
             border-radius: 1.5rem;
+            transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.4s ease;
         }
         .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
+        
+        /* SHARPEN UI (Remove universal transitions that cause blur) */
+        a, button, input {
+            transition: all 0.3s ease;
+        }
     </style>
 </head>
 
@@ -76,7 +81,7 @@
             </a>
             
             <a href="{% url 'admin_order_list' %}" class="flex items-center gap-4 px-6 py-4 rounded-2xl group transition-all {% if active_tab == 'orders' %}sidebar-item-active{% else %}hover:bg-black/5 text-black/50 hover:text-black{% endif %}">
-                <span class="material-symbols-outlined text-[20px]">fulfillment_driving</span>
+                <span class="material-symbols-outlined text-[20px]">local_shipping</span>
                 <span class="font-mono text-[10px] uppercase tracking-widest font-bold">Fulfillment</span>
             </a>
             
@@ -122,18 +127,23 @@
                 <h1 class="font-serif text-5xl font-bold tracking-tighter uppercase italic">{% block header_title %}Dashboard{% endblock %}</h1>
             </div>
             
-            <div class="flex items-center gap-4">
-                {% if messages %}
-                  {% for message in messages %}
-                  <div class="bg-black text-white px-6 py-3 rounded-full font-mono text-[10px] uppercase tracking-widest flex items-center gap-3 shadow-2xl animate-in fade-in slide-in-from-top-4 duration-500">
-                      <span class="material-symbols-outlined text-sm">notifications</span>
-                      {{ message }}
-                  </div>
-                  {% endfor %}
-                {% endif %}
-                <button class="w-12 h-12 rounded-full border border-black/10 flex items-center justify-center hover:bg-white hover:shadow-lg transition-all">
-                    <span class="material-symbols-outlined">search</span>
-                </button>
+            <div class="flex items-center gap-6">
+                <form action="{% url 'admin_product_list' %}" method="GET" class="relative group/search hidden md:block">
+                    <input type="text" name="q" placeholder="Global catalog search..." 
+                           class="bg-white border border-black/5 rounded-full px-12 py-3 text-[11px] font-mono tracking-wider focus:ring-1 focus:ring-black focus:border-black transition-all placeholder:text-black/20 outline-none w-64 focus:w-80">
+                    <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-black/20 text-[18px] group-focus-within/search:text-black transition-colors">search</span>
+                </form>
+                
+                <div class="flex items-center gap-4">
+                    {% if messages %}
+                      {% for message in messages %}
+                      <div class="bg-black text-white px-6 py-3 rounded-full font-mono text-[10px] uppercase tracking-widest flex items-center gap-3 shadow-2xl animate-in fade-in slide-in-from-top-4 duration-500">
+                          <span class="material-symbols-outlined text-sm">notifications</span>
+                          {{ message }}
+                      </div>
+                      {% endfor %}
+                    {% endif %}
+                </div>
             </div>
         </header>
 

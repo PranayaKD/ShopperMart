@@ -6,7 +6,7 @@
 {% block admin_content %}
 <!-- KPI GRID -->
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
-    <div class="card-flat p-8 group hover:-translate-y-1 transition-all">
+    <a href="{% url 'admin_order_list' %}" class="card-flat p-8 group hover:-translate-y-1 transition-all">
         <div class="flex justify-between items-start mb-6">
             <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center">
                 <span class="material-symbols-outlined">payments</span>
@@ -15,9 +15,9 @@
         </div>
         <p class="font-mono text-[10px] uppercase tracking-widest text-black/40 font-bold mb-2">Total Revenue</p>
         <h3 class="font-serif text-3xl font-bold tracking-tighter italic animate-number">₹{{ total_revenue }}</h3>
-    </div>
+    </a>
 
-    <div class="card-flat p-8 group hover:-translate-y-1 transition-all">
+    <a href="{% url 'admin_order_list' %}?status=pending" class="card-flat p-8 group hover:-translate-y-1 transition-all">
         <div class="flex justify-between items-start mb-6">
             <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center">
                 <span class="material-symbols-outlined">shopping_basket</span>
@@ -26,9 +26,9 @@
         </div>
         <p class="font-mono text-[10px] uppercase tracking-widest text-black/40 font-bold mb-2">Order Count</p>
         <h3 class="font-serif text-3xl font-bold tracking-tighter italic animate-number">{{ total_orders }}</h3>
-    </div>
+    </a>
 
-    <div class="card-flat p-8 group hover:-translate-y-1 transition-all">
+    <a href="{% url 'admin_product_list' %}" class="card-flat p-8 group hover:-translate-y-1 transition-all">
         <div class="flex justify-between items-start mb-6">
             <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center">
                 <span class="material-symbols-outlined">inventory</span>
@@ -39,7 +39,7 @@
         </div>
         <p class="font-mono text-[10px] uppercase tracking-widest text-black/40 font-bold mb-2">Inventory Items</p>
         <h3 class="font-serif text-3xl font-bold tracking-tighter italic animate-number">{{ total_products }}</h3>
-    </div>
+    </a>
 
     <div class="card-flat p-8 group hover:-translate-y-1 transition-all">
         <div class="flex justify-between items-start mb-6">
