@@ -131,10 +131,14 @@ Start Command
 gunicorn ShopperMart.wsgi
 
 ## 🖼️ Application Showcase
-*Note: Include high-quality screenshots from your deployed application here to impress recruiters!*
-- **Home & Product Catalog**: Showcase the hero section and generated product grids.
-- **Secure Checkout**: Demonstrate the Razorpay Drop-in UI overlay.
-- **Order Tracking**: Highlight the responsive Order Lifecycle status bar.
+- **Home Page Hero**:
+<img src="screenshots/home.png" alt="Home Page" width="700"/>
+
+- **High-Converting Product Grid**:
+<img src="screenshots/products.png" alt="Product Page" width="700"/>
+
+- **Secure Razorpay Checkout**:
+<img src="screenshots/checkout.png" alt="Checkout Page" width="700"/>
 
 ## 🛠️ Tech Stack
 
