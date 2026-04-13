@@ -31,6 +31,7 @@ urlpatterns = [
 
     # Checkout & Orders
     path("checkout/", orders.checkout, name="checkout"),
+    path("payment/callback/", orders.payment_callback, name="payment_callback"),
     path("order-success/", orders.order_success, name="order_success"),
     path("my-orders/", orders.my_orders, name="my_orders"),
     path("orders/<uuid:order_id>/", orders.order_detail, name="order_detail"),

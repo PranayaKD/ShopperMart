@@ -8,6 +8,8 @@ logger = logging.getLogger(__name__)
 from .cart import get_cart
 from ..models import Product, Order, OrderItem, OrderStatusLog, ORDER_LIFECYCLE_STEPS
 from ..forms import CheckoutForm
+import razorpay
+from django.conf import settings
 
 # -------------------- CHECKOUT & ORDERS --------------------
 @transaction.atomic
@@ -72,24 +74,41 @@ def checkout(request):
                         price=product.price,
                     )
                 
-                # Update status with log
-                order.change_status('processing', user=user, note="Order verified and processing started.")
-                
                 # Mark token as used
                 request.session['last_checkout_token'] = checkout_token
                 
-                # Clear cart
+                # Clear cart and set last order id
                 cart.items.all().delete()
-                request.session['last_order_id'] = order.id
+                request.session['last_order_id'] = str(order.id)
                 
-                logger.info(f"OrderSuccess: Order {order.id} created for user {user}")
-                messages.success(request, f"Order confirmed successfully! Order ID: {order.id}")
-                return redirect("order_success")
+                if form.cleaned_data["payment_method"] in ['card', 'upi']:
+                    # Initiate Razorpay SDK
+                    client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+                    payment_data = {
+                        "amount": int(total * 100),  # amount in paise
+                        "currency": "INR",
+                        "receipt": str(order.id)
+                    }
+                    razorpay_order = client.order.create(data=payment_data)
+                    
+                    logger.info(f"PaymentInitiated: Razorpay order created for Django order {order.id}")
+                    
+                    return render(request, "ShopperMartapp/payment.html", {
+                        "order": order,
+                        "razorpay_order_id": razorpay_order["id"],
+                        "razorpay_key_id": settings.RAZORPAY_KEY_ID,
+                        "amount": int(total * 100)
+                    })
+                
+                else:
+                    # Cash on delivery
+                    order.change_status('processing', user=user, note="Order verified (COD) and processing started.")
+                    logger.info(f"OrderSuccess: Order {order.id} created for user {user} via COD")
+                    messages.success(request, f"Order confirmed successfully! Order ID: {order.id}")
+                    return redirect("order_success")
 
-            except ValueError:
-                # order was created but transaction will rollback. 
-                # However Order.objects.create is inside the try but also inside @transaction.atomic
-                # The rollback is handled by the decorator.
+            except ValueError as ve:
+                messages.error(request, str(ve))
                 return redirect("cart")
             except Exception as e:
                 logger.error(f"CheckoutError: {e}")
@@ -120,6 +139,46 @@ def checkout(request):
         "form": form,
         "checkout_token": checkout_token
     })
+
+
+from django.views.decorators.csrf import csrf_exempt
+
+@csrf_exempt
+def payment_callback(request):
+    """Handle Razorpay success callback verify signature."""
+    if request.method == "POST":
+        razorpay_payment_id = request.POST.get('razorpay_payment_id', '')
+        razorpay_order_id = request.POST.get('razorpay_order_id', '')
+        razorpay_signature = request.POST.get('razorpay_signature', '')
+        order_id_str = request.POST.get('custom_order_id', '')
+
+        client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+        params_dict = {
+            'razorpay_order_id': razorpay_order_id,
+            'razorpay_payment_id': razorpay_payment_id,
+            'razorpay_signature': razorpay_signature
+        }
+
+        try:
+            client.utility.verify_payment_signature(params_dict)
+            # Signature matches!
+            order = Order.objects.get(id=order_id_str)
+            if order.status == 'pending':
+                order.change_status('processing', note=f"Razorpay payment verified. ID: {razorpay_payment_id}")
+            
+            messages.success(request, "Payment successful! Your order has been placed.")
+            return redirect("order_success")
+            
+        except razorpay.errors.SignatureVerificationError:
+            logger.error("PaymentFailed: Razorpay signature verification failed.")
+            messages.error(request, "Payment verification failed. Please try again.")
+            return redirect("home")
+        except Exception as e:
+            logger.error(f"PaymentCallbackError: {e}")
+            messages.error(request, "An error occurred with your payment.")
+            return redirect("home")
+
+    return redirect("home")
 
 
 def order_success(request):

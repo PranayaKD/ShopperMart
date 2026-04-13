@@ -179,28 +179,14 @@
                 // Determine selected payment method
                 const paymentMethod = document.querySelector('input[name="payment_method"]:checked').value;
                 
-                // Form is valid because it reached here (HTML5 handles the pattern validation)
+                // Button loading state
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-80', 'cursor-not-allowed');
+                
                 if (paymentMethod === 'card' || paymentMethod === 'upi') {
-                    // Prevent immediate submit to simulate payment gateway processing
-                    e.preventDefault();
-                    
-                    // Button loading state
-                    submitBtn.disabled = true;
-                    submitBtn.classList.add('opacity-80', 'cursor-not-allowed');
                     btnText.innerHTML = 'Connecting to Secure Gateway... <span class="animate-pulse">...</span>';
-                    
-                    setTimeout(() => {
-                        btnText.innerHTML = 'Processing Payment...';
-                        setTimeout(() => {
-                            btnText.innerHTML = 'Payment Successful!';
-                            btnText.classList.add('text-emerald-400');
-                            checkoutForm.submit();
-                        }, 1200);
-                    }, 1000);
                 } else {
-                    // COD processing
                     btnText.innerHTML = 'Finalizing Order...';
-                    submitBtn.disabled = true;
                 }
             });
         }

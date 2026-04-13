@@ -205,6 +205,10 @@ MESSAGE_TAGS = {
     messages.ERROR: "danger",
 }
 
+# ================= RAZORPAY =================
+RAZORPAY_KEY_ID = config("RAZORPAY_KEY_ID", default="")
+RAZORPAY_KEY_SECRET = config("RAZORPAY_KEY_SECRET", default="")
+
 # ================= SECURITY SETTINGS (Production) =================
 SECURE_SSL_REDIRECT = False
 SECURE_HSTS_SECONDS = 0

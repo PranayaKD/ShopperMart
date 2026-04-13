@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Complete Payment | ShopperMart{% endblock %}
+
+{% block content %}
+<div class="bg-gray-50 min-h-screen py-24 flex items-center justify-center">
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 max-w-sm w-full text-center">
+        <!-- Spinner -->
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-black border-t-2 border-r-2 mx-auto mb-6"></div>
+        
+        <h2 class="text-xl font-bold text-gray-900 mb-2">Connecting to Secure Gateway</h2>
+        <p class="text-sm text-gray-500 mb-8 leading-relaxed">Please do not close this window or press back. We are initializing the 256-bit secure gateway...</p>
+        
+        <!-- Fallback button if popup gets blocked by adblock or browser policy -->
+        <button id="rzp-button1" class="hidden w-full bg-black text-white font-bold rounded-xl py-4 flex justify-center items-center gap-2 hover:bg-zinc-800 transition-colors">
+            <span class="material-symbols-outlined text-[18px]">lock</span>
+            Pay Now
+        </button>
+
+        <form action="{% url 'payment_callback' %}" method="POST" id="payment-form" class="hidden">
+            <!-- Ensure CSRF ignores aren't an issue since this endpoint is csrf_exempt but we can include it -->
+            <input type="hidden" name="custom_order_id" value="{{ order.id }}">
+        </form>
+    </div>
+</div>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+    var options = {
+        "key": "{{ razorpay_key_id }}",
+        "amount": "{{ amount }}", 
+        "currency": "INR",
+        "name": "ShopperMart",
+        "description": "Secure Order Payment",
+        "order_id": "{{ razorpay_order_id }}",
+        "handler": function (response){
+            var form = document.getElementById('payment-form');
+            
+            var input_payment_id = document.createElement("input");
+            input_payment_id.type = "hidden";
+            input_payment_id.name = "razorpay_payment_id";
+            input_payment_id.value = response.razorpay_payment_id;
+            
+            var input_order_id = document.createElement("input");
+            input_order_id.type = "hidden";
+            input_order_id.name = "razorpay_order_id";
+            input_order_id.value = response.razorpay_order_id;
+            
+            var input_signature = document.createElement("input");
+            input_signature.type = "hidden";
+            input_signature.name = "razorpay_signature";
+            input_signature.value = response.razorpay_signature;
+            
+            form.appendChild(input_payment_id);
+            form.appendChild(input_order_id);
+            form.appendChild(input_signature);
+            
+            // Note: Since payment_callback is @csrf_exempt, we don't strictly need the token, 
+            // but we post to our own app directly.
+            form.submit();
+        },
+        "prefill": {
+            "name": "{{ order.full_name }}",
+            "email": "{{ order.email }}",
+            "contact": "9999999999" // Mock contact
+        },
+        "theme": {
+            "color": "#000000" 
+        },
+        "modal": {
+            "ondismiss": function() {
+                // Return to their pending orders page because order is already created in db
+                window.location.href = "{% url 'order_detail' order.id %}";
+            }
+        }
+    };
+    
+    var rzp1 = new Razorpay(options);
+    
+    rzp1.on('payment.failed', function (response){
+        alert("Payment Failed: " + response.error.description);
+        window.location.href = "{% url 'order_detail' order.id %}";
+    });
+    
+    // Auto open once DOM is loaded!
+    document.addEventListener("DOMContentLoaded", function() {
+        // Small delay to ensure script initializes
+        setTimeout(() => {
+            rzp1.open();
+            // Show fallback button after 3 seconds in case popup blocked
+            setTimeout(() => {
+                document.getElementById('rzp-button1').classList.remove('hidden');
+                document.getElementById('rzp-button1').classList.add('flex');
+            }, 3000);
+        }, 500);
+    });
+
+    document.getElementById('rzp-button1').onclick = function(e){
+        rzp1.open();
+        e.preventDefault();
+    }
+</script>
+{% endblock %}
