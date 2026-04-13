@@ -1,0 +1,79 @@
+{% extends "administrator/base_admin.html" %}
+{% load admin_extras %}
+
+{% block header_title %}Review Moderation{% endblock %}
+
+{% block admin_content %}
+<div class="card-flat overflow-hidden">
+    <div class="overflow-x-auto no-scrollbar">
+        <table class="w-full text-left">
+            <thead class="bg-black/5 font-mono text-[9px] uppercase tracking-[0.3em] font-bold text-black/40">
+                <tr>
+                    <th class="px-8 py-4">Product</th>
+                    <th class="px-8 py-4">Author</th>
+                    <th class="px-8 py-4">Rating</th>
+                    <th class="px-8 py-4">Status</th>
+                    <th class="px-8 py-4 text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-black/5 text-sm">
+                {% for review in reviews %}
+                <tr class="hover:bg-black/[0.01]">
+                    <td class="px-8 py-8 max-w-xs">
+                         <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-lg bg-black/5 overflow-hidden shrink-0">
+                                {% if review.product.image %}
+                                <img src="{{ review.product.image.url }}" class="w-full h-full object-cover grayscale">
+                                {% endif %}
+                            </div>
+                            <span class="font-serif italic font-bold truncate">{{ review.product.name }}</span>
+                         </div>
+                    </td>
+                    <td class="px-8 py-8">
+                        <div class="flex flex-col">
+                            <span class="font-bold">{{ review.user.username }}</span>
+                            <span class="font-mono text-[9px] text-black/30 tracking-widest uppercase">{{ review.created_at|date:"d M, Y" }}</span>
+                        </div>
+                    </td>
+                    <td class="px-8 py-8">
+                        <div class="flex text-amber-400">
+                            {% for i in "12345" %}
+                              <span class="material-symbols-outlined text-[16px] {% if forloop.counter <= review.rating %}fill-current{% else %}opacity-20{% endif %}">star</span>
+                            {% endfor %}
+                        </div>
+                    </td>
+                    <td class="px-8 py-8">
+                        <span class="font-mono text-[9px] font-bold uppercase tracking-widest {% if review.is_approved %}text-emerald-500{% else %}text-amber-500{% endif %}">
+                            {% if review.is_approved %}Live{% else %}Pending{% endif %}
+                        </span>
+                    </td>
+                    <td class="px-8 py-8 text-right">
+                        <form method="POST" class="inline-flex gap-2">
+                            {% csrf_token %}
+                            <input type="hidden" name="review_id" value="{{ review.id }}">
+                            {% if not review.is_approved %}
+                            <button type="submit" name="action" value="approve" class="px-4 py-2 bg-emerald-50 text-emerald-600 rounded-xl font-mono text-[9px] uppercase tracking-widest font-bold hover:bg-emerald-500 hover:text-white transition-all">Approve</button>
+                            {% else %}
+                            <button type="submit" name="action" value="reject" class="px-4 py-2 bg-red-50 text-red-600 rounded-xl font-mono text-[9px] uppercase tracking-widest font-bold hover:bg-red-500 hover:text-white transition-all">Reject</button>
+                            {% endif %}
+                        </form>
+                    </td>
+                </tr>
+                <!-- COMMENT ROW -->
+                <tr class="bg-black/[0.01]">
+                    <td colspan="5" class="px-12 py-6">
+                         <div class="bg-white p-6 rounded-2xl border border-black/5 relative after:absolute after:-top-4 after:left-10 after:border-8 after:border-transparent after:border-b-white">
+                             <p class="font-newsreader italic text-on-surface-variant leading-relaxed">" {{ review.comment }} "</p>
+                         </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="px-8 py-20 text-center font-serif italic text-black/30">No items in the moderation queue.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

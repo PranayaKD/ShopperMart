@@ -1,7 +1,7 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
 from django.views.generic import TemplateView
-from .views import catalog, cart, orders, account
+from .views import catalog, cart, orders, account, administrator
 
 urlpatterns = [
     # Home / Shop
@@ -49,8 +49,18 @@ urlpatterns = [
     path("contact/", catalog.contact_view, name="contact"),
     path("legal/", TemplateView.as_view(template_name="stub.html"), name="legal"),
 
-    # Product Management
+    # Product Management (Legacy/Redirects)
     path("products/", catalog.product_list, name="product_list"),
     path("products/<uuid:pk>/update/", catalog.product_update, name="product_update"),
     path("products/<uuid:pk>/delete/", catalog.product_delete, name="product_delete"),
+
+    # --- ADVANCED DASHBOARD SYSTEM ---
+    path("dashboard/", administrator.admin_dashboard, name="admin_dashboard"),
+    path("dashboard/inventory/", administrator.admin_product_list, name="admin_product_list"),
+    path("dashboard/inventory/new/", administrator.admin_product_upsert, name="admin_product_upsert"),
+    path("dashboard/inventory/<uuid:pk>/edit/", administrator.admin_product_upsert, name="admin_product_edit"),
+    path("dashboard/inventory/<uuid:pk>/delete/", administrator.admin_product_delete, name="admin_product_delete"),
+    path("dashboard/orders/", administrator.admin_order_list, name="admin_order_list"),
+    path("dashboard/orders/<uuid:order_id>/", administrator.admin_order_detail, name="admin_order_detail"),
+    path("dashboard/moderation/", administrator.admin_review_list, name="admin_review_list"),
 ]

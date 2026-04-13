@@ -1,0 +1,162 @@
+{% load static %}
+<!DOCTYPE html>
+<html class="light scroll-smooth" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>{% block title %}ShopperMart Admin | Control Center{% endblock %}</title>
+    
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,700;0,800;1,400;1,700&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+
+    <script id="tailwind-config">
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "background": "#f9f9f7",
+                        "primary": "#000000",
+                        "surface": "#ffffff",
+                        "surface-container": "#f4f4f2",
+                        "on-surface-variant": "#45464d",
+                        "outline-variant": "#c6c6cd",
+                    },
+                    fontFamily: {
+                        "serif": ["Playfair Display", "serif"],
+                        "sans": ["Inter", "sans-serif"],
+                        "mono": ["JetBrains Mono", "monospace"],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        * { transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1); }
+        body { background-color: #f9f9f7; }
+        .sidebar-item-active { 
+            background-color: #000000; 
+            color: #ffffff;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .card-flat {
+            background: #ffffff;
+            border: 1px solid rgba(0,0,0,0.05);
+            border-radius: 1.5rem;
+        }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+
+<body class="font-sans text-primary antialiased min-h-screen flex bg-background">
+
+    <!-- SIDEBAR (Fixed for Efficiency) -->
+    <aside class="fixed left-0 top-0 bottom-0 w-72 bg-white border-r border-black/5 flex flex-col p-8 z-50">
+        <div class="mb-12 flex items-center gap-3">
+             <div class="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
+                 <span class="material-symbols-outlined text-white text-[18px]">dashboard</span>
+             </div>
+             <span class="font-serif italic text-xl font-bold tracking-tighter uppercase">ShopperMart</span>
+             <span class="text-[9px] font-mono bg-black text-white px-2 py-0.5 rounded-full uppercase tracking-widest ml-auto">Admin</span>
+        </div>
+
+        <nav class="flex flex-col gap-2">
+            <span class="font-mono text-[9px] uppercase tracking-[0.4em] text-black/30 font-bold mb-4 ml-4">Management</span>
+            
+            <a href="{% url 'admin_dashboard' %}" class="flex items-center gap-4 px-6 py-4 rounded-2xl group transition-all {% if active_tab == 'dashboard' %}sidebar-item-active{% else %}hover:bg-black/5 text-black/50 hover:text-black{% endif %}">
+                <span class="material-symbols-outlined text-[20px]">analytics</span>
+                <span class="font-mono text-[10px] uppercase tracking-widest font-bold">Insights</span>
+            </a>
+            
+            <a href="{% url 'admin_product_list' %}" class="flex items-center gap-4 px-6 py-4 rounded-2xl group transition-all {% if active_tab == 'products' %}sidebar-item-active{% else %}hover:bg-black/5 text-black/50 hover:text-black{% endif %}">
+                <span class="material-symbols-outlined text-[20px]">inventory_2</span>
+                <span class="font-mono text-[10px] uppercase tracking-widest font-bold">Catalog</span>
+            </a>
+            
+            <a href="{% url 'admin_order_list' %}" class="flex items-center gap-4 px-6 py-4 rounded-2xl group transition-all {% if active_tab == 'orders' %}sidebar-item-active{% else %}hover:bg-black/5 text-black/50 hover:text-black{% endif %}">
+                <span class="material-symbols-outlined text-[20px]">fulfillment_driving</span>
+                <span class="font-mono text-[10px] uppercase tracking-widest font-bold">Fulfillment</span>
+            </a>
+            
+            <a href="{% url 'admin_review_list' %}" class="flex items-center gap-4 px-6 py-4 rounded-2xl group transition-all {% if active_tab == 'reviews' %}sidebar-item-active{% else %}hover:bg-black/5 text-black/50 hover:text-black{% endif %}">
+                <span class="material-symbols-outlined text-[20px]">reviews</span>
+                <span class="font-mono text-[10px] uppercase tracking-widest font-bold">Moderation</span>
+            </a>
+
+            <div class="mt-12 pt-8 border-t border-black/5">
+                <span class="font-mono text-[9px] uppercase tracking-[0.4em] text-black/30 font-bold mb-4 ml-4 block">System</span>
+                <a href="{% url 'home' %}" class="flex items-center gap-4 px-6 py-4 rounded-2xl text-black/40 hover:text-black hover:bg-black/5">
+                    <span class="material-symbols-outlined text-[20px]">storefront</span>
+                    <span class="font-mono text-[10px] uppercase tracking-widest font-bold">View Store</span>
+                </a>
+                <form method="POST" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl text-red-400 hover:text-red-500 hover:bg-red-50 transition-all">
+                        <span class="material-symbols-outlined text-[20px]">logout</span>
+                        <span class="font-mono text-[10px] uppercase tracking-widest font-bold">Sign Out</span>
+                    </button>
+                </form>
+            </div>
+        </nav>
+
+        <div class="mt-auto p-6 bg-black/5 rounded-3xl">
+            <p class="font-mono text-[9px] uppercase tracking-widest text-black/30 mb-2 font-bold italic">User session</p>
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-black/10 rounded-full flex items-center justify-center text-[10px] font-bold">AD</div>
+                <div class="flex flex-col">
+                    <span class="text-[11px] font-bold tracking-tight">{{ user.username }}</span>
+                    <span class="text-[9px] text-black/40">Super Administrator</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="ml-72 flex-grow p-12 overflow-x-hidden">
+        <!-- HEADER -->
+        <header class="mb-16 flex justify-between items-center">
+            <div>
+                <span class="font-mono text-[10px] uppercase tracking-[0.5em] text-black/30 font-bold mb-2 block">ShopperMart / Control</span>
+                <h1 class="font-serif text-5xl font-bold tracking-tighter uppercase italic">{% block header_title %}Dashboard{% endblock %}</h1>
+            </div>
+            
+            <div class="flex items-center gap-4">
+                {% if messages %}
+                  {% for message in messages %}
+                  <div class="bg-black text-white px-6 py-3 rounded-full font-mono text-[10px] uppercase tracking-widest flex items-center gap-3 shadow-2xl animate-in fade-in slide-in-from-top-4 duration-500">
+                      <span class="material-symbols-outlined text-sm">notifications</span>
+                      {{ message }}
+                  </div>
+                  {% endfor %}
+                {% endif %}
+                <button class="w-12 h-12 rounded-full border border-black/10 flex items-center justify-center hover:bg-white hover:shadow-lg transition-all">
+                    <span class="material-symbols-outlined">search</span>
+                </button>
+            </div>
+        </header>
+
+        {% block admin_content %}{% endblock %}
+    </main>
+
+    <script>
+        // Micro-animations for numbers
+        document.querySelectorAll('.animate-number').forEach(el => {
+            const target = parseFloat(el.innerText.replace(/[^0-9.]/g, ''));
+            const suffix = el.innerText.replace(/[0-9.]/g, '');
+            let count = 0;
+            const step = target / 50;
+            const timer = setInterval(() => {
+                count += step;
+                if (count >= target) {
+                    el.innerText = target + suffix;
+                    clearInterval(timer);
+                } else {
+                    el.innerText = Math.floor(count) + suffix;
+                }
+            }, 20);
+        });
+    </script>
+</body>
+</html>

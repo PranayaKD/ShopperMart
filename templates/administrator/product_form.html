@@ -1,0 +1,93 @@
+{% extends "administrator/base_admin.html" %}
+
+{% block header_title %}{% if product %}Edit Product{% else %}New Collection Item{% endif %}{% endblock %}
+
+{% block admin_content %}
+<div class="max-w-4xl">
+    <div class="card-flat p-12">
+        <form method="POST" enctype="multipart/form-data" class="space-y-10">
+            {% csrf_token %}
+            
+            <!-- SECTION 1: IDENTITY -->
+            <div>
+                <span class="font-mono text-[9px] uppercase tracking-[0.4em] text-black/30 font-bold mb-6 block">Identity & Classification</span>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="space-y-2">
+                        <label class="font-mono text-[10px] uppercase tracking-widest font-bold text-black/60">{{ form.name.label }}</label>
+                        {{ form.name|add_class:"w-full bg-black/5 border-0 rounded-2xl px-6 py-4 text-sm font-sans focus:ring-1 focus:ring-black transition-all" }}
+                        {% if form.name.errors %}<p class="text-red-500 text-[10px]">{{ form.name.errors.0 }}</p>{% endif %}
+                    </div>
+                    <div class="space-y-2">
+                        <label class="font-mono text-[10px] uppercase tracking-widest font-bold text-black/60">{{ form.category.label }}</label>
+                        {{ form.category|add_class:"w-full bg-black/5 border-0 rounded-2xl px-6 py-4 text-sm font-sans focus:ring-1 focus:ring-black transition-all" }}
+                        {% if form.category.errors %}<p class="text-red-500 text-[10px]">{{ form.category.errors.0 }}</p>{% endif %}
+                    </div>
+                </div>
+                <div class="mt-8 space-y-2">
+                    <label class="font-mono text-[10px] uppercase tracking-widest font-bold text-black/60">{{ form.slug.label }}</label>
+                    {{ form.slug|add_class:"w-full bg-black/5 border-0 rounded-2xl px-6 py-4 text-sm font-mono focus:ring-1 focus:ring-black transition-all" }}
+                    <p class="text-[9px] font-mono text-black/30 pt-1">Determine the canonical URL handle for this item.</p>
+                </div>
+            </div>
+
+            <!-- SECTION 2: SPECIFICATIONS -->
+            <div>
+                 <span class="font-mono text-[9px] uppercase tracking-[0.4em] text-black/30 font-bold mb-6 block">Specifications & Economics</span>
+                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="space-y-2">
+                        <label class="font-mono text-[10px] uppercase tracking-widest font-bold text-black/60">{{ form.price.label }} (₹)</label>
+                        {{ form.price|add_class:"w-full bg-black/5 border-0 rounded-2xl px-6 py-4 text-sm font-sans focus:ring-1 focus:ring-black transition-all" }}
+                    </div>
+                    <div class="space-y-2">
+                        <label class="font-mono text-[10px] uppercase tracking-widest font-bold text-black/60">{{ form.stock.label }}</label>
+                        {{ form.stock|add_class:"w-full bg-black/5 border-0 rounded-2xl px-6 py-4 text-sm font-sans focus:ring-1 focus:ring-black transition-all" }}
+                    </div>
+                 </div>
+                 <div class="mt-8 space-y-2">
+                    <label class="font-mono text-[10px] uppercase tracking-widest font-bold text-black/60">{{ form.description.label }}</label>
+                    {{ form.description|add_class:"w-full bg-black/5 border-0 rounded-2xl px-6 py-4 text-sm font-newsreader italic text-on-surface-variant focus:ring-1 focus:ring-black transition-all" }}
+                 </div>
+            </div>
+
+            <!-- SECTION 3: ASSETS -->
+            <div class="pb-8">
+                 <span class="font-mono text-[9px] uppercase tracking-[0.4em] text-black/30 font-bold mb-6 block">Visual Assets & Status</span>
+                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="space-y-2">
+                        <label class="font-mono text-[10px] uppercase tracking-widest font-bold text-black/60">Product Image</label>
+                        {{ form.image|add_class:"w-full text-sm font-mono file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-semibold file:bg-black file:text-white hover:file:bg-zinc-800" }}
+                    </div>
+                    <div class="flex items-center gap-4 py-8">
+                        {{ form.available|add_class:"w-6 h-6 border-black/10 rounded-lg text-black focus:ring-0" }}
+                        <label class="font-mono text-[10px] uppercase tracking-widest font-bold text-black/60">Mark as Available online</label>
+                    </div>
+                 </div>
+            </div>
+
+            <!-- ACTIONS -->
+            <div class="pt-10 border-t border-black/5 flex items-center gap-6">
+                <button type="submit" class="bg-black text-white px-12 py-5 rounded-3xl font-mono text-[10px] uppercase tracking-[0.3em] font-bold shadow-2xl hover:-translate-y-1 transition-all">
+                    {% if product %}Update Item{% else %}Create Product{% endif %}
+                </button>
+                <a href="{% url 'admin_product_list' %}" class="font-mono text-[10px] uppercase tracking-widest font-bold text-black/30 hover:text-black transition-all">Discard Changes</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Auto-generate slug from name if empty
+    const nameInput = document.querySelector('input[name="name"]');
+    const slugInput = document.querySelector('input[name="slug"]');
+    
+    if (nameInput && slugInput && !slugInput.value) {
+        nameInput.addEventListener('input', () => {
+            const slug = nameInput.value
+                .toLowerCase()
+                .replace(/[^\w\s-]/g, '')
+                .replace(/\s+/g, '-');
+            slugInput.value = slug;
+        });
+    }
+</script>
+{% endblock %}

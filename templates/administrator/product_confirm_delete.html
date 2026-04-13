@@ -1,0 +1,31 @@
+{% extends "administrator/base_admin.html" %}
+
+{% block header_title %}Archive Item{% endblock %}
+
+{% block admin_content %}
+<div class="max-w-2xl">
+    <div class="card-flat p-12 text-center">
+        <div class="w-20 h-20 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-10">
+            <span class="material-symbols-outlined text-4xl">archive</span>
+        </div>
+        
+        <h3 class="font-serif text-3xl font-bold italic mb-6">Archive Collection Item?</h3>
+        <p class="font-sans text-sm text-on-surface-variant leading-relaxed mb-12 opacity-70 italic">
+            You are about to archive <strong class="text-black font-bold font-serif">{{ product.name }}</strong>. 
+            This will remove it from the public store but preserve it in the database for historical order accuracy.
+        </p>
+
+        <form method="POST">
+            {% csrf_token %}
+            <div class="flex flex-col gap-4">
+                <button type="submit" class="bg-red-500 text-white py-5 rounded-3xl font-mono text-[10px] uppercase tracking-[0.3em] font-bold shadow-xl hover:bg-red-600 transition-all">
+                    Confirm Archive
+                </button>
+                <a href="{% url 'admin_product_list' %}" class="font-mono text-[10px] uppercase tracking-widest font-bold text-black/30 hover:text-black transition-all">
+                    Cancel & Return
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

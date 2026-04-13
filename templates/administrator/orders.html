@@ -1,0 +1,65 @@
+{% extends "administrator/base_admin.html" %}
+{% load admin_extras %}
+
+{% block header_title %}Fulfillment Center{% endblock %}
+
+{% block admin_content %}
+<div class="mb-12 flex items-center gap-8">
+    <a href="?status=" class="px-6 py-3 rounded-2xl font-mono text-[9px] uppercase tracking-widest font-bold shadow-sm {% if not status_filter %}bg-black text-white{% else %}bg-white border border-black/5 text-black/40 hover:text-black{% endif %}">All Orders</a>
+    <a href="?status=pending" class="px-6 py-3 rounded-2xl font-mono text-[9px] uppercase tracking-widest font-bold shadow-sm {% if status_filter == 'pending' %}bg-amber-400 text-black{% else %}bg-white border border-black/5 text-black/40 hover:text-black{% endif %}">Queue</a>
+    <a href="?status=shipped" class="px-6 py-3 rounded-2xl font-mono text-[9px] uppercase tracking-widest font-bold shadow-sm {% if status_filter == 'shipped' %}bg-black text-white{% else %}bg-white border border-black/5 text-black/40 hover:text-black{% endif %}">In Transit</a>
+    <a href="?status=delivered" class="px-6 py-3 rounded-2xl font-mono text-[9px] uppercase tracking-widest font-bold shadow-sm {% if status_filter == 'delivered' %}bg-emerald-500 text-white{% else %}bg-white border border-black/5 text-black/40 hover:text-black{% endif %}">Resolved</a>
+</div>
+
+<div class="card-flat overflow-hidden">
+    <div class="overflow-x-auto no-scrollbar">
+        <table class="w-full text-left">
+            <thead class="bg-black/5 font-mono text-[9px] uppercase tracking-[0.3em] font-bold text-black/40">
+                <tr>
+                    <th class="px-8 py-4">Identification</th>
+                    <th class="px-8 py-4">Customer Details</th>
+                    <th class="px-8 py-4">Financials</th>
+                    <th class="px-8 py-4">Phase</th>
+                    <th class="px-8 py-4">Datetime</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-black/5">
+                {% for order in orders %}
+                <tr class="hover:bg-black/[0.01] cursor-pointer group" onclick="window.location='{% url 'admin_order_detail' order.id %}'">
+                    <td class="px-8 py-8">
+                        <div class="flex items-center gap-4">
+                             <div class="w-10 h-10 rounded-xl bg-black/5 flex items-center justify-center text-black/20 group-hover:bg-black group-hover:text-white transition-all">
+                                 <span class="material-symbols-outlined text-[18px]">receipt_long</span>
+                             </div>
+                             <span class="font-mono text-[10px] font-bold tracking-tighter">#{{ order.id|stringformat:".8s" }}</span>
+                        </div>
+                    </td>
+                    <td class="px-8 py-8">
+                        <div>
+                            <h4 class="font-serif italic font-bold text-sm">{{ order.full_name }}</h4>
+                            <p class="font-mono text-[9px] text-black/30 tracking-widest uppercase truncate max-w-[150px]">{{ order.email }}</p>
+                        </div>
+                    </td>
+                    <td class="px-8 py-8">
+                        <span class="font-bold text-sm">₹{{ order.total }}</span>
+                    </td>
+                    <td class="px-8 py-8">
+                        <div class="flex items-center gap-2">
+                            <div class="w-2 h-2 rounded-full {% if order.status == 'delivered' %}bg-emerald-500{% elif order.status == 'pending' %}bg-amber-400{% elif order.status == 'cancelled' %}bg-red-500{% else %}bg-blue-500{% endif %}"></div>
+                            <span class="font-mono text-[9px] font-bold uppercase tracking-widest text-black/60">{{ order.status|replace:"_, " }}</span>
+                        </div>
+                    </td>
+                    <td class="px-8 py-8">
+                        <span class="font-mono text-[9px] text-black/30 tracking-widest font-bold">{{ order.created_at|date:"d M, H:i" }}</span>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="px-8 py-20 text-center font-serif italic text-black/30">No orders found matching this status.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -250,6 +250,12 @@
               <span class="material-symbols-outlined text-white/40 group-hover:text-white transition-colors">receipt_long</span>
               <span class="font-mono text-[11px] uppercase tracking-[0.3em] font-bold">My Orders</span>
            </a>
+           {% if user.is_staff %}
+           <a href="{% url 'admin_dashboard' %}" class="flex items-center gap-4 group text-emerald-500 mb-4">
+              <span class="material-symbols-outlined text-emerald-400">admin_panel_settings</span>
+              <span class="font-mono text-[11px] uppercase tracking-[0.3em] font-bold">Admin Dashboard</span>
+           </a>
+           {% endif %}
           <a href="{% url 'logout' %}" class="flex items-center gap-4 group text-red-500 mt-12">
              <span class="material-symbols-outlined text-red-400">logout</span>
              <span class="font-mono text-[11px] uppercase tracking-[0.3em] font-bold">Sign out</span>
