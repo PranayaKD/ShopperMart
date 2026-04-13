@@ -106,10 +106,10 @@ MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",  # Good - already added
     "django.contrib.sessions.middleware.SessionMiddleware",
-    "ShopperMartapp.middleware.PreLoginSessionMiddleware",  # 👈 Captures guest session before login
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "ShopperMartapp.middleware.PreLoginSessionMiddleware",  # Moved here to have access to request.user
     "allauth.account.middleware.AccountMiddleware", # Required for allauth
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
