@@ -1,5 +1,8 @@
 # 🛒 ShopperMart  
 
+[![Live Demo](https://img.shields.io/badge/Live-Demo-brightgreen?style=for-the-badge&logo=render&logoColor=white)](https://shoppermart-hiem.onrender.com)
+
+
 ![Django](https://img.shields.io/badge/Django-5.2-green?logo=django&logoColor=white)  
 ![Python](https://img.shields.io/badge/Python-3.13-blue?logo=python&logoColor=white)  
 ![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3-purple?logo=bootstrap&logoColor=white)  
@@ -114,7 +117,7 @@ Open in browser 👉 http://127.0.0.1:8000/
 
 🌐 Deployment
 
-Deployed on Render (or similar hosting).
+Live at: [shoppermart-hiem.onrender.com](https://shoppermart-hiem.onrender.com) (Deployed on Render)
 
 Procfile
 
@@ -168,11 +171,10 @@ Licensed under the MIT License – free to use, modify, and distribute.
 
 👨‍💻 Author
 
-Pranaya Kumar Dash
+[Pranaya Kumar Dash](https://pranayakd.in)
 📧 Email: dashpranaya28@gmail.com
 
-🔗 GitHub
- | LinkedIn
+🔗 [GitHub](https://github.com/PranayaKD) | [LinkedIn](https://linkedin.com/in/pranayakd28)
 
  
 ---
