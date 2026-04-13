@@ -170,8 +170,8 @@
 
     <script>
     document.addEventListener('DOMContentLoaded', () => {
-        const checkoutForm = document.querySelector('form[action="{% url \'checkout\' %}"]');
         const submitBtn = document.getElementById('checkout-submit-btn');
+        const checkoutForm = submitBtn ? submitBtn.closest('form') : null;
         const btnText = document.getElementById('checkout-btn-text');
 
         if (checkoutForm && submitBtn) {
