@@ -39,22 +39,26 @@ def save_profile(sender, instance, **kwargs):
 def merge_carts(sender, user, request, **kwargs):
     """
     When a user logs in, merge their session-based guest cart into their permanent user cart.
+    We use the pre_login_session_key captured by our middleware to bypass session rotation issues.
     """
-    session_key = request.session.session_key
+    # Prefer the pre-login key which is stable during the authentication transition
+    session_key = getattr(request, 'pre_login_session_key', None) or request.session.session_key
+    
     if not session_key:
         return
 
     try:
-        # 1. Find guest cart
+        # 1. Find guest cart tied to the old session
         guest_cart = Cart.objects.get(session_key=session_key, user=None)
         
         # 2. Get or create user cart
         user_cart, _ = Cart.objects.get_or_create(user=user)
         
-        # 3. Use the robust model method to merge and cleanup
+        # 3. Merge guest cart items into the permanent account
         user_cart.merge_with(guest_cart)
         
-        logger.info(f"CartMerge: Successfully merged guest cart into user {user.id}'s account.")
+        logger.info(f"CartMerge: Successfully merged guest cart ({session_key}) into user {user.id}'s account.")
         
     except Cart.DoesNotExist:
+        # No guest cart found for this session - nothing to merge
         pass

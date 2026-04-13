@@ -106,6 +106,7 @@ MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",  # Good - already added
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "ShopperMartapp.middleware.PreLoginSessionMiddleware",  # 👈 Captures guest session before login
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
