@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Our Story | ShopperMart{% endblock %}
+
+{% block content %}
+<section class="pt-44 pb-32 px-8 md:px-24 bg-white overflow-hidden relative">
+    <div class="max-w-4xl mx-auto relative z-10">
+        <span class="font-mono text-[10px] tracking-[.3em] text-on-surface-variant uppercase mb-8 block font-bold opacity-40">Our Journey</span>
+        <h1 class="font-serif text-6xl md:text-8xl font-bold tracking-tighter text-black uppercase leading-[0.9] mb-12 italic">
+            Quality. <br/>Intentional. <br/><span class="text-zinc-300">Timeless.</span>
+        </h1>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-16 mt-20">
+            <div class="space-y-8 font-newsreader text-xl leading-relaxed text-black/70 italic">
+                <p>ShopperMart began with a simple idea: that the objects we use every day should be as beautiful as they are functional. We believe in the power of good design to elevate the mundane and bring a sense of order to the modern wardrobe.</p>
+                <p>From our humble beginnings in 2025, we have committed ourselves to curating only the finest essentials. We don't believe in fast fashion or disposable goods. Instead, we select items that are built to last—pieces that become part of your story.</p>
+            </div>
+            <div class="space-y-8 font-newsreader text-xl leading-relaxed text-black/70 italic">
+                <p>Our team in Mumbai hand-selects every product in our collection. We look for materials that feel right, forms that look right, and functionality that just works. It's a meticulous process, but we believe you deserve nothing less.</p>
+                <p>Thank you for being part of our community. We hope our collection brings a little bit of joy and a lot of utility to your daily life.</p>
+            </div>
+        </div>
+
+        <div class="mt-32 pt-20 border-t border-black/5 flex flex-col md:flex-row items-center justify-between gap-12">
+            <div class="text-center md:text-left">
+                <h3 class="font-serif text-3xl font-bold uppercase tracking-tight mb-4">The Collection</h3>
+                <p class="font-mono text-[10px] uppercase tracking-widest text-black/40">Continuously evolving / Timelessly curated</p>
+            </div>
+            <a href="{% url 'home' %}#collection" class="bg-black text-white px-12 py-5 rounded-full font-mono text-[11px] tracking-[0.4em] uppercase hover:bg-zinc-800 transition-all shadow-xl active:scale-95">
+                Explore The Shop
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}

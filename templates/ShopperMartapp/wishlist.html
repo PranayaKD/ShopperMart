@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Your Saved Objects | ShopperMart Wishlist{% endblock %}
+
+{% block content %}
+<section class="min-h-screen pt-32 pb-24 bg-zinc-50/30">
+    <div class="max-w-7xl mx-auto px-8 md:px-24">
+        
+        <!-- Header -->
+        <header class="mb-20">
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-10">
+                <div class="max-w-2xl">
+                    <span class="font-mono text-[9px] uppercase tracking-[0.5em] text-black/30 font-bold block mb-4">Curated Collection</span>
+                    <h1 class="font-serif text-[4rem] md:text-[6rem] font-bold tracking-tighter text-black leading-none uppercase italic border-l-8 border-black pl-10">Your Saved.</h1>
+                    <p class="mt-10 font-sans text-lg text-slate-500 max-w-lg leading-relaxed italic opacity-80">
+                        A personal archive of high-performance objects vetted for your future wardrobe.
+                    </p>
+                </div>
+                <div class="flex items-center gap-6 border-b border-black/5 pb-6">
+                    <span class="font-mono text-[10px] tracking-[0.4em] uppercase text-black/40 font-bold">
+                        {{ products|length }} items saved
+                    </span>
+                </div>
+            </div>
+        </header>
+
+        {% if products %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+            {% for product in products %}
+            <div class="group bg-white border border-black/5 rounded-[3rem] overflow-hidden hover:shadow-2xl transition-all duration-700 hover:-translate-y-2 flex flex-col">
+                
+                <!-- Image Section -->
+                <div class="aspect-square bg-zinc-50 overflow-hidden relative">
+                    <a href="{% url 'product_detail' product.slug %}" class="block w-full h-full">
+                        {% if product.image %}
+                        <img src="{{ product.image.url }}" class="w-full h-full object-contain p-12 mix-blend-multiply group-hover:scale-110 transition-transform duration-[6s]"/>
+                        {% else %}
+                        <div class="w-full h-full flex items-center justify-center font-serif text-slate-200 italic text-2xl uppercase font-bold">Object</div>
+                        {% endif %}
+                    </a>
+                    
+                    <!-- Remove Overlay -->
+                    <form method="POST" action="{% url 'toggle_wishlist' product.id %}" class="absolute top-8 right-8 z-10">
+                        {% csrf_token %}
+                        <button type="submit" class="w-12 h-12 flex items-center justify-center bg-white border border-black/5 rounded-full text-black/20 hover:text-red-500 hover:scale-110 active:scale-95 transition-all shadow-sm group/remove">
+                            <span class="material-symbols-outlined text-[20px] fill-current text-red-500">favorite</span>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Meta Section -->
+                <div class="p-10 flex flex-col flex-grow">
+                    <div class="flex justify-between items-start mb-6">
+                        <div>
+                            <span class="font-mono text-[9px] uppercase tracking-widest text-black/30 font-bold mb-2 block italic">{{ product.category.name }}</span>
+                            <h3 class="font-serif text-2xl font-bold text-black uppercase tracking-tight">{{ product.name }}</h3>
+                        </div>
+                        <p class="font-mono text-xl font-bold text-black">₹{{ product.price }}</p>
+                    </div>
+
+                    <div class="mt-auto pt-8 border-t border-black/5 flex flex-col sm:flex-row gap-4">
+                        <form method="POST" action="{% url 'add_to_cart' product.id %}" class="flex-grow">
+                            {% csrf_token %}
+                            <input type="hidden" name="quantity" value="1">
+                            <button type="submit" class="w-full bg-black text-white py-4 rounded-full font-mono text-[9px] uppercase tracking-[0.3em] font-bold hover:bg-zinc-800 transition-all flex items-center justify-center gap-4 group/add">
+                                Move to Bag
+                                <span class="material-symbols-outlined text-[16px] group-hover/add:translate-x-1 transition-transform">arrow_forward</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <!-- EMPTY STATE -->
+        <div class="py-44 flex flex-col items-center justify-center text-center">
+            <div class="w-32 h-32 bg-white rounded-full flex items-center justify-center mb-12 shadow-inner border border-black/5 group">
+                <span class="material-symbols-outlined text-5xl text-black/10 group-hover:scale-110 group-hover:text-black/20 transition-all">favorite_border</span>
+            </div>
+            <h2 class="font-serif text-5xl md:text-6xl font-bold text-black leading-none uppercase italic opacity-10 tracking-tighter">Your Archive is Empty.</h2>
+            <p class="text-slate-500 mt-12 font-sans text-xl max-w-sm leading-relaxed italic opacity-60">You haven't saved any objects yet. Scour our collections and curate your future wardrobe.</p>
+            <a href="{% url 'public_store' %}" class="mt-16 bg-black text-white px-16 py-6 rounded-full font-mono font-bold tracking-[0.4em] text-[10px] uppercase hover:bg-zinc-800 transition-all shadow-2xl hover:scale-105 active:scale-95 duration-500">
+                Explore The Store
+            </a>
+        </div>
+        {% endif %}
+
+    </div>
+</section>
+{% endblock %}

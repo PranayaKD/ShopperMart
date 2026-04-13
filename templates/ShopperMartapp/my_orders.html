@@ -9,10 +9,10 @@
 
 {% block content %}
     <!-- PAGE HEADER -->
-    <header class="pt-32 pb-16 px-8 md:px-24">
-      <div class="max-w-7xl mx-auto border-b border-outline-variant/10 pb-12">
-        <h1 class="font-serif text-5xl md:text-8xl font-bold tracking-tighter text-black uppercase leading-none">Your Orders</h1>
-        <p class="font-mono text-[10px] text-on-secondary-container mt-6 uppercase tracking-[0.3em] font-medium">{{ orders|length }} orders found in your account</p>
+    <header class="pt-24 pb-12 px-8 md:px-24 border-b border-black/5 bg-zinc-50/50">
+      <div class="max-w-7xl mx-auto">
+        <h1 class="font-serif text-5xl md:text-7xl font-bold tracking-tighter text-black uppercase leading-none">Your Orders</h1>
+        <p class="font-mono text-[10px] text-on-secondary-container mt-6 uppercase tracking-[0.3em] font-medium italic">{{ orders|length }} orders found in your account</p>
       </div>
     </header>
 
@@ -21,68 +21,71 @@
       {% if orders %}
       <div class="space-y-8">
         {% for order in orders %}
-        <div class="p-10 border border-outline-variant/10 rounded-3xl bg-white shadow-sm hover:shadow-xl transition-all duration-500 group">
+        <a href="{% url 'order_detail' order.id %}" class="block p-10 border border-black/5 rounded-[2rem] bg-white shadow-sm hover:shadow-2xl hover:border-black/10 transition-all duration-500 group hover:-translate-y-1">
           <div class="grid grid-cols-1 md:grid-cols-12 items-start gap-10">
             
             <!-- Left: Order Core Info -->
-            <div class="md:col-span-7 lg:col-span-8">
-               <div class="flex flex-col sm:flex-row sm:items-center gap-4 mb-8">
-                  <span class="font-mono text-[10px] tracking-widest uppercase bg-zinc-100 px-4 py-1.5 rounded-lg font-bold text-black border border-black/5">Order ID #{{ order.id }}</span>
+            <div class="md:col-span-5 lg:col-span-6">
+               <div class="flex flex-col sm:flex-row sm:items-center gap-4 mb-6">
+                  <span class="font-mono text-[10px] tracking-widest uppercase bg-zinc-100 px-4 py-1.5 rounded-xl font-bold text-black border border-black/5">Order #{{ order.id }}</span>
                   <span class="font-mono text-[9px] tracking-widest uppercase text-slate-400 italic">{{ order.created_at|date:"d M Y @ H:i" }}</span>
                </div>
                
-               <div class="space-y-6">
-                  <p class="text-on-secondary-container font-light text-lg leading-relaxed italic">
+               <div class="space-y-2">
+                  <p class="text-on-secondary-container font-light text-base leading-relaxed">
                      {% for item in order.items.all %}
-                        <span class="font-bold text-black underline decoration-black/10">{{ item.product.name }}</span> 
+                        <span class="font-bold text-black">{{ item.product.name }}</span>
                         <span class="text-xs font-mono font-bold ml-1 text-slate-400">×{{ item.quantity }}</span>{% if not forloop.last %}, {% endif %}
                      {% endfor %}
                   </p>
                </div>
             </div>
 
-            <!-- Total Column -->
-            <div class="md:col-span-2 md:pt-4 border-l border-outline-variant/10 pl-6 h-full">
-               <span class="font-mono text-[9px] uppercase tracking-[0.4em] text-slate-400 block mb-3 font-bold">Total Paid</span>
-                <span class="font-serif text-3xl font-bold text-black leading-none">₹{{ order.total }}</span>
+            <!-- Mini Lifecycle Progress -->
+            <div class="md:col-span-4 lg:col-span-3 md:pt-4 flex flex-col items-center gap-4">
+               <span class="font-mono text-[9px] uppercase tracking-[0.4em] text-black/30 font-bold">Progress</span>
+               {% if order.status != 'cancelled' %}
+               <div class="w-full flex items-center gap-1.5">
+                  {% for step in "01234" %}
+                  <div class="flex-1 h-1.5 rounded-full transition-all duration-500
+                    {% if forloop.counter0 <= order.lifecycle_progress %}bg-black{% else %}bg-zinc-100{% endif %}"></div>
+                  {% endfor %}
+               </div>
+               <div class="flex items-center gap-2">
+                  <span class="w-2 h-2 rounded-full animate-pulse
+                    {% if order.status == 'delivered' %}bg-emerald-500
+                    {% elif order.status == 'shipped' or order.status == 'out_for_delivery' %}bg-blue-500
+                    {% elif order.status == 'cancelled' %}bg-red-500
+                    {% else %}bg-amber-400{% endif %}"></span>
+                  <span class="font-mono text-[10px] tracking-widest uppercase font-bold
+                    {% if order.status == 'delivered' %}text-emerald-600
+                    {% elif order.status == 'cancelled' %}text-red-500
+                    {% else %}text-black/60{% endif %}">{{ order.get_status_display }}</span>
+               </div>
+               {% else %}
+               <div class="inline-flex items-center gap-3 bg-red-50 px-4 py-2 rounded-xl border border-red-100">
+                  <span class="text-red-600 font-mono text-[10px] tracking-widest uppercase font-bold italic">Cancelled</span>
+               </div>
+               {% endif %}
             </div>
 
-            <!-- Status Column -->
-            <div class="md:col-span-3 lg:col-span-2 md:pt-4 border-l border-outline-variant/10 pl-6 h-full">
-               <span class="font-mono text-[9px] uppercase tracking-[0.4em] text-slate-400 block mb-4 font-bold">Status</span>
-               
-                {% if order.status == 'pending' %}
-                <div class="inline-flex items-center gap-3 bg-zinc-50 px-4 py-2 rounded-xl border border-black/5">
-                   <div class="w-2 h-2 rounded-full bg-slate-300 animate-pulse"></div>
-                   <span class="text-slate-500 font-mono text-[10px] tracking-widest uppercase font-bold">Processing</span>
-                </div>
-                {% elif order.status == 'paid' or order.status == 'shipped' %}
-                <div class="inline-flex items-center gap-3 bg-blue-50 px-4 py-2 rounded-xl border border-blue-100">
-                   <div class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
-                   <span class="text-blue-600 font-mono text-[10px] tracking-widest uppercase font-bold">Shipped</span>
-                </div>
-                {% elif order.status == 'delivered' %}
-                <div class="inline-flex items-center gap-3 bg-green-50 px-4 py-2 rounded-xl border border-green-100">
-                   <div class="w-2 h-2 rounded-full bg-green-600"></div>
-                   <span class="text-green-700 font-mono text-[10px] tracking-widest uppercase font-bold italic">Delivered</span>
-                </div>
-                {% else %}
-                <div class="inline-flex items-center gap-3 bg-red-50 px-4 py-2 rounded-xl border border-red-100">
-                   <span class="text-red-600 font-mono text-[10px] tracking-widest uppercase font-bold italic">{{ order.status }}</span>
-                </div>
-                {% endif %}
+            <!-- Total Column -->
+            <div class="md:col-span-3 md:pt-4 border-l border-black/5 pl-8 h-full flex flex-col items-end">
+               <span class="font-mono text-[9px] uppercase tracking-[0.4em] text-black/30 block mb-3 font-bold">Total</span>
+               <span class="font-serif text-3xl font-bold text-black leading-none italic">₹{{ order.total }}</span>
+               <span class="font-mono text-[9px] uppercase tracking-widest text-black/20 mt-4 font-bold group-hover:text-black/50 transition-colors">View Details →</span>
             </div>
 
           </div>
-        </div>
+        </a>
         {% endfor %}
       </div>
 
       {% else %}
-      <!-- EMPTY STATE (Functional Shop Style) -->
+      <!-- EMPTY STATE -->
       <div class="py-44 flex flex-col items-center justify-center text-center">
-        <div class="w-32 h-32 bg-slate-50 rounded-full flex items-center justify-center mb-12 shadow-inner group">
-           <span class="material-symbols-outlined text-5xl text-slate-200 group-hover:scale-110 transition-transform">receipt_long</span>
+        <div class="w-32 h-32 bg-zinc-50 rounded-full flex items-center justify-center mb-12 shadow-inner group">
+           <span class="material-symbols-outlined text-5xl text-zinc-200 group-hover:scale-110 transition-transform">receipt_long</span>
         </div>
         <h2 class="font-serif text-5xl font-bold text-black leading-none mb-6">No orders found.</h2>
         <p class="text-on-secondary-container mt-6 font-light text-xl max-w-md leading-relaxed opacity-60">You haven't placed any orders yet. Once you complete a purchase, your order history will appear here.</p>
@@ -92,4 +95,4 @@
       </div>
       {% endif %}
     </section>
-{% endblock %}
+{% endblock %}

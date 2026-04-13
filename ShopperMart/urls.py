@@ -6,8 +6,9 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("accounts/", include("allauth.urls")),
-    path("", include("ShopperMartapp.urls")),   # 👈 app routes
+    path("accounts/", include("allauth.urls")),          # 👈 Required for Social Logins
+    path("api/v1/", include("ShopperMartapp.api_urls")),  # 👈 REST API routes
+    path("", include("ShopperMartapp.urls")),             # 👈 Frontend app routes
 ]
 
 if settings.DEBUG:

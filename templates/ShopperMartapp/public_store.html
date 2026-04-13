@@ -72,11 +72,20 @@
                             <div class="w-full h-full flex items-center justify-center font-serif text-surface-container text-4xl italic">Object</div>
                             {% endif %}
                         </a>
+                        <!-- Wishlist Toggle -->
+                        <button type="button" 
+                                onclick="toggleWishlist({{ product.id }}, this)"
+                                class="absolute top-4 right-4 z-30 w-10 h-10 flex items-center justify-center bg-white/80 backdrop-blur-md rounded-full border border-black/5 shadow-sm hover:scale-110 active:scale-95 transition-all js-require-auth">
+                          <span class="material-symbols-outlined text-sm {% if product.id in wishlisted_ids %}fill-current text-red-500{% else %}text-black/20{% endif %}">favorite</span>
+                        </button>
                         <!-- Add to Cart: Always Visible Fix -->
                         <form method="POST" action="{% url 'add_to_cart' product.id %}" class="js-require-auth absolute bottom-6 right-6 z-20 transition-all duration-500">
                             {% csrf_token %}
                             <input type="hidden" name="quantity" value="1">
-                            <button type="submit" class="bg-primary text-white w-14 h-14 flex items-center justify-center hover:bg-primary-container transition-all shadow-2xl rounded-full active:scale-95">
+                            <button type="submit" 
+                                    class="js-add-to-cart-btn bg-primary text-white w-14 h-14 flex items-center justify-center hover:bg-primary-container transition-all shadow-2xl rounded-full active:scale-95"
+                                    data-product-id="{{ product.id }}"
+                                    data-product-name="{{ product.name }}">
                                 <span class="material-symbols-outlined text-sm">shopping_bag</span>
                             </button>
                         </form>

@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Ordering Manifest | ShopperMart Secure Checkout{% endblock %}
+{% block title %}Checkout | ShopperMart Secure Payment{% endblock %}
 
-{% block meta_description %}Complete your high-performance order with ShopperMart’s secure ordering manifest. Integrated shipping and premium payment protection.{% endblock %}
+{% block meta_description %}Complete your order with ShopperMart’s secure checkout. Secure shipping and premium payment protection.{% endblock %}
 
 {% block content %}
     <!-- PREMIUM CHECKOUT HEADER (CINEMATIC) -->
@@ -15,7 +15,7 @@
         <div class="flex flex-col gap-6">
           <nav class="flex items-center gap-10 font-mono text-[9px] tracking-[0.6em] uppercase text-black/30 font-bold">
             <span class="flex items-center gap-2 text-black opacity-100 border-b border-black pb-1">
-              <span class="w-1.5 h-1.5 rounded-full bg-black"></span> 01 Manifest
+              <span class="w-1.5 h-1.5 rounded-full bg-black"></span> 01 Bag
             </span>
             <span class="material-symbols-outlined text-[10px]">drag_handle</span>
             <span class="flex items-center gap-2">02 Secure Payment</span>
@@ -24,11 +24,11 @@
           </nav>
           
           <h1 class="font-serif text-6xl md:text-9xl font-bold tracking-[-0.04em] text-black leading-[0.85] uppercase italic">
-            The Ordering<br/><span class="text-zinc-300">Manifest.</span>
+            Secure<br/><span class="text-zinc-300">Checkout.</span>
           </h1>
           
           <p class="font-newsreader text-xl md:text-2xl text-black/60 max-w-2xl mt-4 leading-relaxed italic">
-            Finalize your selection and secure your delivery details below. Every order is crafted for high-performance delivery.
+            Finalize your selection and secure your delivery details below. Every order is handled with the utmost care.
           </p>
         </div>
       </div>
@@ -39,6 +39,9 @@
       <div class="max-w-7xl mx-auto px-8 md:px-24 py-24 pb-64">
         <form method="POST" action="{% url 'checkout' %}" class="grid grid-cols-1 lg:grid-cols-12 gap-24 items-start">
           {% csrf_token %}
+          <!-- 50+ Edge Case Protection: Idempotency & Price Lock -->
+          <input type="hidden" name="checkout_token" value="{{ checkout_token }}">
+          <input type="hidden" name="total_verify" value="{{ total }}">
           
           <!-- LEFT: SHIPPING & PAYMENT -->
           <div class="lg:col-span-7 space-y-32">
@@ -47,7 +50,7 @@
             <div class="space-y-16">
               <div class="flex items-center gap-6">
                 <span class="w-10 h-10 rounded-full border border-black/10 flex items-center justify-center font-mono text-[10px] font-bold">01</span>
-                <h2 class="font-serif text-3xl font-bold text-black tracking-tight uppercase leading-none">Shipping Destination</h2>
+                <h2 class="font-serif text-3xl font-bold text-black tracking-tight uppercase leading-none">Shipping Address</h2>
               </div>
               
               <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-16">
@@ -57,7 +60,7 @@
                          id="id_full_name" name="full_name" placeholder="Full Name" type="text" required 
                          value="{{ form.full_name.value|default:'' }}"/>
                   <label class="absolute left-0 top-0 text-black/30 font-mono text-[9px] tracking-[0.4em] uppercase pointer-events-none transition-all duration-500 origin-left peer-focus:-translate-y-8 peer-focus:scale-90 peer-focus:text-black peer-not-placeholder-shown:-translate-y-8 peer-not-placeholder-shown:scale-90" 
-                         for="id_full_name">Legal Name</label>
+                         for="id_full_name">Full Name</label>
                 </div>
 
                 <!-- Email -->
@@ -66,7 +69,7 @@
                          id="id_email" name="email" placeholder="Email" type="email" required 
                          value="{{ form.email.value|default:'' }}"/>
                    <label class="absolute left-0 top-0 text-black/30 font-mono text-[9px] tracking-[0.4em] uppercase pointer-events-none transition-all duration-500 origin-left peer-focus:-translate-y-8 peer-focus:scale-90 peer-focus:text-black peer-not-placeholder-shown:-translate-y-8 peer-not-placeholder-shown:scale-90" 
-                         for="id_email">Digital Contact</label>
+                         for="id_email">Email Address</label>
                 </div>
 
                 <!-- Pincode -->
@@ -75,7 +78,7 @@
                          id="id_postal_code" name="postal_code" placeholder="Pincode" type="text" required 
                          value="{{ form.postal_code.value|default:'' }}"/>
                    <label class="absolute left-0 top-0 text-black/30 font-mono text-[9px] tracking-[0.4em] uppercase pointer-events-none transition-all duration-500 origin-left peer-focus:-translate-y-8 peer-focus:scale-90 peer-focus:text-black peer-not-placeholder-shown:-translate-y-8 peer-not-placeholder-shown:scale-90" 
-                         for="id_postal_code">Pincode / Zip</label>
+                         for="id_postal_code">Pincode</label>
                 </div>
 
                 <!-- Address (Full Width) -->
@@ -83,17 +86,34 @@
                   <textarea class="block w-full px-0 py-5 text-black bg-transparent border-0 border-b border-black/10 focus:ring-0 focus:border-black transition-all duration-700 peer font-newsreader text-2xl leading-relaxed placeholder:opacity-0 resize-none" 
                             id="id_address" name="address" placeholder="Address" autocomplete="off" required rows="2">{{ form.address.value|default:'' }}</textarea>
                   <label class="absolute left-0 top-0 text-black/30 font-mono text-[9px] tracking-[0.4em] uppercase pointer-events-none transition-all duration-500 origin-left peer-focus:-translate-y-8 peer-focus:scale-90 peer-focus:text-black peer-not-placeholder-shown:-translate-y-8 peer-not-placeholder-shown:scale-90" 
-                         for="id_address">Delivery Domicile</label>
+                         for="id_address">Shipping Address</label>
                   <ul id="address_suggestions_list" class="absolute z-50 left-0 right-0 top-[80%] mt-2 bg-white rounded-[1.5rem] shadow-2xl border border-black/5 overflow-hidden hidden max-h-60 overflow-y-auto w-full"></ul>
                 </div>
 
-                <!-- City -->
+                <!-- Landmark -->
                 <div class="relative group md:col-span-2">
+                  <input class="block w-full px-0 py-5 text-black bg-transparent border-0 border-b border-black/10 focus:ring-0 focus:border-black transition-all duration-700 peer font-serif text-xl placeholder:opacity-0" 
+                         id="id_landmark" name="landmark" placeholder="Landmark" type="text" 
+                         value="{{ form.landmark.value|default:'' }}"/>
+                  <label class="absolute left-0 top-0 text-black/30 font-mono text-[9px] tracking-[0.4em] uppercase pointer-events-none transition-all duration-500 origin-left peer-focus:-translate-y-8 peer-focus:scale-90 peer-focus:text-black peer-not-placeholder-shown:-translate-y-8 peer-not-placeholder-shown:scale-90" 
+                         for="id_landmark">Landmark (Optional)</label>
+                </div>
+
+                <!-- City & State Row -->
+                <div class="relative group">
                   <input class="block w-full px-0 py-5 text-black bg-transparent border-0 border-b border-black/10 focus:ring-0 focus:border-black transition-all duration-700 peer font-serif text-xl uppercase tracking-widest placeholder:opacity-0" 
                          id="id_city" name="city" placeholder="City" type="text" required 
                          value="{{ form.city.value|default:'' }}"/>
                   <label class="absolute left-0 top-0 text-black/30 font-mono text-[9px] tracking-[0.4em] uppercase pointer-events-none transition-all duration-500 origin-left peer-focus:-translate-y-8 peer-focus:scale-90 peer-focus:text-black peer-not-placeholder-shown:-translate-y-8 peer-not-placeholder-shown:scale-90" 
-                         for="id_city">Urban Center / City</label>
+                         for="id_city">City</label>
+                </div>
+
+                <div class="relative group">
+                  <input class="block w-full px-0 py-5 text-black bg-transparent border-0 border-b border-black/10 focus:ring-0 focus:border-black transition-all duration-700 peer font-serif text-xl uppercase tracking-widest placeholder:opacity-0" 
+                         id="id_state" name="state" placeholder="State" type="text" required 
+                         value="{{ form.state.value|default:'' }}"/>
+                  <label class="absolute left-0 top-0 text-black/30 font-mono text-[9px] tracking-[0.4em] uppercase pointer-events-none transition-all duration-500 origin-left peer-focus:-translate-y-8 peer-focus:scale-90 peer-focus:text-black peer-not-placeholder-shown:-translate-y-8 peer-not-placeholder-shown:scale-90" 
+                         for="id_state">State / Province</label>
                 </div>
               </div>
             </div>
@@ -102,7 +122,7 @@
             <div class="space-y-16">
               <div class="flex items-center gap-6">
                 <span class="w-10 h-10 rounded-full border border-black/10 flex items-center justify-center font-mono text-[10px] font-bold">02</span>
-                <h2 class="font-serif text-3xl font-bold text-black tracking-tight uppercase leading-none">Financial Settlement</h2>
+                <h2 class="font-serif text-3xl font-bold text-black tracking-tight uppercase leading-none">Payment Method</h2>
               </div>
               
               <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
@@ -148,21 +168,21 @@
                      <span class="flex items-center gap-2"><span class="material-symbols-outlined text-[12px]">verified_user</span> Verified Protection</span>
                      <span class="flex items-center gap-2"><span class="material-symbols-outlined text-[12px]">local_shipping</span> Global Transit</span>
                   </div>
-                  <p class="font-newsreader text-[13px] text-black/40 italic max-w-sm">By completing this manifest, you agree to our curated terms of service and high-performance delivery standards.</p>
+                  <p class="font-newsreader text-[13px] text-black/40 italic max-w-sm">By completing this order, you agree to our terms of service and delivery standards.</p>
                </div>
             </div>
           </div>
 
-          <!-- RIGHT: THE MANIFEST (STICKY) -->
-          <div class="lg:col-span-5 relative">
-             <div class="sticky top-40 bg-zinc-50 border border-black/5 rounded-[3rem] p-12 shadow-sm overflow-hidden">
+          <!-- RIGHT: THE MANIFEST (STICKY ON DESKTOP, BOTTOM DRAWER ON MOBILE) -->
+          <div class="lg:col-span-5 relative order-first lg:order-last">
+             <div class="lg:sticky lg:top-40 bg-zinc-50 border border-black/5 rounded-[3rem] p-8 md:p-12 shadow-sm overflow-hidden mb-12 lg:mb-0">
                 <!-- Watermark -->
                 <div class="absolute -top-10 -right-10 font-serif text-[180px] font-bold text-black/[0.02] -rotate-12 select-none">MART</div>
                 
                 <div class="relative z-10">
                   <div class="flex justify-between items-start mb-16">
                     <div>
-                      <span class="font-mono text-[9px] uppercase tracking-[0.55em] text-black/30 block mb-4 font-bold italic">Ordering Manifest</span>
+                      <span class="font-mono text-[9px] uppercase tracking-[0.55em] text-black/30 block mb-4 font-bold italic">Order Summary</span>
                       <h3 class="font-serif text-3xl font-bold text-black uppercase tracking-tighter">Your Bag.</h3>
                     </div>
                     <div class="text-right">
@@ -210,13 +230,13 @@
                   </div>
 
                   <!-- The Total -->
-                  <div class="pt-16 mt-16 border-t border-black/10 flex flex-col items-end">
-                    <span class="font-mono text-[9px] uppercase tracking-[0.6em] text-black/30 font-bold italic mb-6">Manifest Final Total</span>
+                  <div class="pt-8 md:pt-16 mt-8 md:mt-16 border-t border-black/10 flex flex-col items-end">
+                    <span class="font-mono text-[9px] uppercase tracking-[0.6em] text-black/30 font-bold italic mb-4 md:mb-6">Manifest Final Total</span>
                     <div class="flex items-start gap-2">
-                       <span class="font-mono text-2xl font-bold text-black mt-2">₹</span>
-                       <span class="font-serif text-[84px] md:text-[100px] font-bold text-black leading-[0.8] tracking-tighter">{{ total|default:'0'|floatformat:0 }}</span>
+                       <span class="font-mono text-xl md:text-2xl font-bold text-black mt-1 md:mt-2">₹</span>
+                       <span class="font-serif text-[60px] md:text-[100px] font-bold text-black leading-[0.8] tracking-tighter">{{ total|default:'0'|floatformat:0 }}</span>
                     </div>
-                    <p class="font-newsreader text-[11px] text-black/30 italic mt-8 text-right max-w-[200px]">Applicable taxes included at high-performance rates.</p>
+                    <p class="font-newsreader text-[11px] text-black/30 italic mt-8 text-right max-w-[200px]">Applicable taxes included at current rates.</p>
                   </div>
                 </div>
              </div>
@@ -225,9 +245,38 @@
       </div>
     </section>
 
-    <!-- Geographic Auto-Complete Engine (Free OpenStreetMap) -->
+  <!-- MOBILE STICKY SUMMARY DRAWER -->
+  <div class="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-black/5 p-6 z-[150] shadow-[0_-20px_40px_rgba(0,0,0,0.05)] transform transition-transform duration-500 translate-y-0 will-change-transform" style="backface-visibility: hidden; transform: translateZ(0);" id="mobile-summary-drawer">
+    <div class="flex justify-between items-center max-w-7xl mx-auto">
+      <div>
+        <span class="font-mono text-[8px] uppercase tracking-widest text-black/40 block mb-1">Final Total</span>
+        <span class="font-serif text-3xl font-bold text-black italic">₹{{ total|default:'0'|floatformat:0 }}</span>
+      </div>
+      <button type="button" onclick="window.scrollTo({top: document.querySelector('button[type=submit]').offsetTop - 200, behavior: 'smooth'})" 
+              class="bg-black text-white px-8 py-4 rounded-full font-mono text-[9px] tracking-[0.3em] uppercase font-bold active:scale-95 shadow-xl">
+        Review & Pay
+      </button>
+    </div>
+  </div>
+
     <script>
     document.addEventListener('DOMContentLoaded', () => {
+        /** MOBILE SUMMARY DRAWER LOGIC **/
+        const checkoutBtn = document.querySelector('button[type="submit"]');
+        const mobileDrawer = document.getElementById('mobile-summary-drawer');
+        
+        if (checkoutBtn && mobileDrawer) {
+            window.addEventListener('scroll', () => {
+                const btnPos = checkoutBtn.getBoundingClientRect().top;
+                if (btnPos < window.innerHeight) {
+                    mobileDrawer.classList.add('translate-y-full');
+                } else {
+                    mobileDrawer.classList.remove('translate-y-full');
+                }
+            }, { passive: true });
+        }
+
+        /** OSM AUTOCOMPLETE LOGIC **/
         let timeout = null;
         
         const setupAutocomplete = (inputId, listId) => {
@@ -265,11 +314,12 @@
                                     input.value = mainName;
                                     
                                     if (place.address) {
-                                        const city = place.address.city || place.address.town || place.address.village || place.address.state_district || '';
+                                        const city = place.address.city || place.address.town || place.address.village || place.address.suburb || place.address.state_district || '';
+                                        const state = place.address.state || '';
                                         const postcode = place.address.postcode || '';
                                         
                                         if (document.getElementById('id_city') && city) document.getElementById('id_city').value = city;
-                                        // Note: checkout uses id_postal_code instead of id_pincode
+                                        if (document.getElementById('id_state') && state) document.getElementById('id_state').value = state;
                                         if (document.getElementById('id_postal_code') && postcode) document.getElementById('id_postal_code').value = postcode;
                                     }
                                     list.classList.add('hidden');
@@ -295,4 +345,5 @@
         setupAutocomplete('id_address', 'address_suggestions_list');
     });
     </script>
+
 {% endblock %}

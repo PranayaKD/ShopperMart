@@ -2,87 +2,84 @@ import logging
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
 from django.urls import reverse
 from django.http import HttpResponsePermanentRedirect
 from django.db.models import Q, Case, When, Value, BooleanField
-from ..models import Product, Category
-from ..forms import ProductForm
+from django.core.exceptions import ValidationError
+from ..models import Product, Category, Review, Wishlist
 
-logger = logging.getLogger(__name__)
 
 # -------------------- SHOP --------------------
 def shop_home(request):
-    """Display all available products sorted by Image availability then Newest."""
-    products = Product.objects.select_related('category').filter(available=True).annotate(
-        has_image=Case(
-            When(image__gt='', then=Value(True)),
-            default=Value(False),
-            output_field=BooleanField(),
-        )
-    ).order_by('-has_image', '-created_at')
-
-    # Search filter
-    query = request.GET.get("q", "")
+    """Display all available products with high-performance filtering and rate-limited search."""
+    query = request.GET.get("q", "").strip()
+    
+    # 50+ Edge Case: Search Rate Limiting (Case #12)
+    import time
+    now = time.time()
+    last_search = request.session.get('last_search_time', 0)
+    search_count = request.session.get('search_count', 0)
+    
+    # Reset count if last search was > 60s ago
+    if now - last_search > 60:
+        search_count = 0
+    
     if query:
-        products = products.filter(
-            Q(name__icontains=query) | Q(description__icontains=query)
-        )
-        if not products.exists():
-            messages.error(request, f"No products found matching '{query}'. Showing latest collection instead.")
+        if search_count > 10:
+            messages.warning(request, "Slow down a bit! You've made quite a few searches. Please wait a minute before trying again.")
+            query = "" # Silently ignore or throttle
+        else:
+            request.session['search_count'] = search_count + 1
+            request.session['last_search_time'] = now
 
-    categories = Category.objects.all()
+    # Using optimized QuerySet methods
+    products = Product.objects.available().with_category().with_image_status().search(query).sort_by('newest')
+
+    if query and not products.exists():
+        messages.error(request, f"No products found matching '{query}'. Showing latest collection instead.")
+
     return render(request, "home.html", {
         "products": products,
-        "categories": categories,
+        "categories": Category.objects.all(),
         "query": query,
+        "wishlisted_ids": Wishlist.get_product_ids_for_user(request.user),
     })
 
 
 def public_store(request):
     """Public Store page with sidebar filtering and sorting."""
-    # Start with all available products
-    products = Product.objects.select_related('category').filter(available=True)
-    categories = Category.objects.all()
-
-    # Search query
+    # Get parameters
     query = request.GET.get("q", "")
-    if query:
-        products = products.filter(
-            Q(name__icontains=query) | Q(description__icontains=query)
-        )
-    
-    # Category filter
     category_slug = request.GET.get('category', '')
-    if category_slug:
-        products = products.filter(category__slug=category_slug)
-        
-    # Price filtering
     min_price = request.GET.get('min_price', '')
     max_price = request.GET.get('max_price', '')
+    sort_by = request.GET.get('sort', 'newest')
+
+    # Build optimized QuerySet
+    products = Product.objects.available().with_category().search(query)
+    
+    if category_slug:
+        products = products.filter(category__slug=category_slug)
+    
+    # Price filtering
     if min_price and min_price.isdigit():
         products = products.filter(price__gte=min_price)
     if max_price and max_price.isdigit():
         products = products.filter(price__lte=max_price)
         
-    # Sorting logic
-    sort_by = request.GET.get('sort', 'newest')
-    if sort_by == 'price_asc':
-        products = products.order_by('price')
-    elif sort_by == 'price_desc':
-        products = products.order_by('-price')
-    elif sort_by == 'rating':
-        products = products.order_by('-rating', '-reviews_count')
-    else:  # newest
-        products = products.order_by('-created_at')
+    products = products.sort_by(sort_by)
 
     return render(request, "ShopperMartapp/public_store.html", {
         "products": products,
-        "categories": categories,
+        "categories": Category.objects.all(),
         "selected_category": category_slug,
         "min_price": min_price,
         "max_price": max_price,
         "sort": sort_by,
         "query": query,
+        "wishlisted_ids": Wishlist.get_product_ids_for_user(request.user),
     })
 
 
@@ -94,7 +91,7 @@ def about_view(request):
 def contact_view(request):
     """Brand Support and Inquiry interface."""
     if request.method == "POST":
-        messages.success(request, "Transmission Received: Our support registry will prioritize your inquiry within 24 hours.")
+        messages.success(request, "Message sent! Our team will get back to you within 24 hours.")
         return redirect("contact")
     return render(request, "contact.html")
 
@@ -102,36 +99,44 @@ def contact_view(request):
 def category_products(request, slug):
     """Display all products under a specific category. SEO-FRIENDLY: No login required to browse."""
     category = get_object_or_404(Category, slug=slug)
-    products = Product.objects.select_related('category').filter(category=category, available=True).annotate(
-        has_image=Case(
-            When(image__gt='', then=Value(True)),
-            default=Value(False),
-            output_field=BooleanField(),
-        )
-    ).order_by('-has_image', '-created_at')
+    products = Product.objects.available().filter(category=category).with_category().with_image_status().sort_by('newest')
 
     return render(request, "ShopperMartapp/category_products.html", {
         "category": category,
-        "products": products
+        "products": products,
+        "wishlisted_ids": Wishlist.get_product_ids_for_user(request.user),
     })
 
 
 def product_detail(request, slug):
     """Display detailed information about a single product. SEO-FRIENDLY: No login required to browse."""
-    product = get_object_or_404(Product, slug=slug, available=True)
+    product = get_object_or_404(Product.objects.with_category(), slug=slug, available=True)
     
-    # Related products logic
-    related_products = Product.objects.filter(category=product.category, available=True).exclude(id=product.id)[:4]
+    # Related products logic (optimized)
+    related_products = Product.objects.available().filter(category=product.category).exclude(id=product.id)[:4]
+
+    # Reviews (approved only, with related users)
+    approved_reviews = product.reviews.filter(is_approved=True).select_related('user')
+
+    # User's own review
+    user_review = None
+    if request.user.is_authenticated:
+        user_review = product.reviews.filter(user=request.user).first()
 
     return render(request, "ShopperMartapp/product_detail.html", {
         "product": product,
-        "related_products": related_products
+        "related_products": related_products,
+        "approved_reviews": approved_reviews,
+        "user_review": user_review,
     })
 
 
 def product_detail_by_id(request, pk):
     """Redirect product detail by ID to canonical slug URL."""
-    product = get_object_or_404(Product, pk=pk, available=True)
+    try:
+        product = get_object_or_404(Product, pk=pk, available=True)
+    except ValidationError:
+        return render(request, "404.html", status=404)
     canonical_url = reverse("product_detail", kwargs={"slug": product.slug})
     return HttpResponsePermanentRedirect(canonical_url)
 
@@ -188,10 +193,99 @@ def product_update(request, pk):
 
 @staff_member_required
 def product_delete(request, pk):
-    """Delete a product. Staff only."""
-    product = get_object_or_404(Product, pk=pk)
+    """Soft-delete a product to maintain integrity of historical orders."""
+    try:
+        product = get_object_or_404(Product, pk=pk)
+    except ValidationError:
+        return render(request, "404.html", status=404)
+        
     if request.method == "POST":
-        product.delete()
-        messages.success(request, "Product deleted successfully.")
+        product.is_deleted = True
+        product.save()
+        messages.success(request, f"Product '{product.name}' archived successfully (Soft Delete).")
         return redirect("product_list")
     return render(request, "ShopperMartapp/product_confirm_delete.html", {"product": product})
+
+
+# -------------------- REVIEWS --------------------
+@login_required
+@require_POST
+def submit_review(request, product_id):
+    """Submit or update a product review. One review per user per product."""
+    try:
+        product = get_object_or_404(Product, id=product_id)
+    except ValidationError:
+        return render(request, "404.html", status=404)
+    
+    try:
+        rating = int(request.POST.get('rating', 0))
+        if not (1 <= rating <= 5):
+            messages.error(request, "Please select a rating between 1 and 5.")
+            return redirect('product_detail', slug=product.slug)
+    except (ValueError, TypeError):
+        messages.error(request, "Invalid rating.")
+        return redirect('product_detail', slug=product.slug)
+
+    comment = request.POST.get('comment', '').strip()
+    if len(comment) < 10:
+        messages.error(request, "Review must be at least 10 characters long.")
+        return redirect('product_detail', slug=product.slug)
+
+    # Create or update (one review per user per product)
+    review, created = Review.objects.update_or_create(
+        product=product,
+        user=request.user,
+        defaults={
+            'rating': rating,
+            'comment': comment,
+            'is_approved': False,  # Reset approval on update
+        }
+    )
+    
+    if created:
+        messages.success(request, "Your review has been submitted and is pending approval.")
+    else:
+        messages.success(request, "Your review has been updated and is pending re-approval.")
+    
+    return redirect('product_detail', slug=product.slug)
+
+
+# -------------------- WISHLIST --------------------
+@login_required
+def wishlist_view(request):
+    """Display the user's saved objects."""
+    wishlist, _ = Wishlist.objects.get_or_create(user=request.user)
+    return render(request, "ShopperMartapp/wishlist.html", {
+        "wishlist": wishlist,
+        "products": wishlist.products.all()
+    })
+
+
+@login_required
+@require_POST
+def toggle_wishlist(request, product_id):
+    """Toggle a product in the user's wishlist via AJAX or POST."""
+    from django.http import JsonResponse
+    try:
+        product = get_object_or_404(Product, id=product_id)
+    except ValidationError:
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+             return JsonResponse({"error": "Invalid Product ID"}, status=400)
+        return render(request, "404.html", status=404)
+    wishlist, _ = Wishlist.objects.get_or_create(user=request.user)
+    
+    if wishlist.products.filter(id=product_id).exists():
+        wishlist.products.remove(product)
+        status = "removed"
+    else:
+        wishlist.products.add(product)
+        status = "added"
+    
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return JsonResponse({
+            "status": status,
+            "item_count": wishlist.item_count
+        })
+    
+    messages.success(request, f"Product {'saved to' if status == 'added' else 'removed from'} your wishlist.")
+    return redirect(request.META.get('HTTP_REFERER', 'home'))

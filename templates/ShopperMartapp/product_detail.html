@@ -61,6 +61,12 @@
                <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
                <span class="font-mono text-[10px] text-green-700 uppercase tracking-widest font-bold font-bold">In Stock</span>
             </div>
+            {% if product.low_stock %}
+            <div class="flex items-center gap-3 bg-amber-50 px-4 py-2 rounded-xl border border-amber-200">
+               <span class="material-symbols-outlined text-amber-500 text-[16px]">warning</span>
+               <span class="font-mono text-[10px] text-amber-700 uppercase tracking-widest font-bold">Only {{ product.stock }} left!</span>
+            </div>
+            {% endif %}
             {% else %}
             <div class="flex items-center gap-3 bg-red-50 px-4 py-2 rounded-xl border border-red-100">
                <span class="font-mono text-[10px] text-red-600 uppercase tracking-widest font-bold italic">Currently Unavailable</span>
@@ -75,7 +81,7 @@
           <!-- ADD TO CART ACTIONS -->
           <div class="space-y-12">
             {% if product.stock > 0 %}
-            <form method="POST" action="{% url 'add_to_cart' product.id %}" class="js-require-auth space-y-12">
+            <form method="POST" action="{% url 'add_to_cart' product.id %}" class="space-y-12">
               {% csrf_token %}
               <div class="flex items-center gap-10">
                 <span class="font-mono text-[10px] tracking-widest uppercase text-black font-bold italic opacity-40">Select Quantity</span>
@@ -88,10 +94,17 @@
               </div>
 
               <div class="flex items-center gap-6">
-                <button type="submit" class="js-require-auth flex-grow bg-black text-white py-8 rounded-3xl font-bold tracking-[0.4em] text-[13px] uppercase hover:shadow-3xl hover:scale-[1.01] active:scale-95 transition-all duration-500 shadow-2xl">
+                <button type="submit" 
+                        class="js-add-to-cart-btn flex-grow bg-black text-white py-8 rounded-3xl font-bold tracking-[0.4em] text-[13px] uppercase hover:shadow-3xl hover:scale-[1.01] active:scale-95 transition-all duration-500 shadow-2xl"
+                        data-product-id="{{ product.id }}"
+                        data-product-name="{{ product.name }}">
                   Add to Bag
                 </button>
-                <button type="button" class="material-symbols-outlined text-black bg-zinc-50 px-8 py-8 rounded-3xl hover:bg-black hover:text-white transition-all shadow-sm">favorite</button>
+                <button type="button" 
+                        onclick="toggleWishlist('{{ product.id }}', this)"
+                        class="material-symbols-outlined bg-zinc-50 px-8 py-8 rounded-3xl hover:bg-black hover:text-white transition-all shadow-sm js-require-auth {% if product.id in wishlisted_ids %}fill-current text-red-500{% else %}text-black{% endif %}">
+                  favorite
+                </button>
               </div>
             </form>
             {% else %}
@@ -146,4 +159,139 @@
           </div>
        </div>
     </section>
+
+    <!-- ═══════════ REVIEWS & RATINGS SECTION ═══════════ -->
+    <section class="py-24 px-8 md:px-24" id="reviews">
+       <div class="max-w-5xl mx-auto">
+          <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 gap-6">
+             <div>
+                <span class="font-mono text-[9px] uppercase tracking-[0.6em] text-black/30 block mb-4 font-bold">Customer Feedback</span>
+                <h2 class="font-serif text-4xl md:text-5xl font-bold tracking-tighter uppercase leading-none italic">Reviews & Ratings</h2>
+             </div>
+             <div class="flex items-center gap-4 bg-zinc-50 px-8 py-4 rounded-2xl border border-black/5">
+                <span class="material-symbols-outlined text-black text-3xl fill-current">star</span>
+                <div>
+                   <span class="font-mono text-3xl font-bold text-black">{{ product.computed_rating }}</span>
+                   <span class="font-mono text-[10px] text-black/40 block uppercase tracking-widest font-bold">{{ product.computed_reviews_count }} reviews</span>
+                </div>
+             </div>
+          </div>
+
+          <!-- Approved Reviews List -->
+          {% if approved_reviews %}
+          <div class="space-y-8 mb-20">
+             {% for review in approved_reviews %}
+             <div class="bg-white border border-black/5 rounded-[2rem] p-10 shadow-sm">
+                <div class="flex items-center justify-between mb-6">
+                   <div class="flex items-center gap-4">
+                      <div class="w-10 h-10 bg-black rounded-full flex items-center justify-center text-white font-mono text-[11px] font-bold uppercase">{{ review.user.username|truncatechars:2 }}</div>
+                      <div>
+                         <span class="font-mono text-[11px] font-bold text-black uppercase tracking-widest">{{ review.user.username }}</span>
+                         <span class="font-mono text-[9px] text-black/30 block uppercase tracking-widest">{{ review.created_at|date:"d M Y" }}</span>
+                      </div>
+                   </div>
+                   <div class="flex items-center gap-1">
+                      {% for i in "12345" %}
+                      <span class="material-symbols-outlined text-[16px] {% if forloop.counter <= review.rating %}text-black fill-current{% else %}text-zinc-200{% endif %}">star</span>
+                      {% endfor %}
+                   </div>
+                </div>
+                <p class="text-black/70 leading-relaxed text-[15px]">{{ review.comment }}</p>
+             </div>
+             {% endfor %}
+          </div>
+          {% else %}
+          <div class="text-center py-16 mb-20 bg-zinc-50/50 rounded-[2rem] border border-black/5">
+             <span class="material-symbols-outlined text-5xl text-zinc-200 mb-4 block">rate_review</span>
+             <p class="font-mono text-[10px] uppercase tracking-widest text-black/30 font-bold">No approved reviews yet. Be the first to review!</p>
+          </div>
+          {% endif %}
+
+          <!-- Review Submission Form -->
+          {% if user.is_authenticated %}
+          <div class="bg-white border border-black/5 rounded-[2rem] p-10 md:p-16 shadow-sm">
+             <span class="font-mono text-[9px] uppercase tracking-[0.5em] text-black/30 block mb-8 font-bold">
+                {% if user_review %}Update Your Review{% else %}Write a Review{% endif %}
+             </span>
+
+             {% if user_review and not user_review.is_approved %}
+             <div class="bg-amber-50 border border-amber-200 rounded-2xl p-6 mb-8 flex items-center gap-4">
+                <span class="material-symbols-outlined text-amber-500">hourglass_top</span>
+                <span class="font-mono text-[10px] text-amber-700 uppercase tracking-widest font-bold">Your review is pending admin approval.</span>
+             </div>
+             {% endif %}
+
+             <form method="POST" action="{% url 'submit_review' product.id %}">
+                {% csrf_token %}
+                <!-- Star Rating Picker -->
+                <div class="mb-10">
+                   <label class="font-mono text-[10px] uppercase tracking-widest text-black/40 font-bold block mb-4">Your Rating</label>
+                   <div class="flex items-center gap-2" id="star-picker">
+                      {% for i in "12345" %}
+                      <button type="button" data-rating="{{ forloop.counter }}" class="star-btn material-symbols-outlined text-3xl transition-all duration-300 hover:scale-125 cursor-pointer
+                         {% if user_review and forloop.counter <= user_review.rating %}text-black fill-current{% else %}text-zinc-200 hover:text-zinc-400{% endif %}">star</button>
+                      {% endfor %}
+                      <input type="hidden" name="rating" id="rating-input" value="{{ user_review.rating|default:0 }}">
+                   </div>
+                </div>
+                <!-- Comment -->
+                <div class="mb-10">
+                   <label class="font-mono text-[10px] uppercase tracking-widest text-black/40 font-bold block mb-4">Your Review</label>
+                   <textarea name="comment" rows="4" minlength="10" maxlength="1000" required
+                      class="w-full bg-zinc-50 border border-black/5 rounded-2xl p-6 text-[15px] focus:ring-1 focus:ring-black/10 focus:border-black/10 outline-none transition-all resize-none" 
+                      placeholder="Share your experience with this product...">{{ user_review.comment|default:"" }}</textarea>
+                </div>
+                <button type="submit" class="bg-black text-white px-16 py-5 rounded-full font-mono text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-zinc-800 transition-all shadow-xl active:scale-95">
+                   {% if user_review %}Update Review{% else %}Submit Review{% endif %}
+                </button>
+             </form>
+          </div>
+          {% else %}
+          <div class="bg-zinc-50/50 border border-black/5 rounded-[2rem] p-10 text-center">
+             <p class="font-mono text-[10px] uppercase tracking-widest text-black/30 font-bold mb-6">Sign in to leave a review</p>
+             <a href="{% url 'login' %}" class="bg-black text-white px-12 py-4 rounded-full font-mono text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-zinc-800 transition-all inline-block">Sign In</a>
+          </div>
+          {% endif %}
+
+       </div>
+    </section>
 {% endblock %}
+
+{% block scripts %}
+<script>
+   // Star Rating Picker
+   const starBtns = document.querySelectorAll('.star-btn');
+   const ratingInput = document.getElementById('rating-input');
+   
+   if (starBtns.length) {
+      starBtns.forEach(btn => {
+         btn.addEventListener('click', function() {
+            const rating = parseInt(this.dataset.rating);
+            ratingInput.value = rating;
+            
+            starBtns.forEach((s, idx) => {
+               if (idx < rating) {
+                  s.classList.remove('text-zinc-200', 'hover:text-zinc-400');
+                  s.classList.add('text-black', 'fill-current');
+                  s.style.fontVariationSettings = "'FILL' 1";
+               } else {
+                  s.classList.add('text-zinc-200', 'hover:text-zinc-400');
+                  s.classList.remove('text-black', 'fill-current');
+                  s.style.fontVariationSettings = "'FILL' 0";
+               }
+            });
+         });
+      });
+
+      // Set initial fill state for existing ratings
+      const initialRating = parseInt(ratingInput.value);
+      if (initialRating > 0) {
+         starBtns.forEach((s, idx) => {
+            if (idx < initialRating) {
+               s.style.fontVariationSettings = "'FILL' 1";
+            }
+         });
+      }
+   }
+</script>
+{% endblock %}

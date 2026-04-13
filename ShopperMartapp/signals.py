@@ -51,21 +51,10 @@ def merge_carts(sender, user, request, **kwargs):
         # 2. Get or create user cart
         user_cart, _ = Cart.objects.get_or_create(user=user)
         
-        # 3. Transfer items
-        guest_items = guest_cart.items.all()
-        for item in guest_items:
-            # Check if product already exists in user cart
-            user_item, created = CartItem.objects.get_or_create(cart=user_cart, product=item.product)
-            if not created:
-                user_item.quantity += item.quantity
-            else:
-                user_item.quantity = item.quantity
-            user_item.save()
+        # 3. Use the robust model method to merge and cleanup
+        user_cart.merge_with(guest_cart)
         
-        # 4. Cleanup guest cart
-        guest_cart.delete()
-        logger.info(f"CartMerge: Merged guest cart items into user {user.id}'s permanent cart.")
+        logger.info(f"CartMerge: Successfully merged guest cart into user {user.id}'s account.")
         
     except Cart.DoesNotExist:
-        # No guest cart found, nothing to merge
         pass

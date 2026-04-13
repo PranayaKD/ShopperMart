@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Contact Us | ShopperMart{% endblock %}
+
+{% block content %}
+<section class="pt-44 pb-32 px-8 md:px-24 bg-zinc-50 overflow-hidden relative">
+    <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-24 items-start relative z-10">
+        
+        <div class="space-y-12">
+            <span class="font-mono text-[10px] tracking-[.3em] text-on-surface-variant uppercase block font-bold opacity-40">Get in Touch</span>
+            <h1 class="font-serif text-6xl md:text-8xl font-bold tracking-tighter text-black uppercase leading-[0.9] italic">
+                We're Here <br/>to <span class="text-zinc-300">Help.</span>
+            </h1>
+            <p class="font-newsreader text-2xl leading-relaxed text-black/60 italic max-w-lg">
+                Whether you have a question about our collection, or just want to say hello, we'd love to hear from you.
+            </p>
+            
+            <div class="space-y-10 pt-12 border-t border-black/5">
+                <div class="flex items-start gap-6">
+                    <span class="material-symbols-outlined text-black/20 text-3xl">mail</span>
+                    <div>
+                        <h4 class="font-mono text-[10px] uppercase tracking-widest font-bold mb-2">Email Us</h4>
+                        <a href="mailto:hello@shoppermart.com" class="font-serif text-2xl font-bold hover:italic transition-all">hello@shoppermart.com</a>
+                    </div>
+                </div>
+                <div class="flex items-start gap-6">
+                    <span class="material-symbols-outlined text-black/20 text-3xl">location_on</span>
+                    <div>
+                        <h4 class="font-mono text-[10px] uppercase tracking-widest font-bold mb-2">Visit Us</h4>
+                        <p class="font-serif text-2xl font-bold">Bhadrak, Odisha, <br/>India</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white p-12 md:p-16 rounded-[3rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] border border-black/5">
+            <h3 class="font-serif text-3xl font-bold uppercase mb-12 tracking-tight">Send a Message</h3>
+            <form method="POST" action="{% url 'contact' %}" class="space-y-10">
+                {% csrf_token %}
+                <div class="relative group">
+                    <input class="block w-full px-0 py-5 text-black bg-transparent border-0 border-b border-black/10 focus:ring-0 focus:border-black transition-all duration-700 peer font-serif text-2xl font-bold placeholder:opacity-0" 
+                           id="name" name="name" placeholder="Name" type="text" required/>
+                    <label class="absolute left-0 top-0 text-black/30 font-mono text-[9px] tracking-[0.4em] uppercase pointer-events-none transition-all duration-500 origin-left peer-focus:-translate-y-8 peer-focus:scale-90 peer-focus:text-black peer-not-placeholder-shown:-translate-y-8 peer-not-placeholder-shown:scale-90" 
+                           for="name">Your Name</label>
+                </div>
+                <div class="relative group">
+                    <input class="block w-full px-0 py-5 text-black bg-transparent border-0 border-b border-black/10 focus:ring-0 focus:border-black transition-all duration-700 peer font-serif text-2xl font-bold placeholder:opacity-0" 
+                           id="email" name="email" placeholder="Email" type="email" required/>
+                    <label class="absolute left-0 top-0 text-black/30 font-mono text-[9px] tracking-[0.4em] uppercase pointer-events-none transition-all duration-500 origin-left peer-focus:-translate-y-8 peer-focus:scale-90 peer-focus:text-black peer-not-placeholder-shown:-translate-y-8 peer-not-placeholder-shown:scale-90" 
+                           for="email">Email Address</label>
+                </div>
+                <div class="relative group">
+                    <textarea class="block w-full px-0 py-5 text-black bg-transparent border-0 border-b border-black/10 focus:ring-0 focus:border-black transition-all duration-700 peer font-serif text-xl placeholder:opacity-0 resize-none" 
+                              id="message" name="message" placeholder="Message" required rows="3"></textarea>
+                    <label class="absolute left-0 top-0 text-black/30 font-mono text-[9px] tracking-[0.4em] uppercase pointer-events-none transition-all duration-500 origin-left peer-focus:-translate-y-8 peer-focus:scale-90 peer-focus:text-black peer-not-placeholder-shown:-translate-y-8 peer-not-placeholder-shown:scale-90" 
+                           for="message">How can we help?</label>
+                </div>
+                <button type="submit" class="w-full bg-black text-white py-6 rounded-full font-bold tracking-[0.5em] text-[11px] uppercase hover:bg-zinc-800 transition-all shadow-xl active:scale-95 duration-500">
+                    Send Message
+                </button>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}
