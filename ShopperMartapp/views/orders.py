@@ -152,10 +152,10 @@ def finalize_order(request, order, cart):
 
             # CLEAR CART (AS REQUESTED: Only clear after success)
             cart.items.all().delete()
-        
-        # Status change and success messaging happens AFTER successful transaction
-        user = request.user if request.user.is_authenticated else None
-        order.change_status('processing', user=user, note="Stock deducted and order confirmed.")
+
+            # Status change MUST be inside the atomic block for transactional consistency
+            user = request.user if request.user.is_authenticated else None
+            order.change_status('processing', user=user, note="Stock deducted and order confirmed.")
         
         request.session['last_order_id'] = str(order.id)
         logger.info(f"OrderSuccess: Order {order.id} finalized.")

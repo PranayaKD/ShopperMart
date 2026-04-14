@@ -115,7 +115,7 @@ def contact_view(request):
         try:
             validate_email(email)
         except ValidationError:
-            logger.warning(f"ContactValidationFailure: Invalid email format attempted ({email[:5]}...)")
+            logger.warning("ContactValidationFailure: Invalid email format attempted")
             messages.error(request, "Please provide a valid email address.")
             return redirect("contact")
 

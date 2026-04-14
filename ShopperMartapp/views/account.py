@@ -38,11 +38,7 @@ def profile_view(request):
 @login_required
 def profile_edit_view(request):
     """Edit user's profile and update information."""
-    profile = getattr(request.user, 'profile', None)
-    
-    # Ensure profile exists before editing
-    if profile is None:
-        profile = Profile.objects.create(user=request.user)
+    profile, created = Profile.objects.get_or_create(user=request.user)
     
     if request.method == "POST":
         uform = UserUpdateForm(request.POST, instance=request.user)
