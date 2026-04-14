@@ -2,7 +2,8 @@ import logging
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.db import transaction
+from django.db import transaction, models
+from django.db.models import F
 
 logger = logging.getLogger(__name__)
 from .cart import get_cart
@@ -64,7 +65,7 @@ def checkout(request):
                         messages.error(request, f"Not enough stock for {product.name}. Only {product.stock} left.")
                         raise ValueError("Insufficient stock")
 
-                    product.stock -= item.quantity
+                    product.stock = F('stock') - item.quantity
                     product.save()
 
                     OrderItem.objects.create(
@@ -233,7 +234,7 @@ def cancel_order(request, order_id):
         if item.product:
             # We use select_for_update here too to be safe
             product = Product.objects.select_for_update().get(id=item.product.id)
-            product.stock += item.quantity
+            product.stock = F('stock') + item.quantity
             product.save()
             
     # Use the formal state transition

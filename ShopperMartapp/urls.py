@@ -1,5 +1,6 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
+from ratelimit.decorators import ratelimit
 from django.views.generic import TemplateView
 from .views import catalog, cart, orders, account, administrator
 
@@ -16,7 +17,7 @@ urlpatterns = [
     # Auth
     path("register/", account.register_view, name="register"),
     path("signup/", account.register_view, name="signup"),  
-    path("login/", auth_views.LoginView.as_view(template_name="registration/login.html"), name="login"),
+    path("login/", ratelimit(key='ip', rate='5/m', block=True)(auth_views.LoginView.as_view(template_name="registration/login.html")), name="login"),
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),
 
     # Profile

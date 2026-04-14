@@ -1,5 +1,5 @@
-import logging
 from django.shortcuts import render, redirect, get_object_or_404
+from ratelimit.decorators import ratelimit
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from ..forms import UserRegistrationForm, UserUpdateForm, ProfileUpdateForm
@@ -7,6 +7,7 @@ from ..forms import UserRegistrationForm, UserUpdateForm, ProfileUpdateForm
 logger = logging.getLogger(__name__)
 
 # -------------------- AUTH --------------------
+@ratelimit(key='ip', rate='5/m', block=True)
 def register_view(request):
     """User registration view."""
     if request.user.is_authenticated:

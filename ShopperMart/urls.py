@@ -11,6 +11,9 @@ urlpatterns = [
     path("", include("ShopperMartapp.urls")),             # 👈 Frontend app routes
 ]
 
+handler404 = 'ShopperMartapp.views.catalog.error_404_view'
+handler500 = 'ShopperMartapp.views.catalog.error_500_view'
+
 from django.urls import re_path
 from django.views.static import serve
 

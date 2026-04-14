@@ -1,5 +1,5 @@
-import logging
 from django.shortcuts import render, redirect, get_object_or_404
+from ratelimit.decorators import ratelimit
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
@@ -88,6 +88,7 @@ def about_view(request):
     return render(request, "about.html")
 
 
+@ratelimit(key='ip', rate='3/m', block=True)
 def contact_view(request):
     """Brand Support and Inquiry interface."""
     if request.method == "POST":
@@ -210,6 +211,7 @@ def product_delete(request, pk):
 # -------------------- REVIEWS --------------------
 @login_required
 @require_POST
+@ratelimit(key='user', rate='5/h', block=True)
 def submit_review(request, product_id):
     """Submit or update a product review. One review per user per product."""
     try:
@@ -289,3 +291,13 @@ def toggle_wishlist(request, product_id):
     
     messages.success(request, f"Product {'saved to' if status == 'added' else 'removed from'} your wishlist.")
     return redirect(request.META.get('HTTP_REFERER', 'home'))
+
+
+def error_404_view(request, exception):
+    """Custom 404 handler with brand theme."""
+    return render(request, '404.html', status=404)
+
+
+def error_500_view(request):
+    """Custom 500 handler with brand theme."""
+    return render(request, '500.html', status=500)

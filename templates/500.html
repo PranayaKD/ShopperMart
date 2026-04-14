@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}500 | Server Error | ShopperMart{% endblock %}
+
+{% block content %}
+<section class="min-h-[80vh] flex items-center justify-center p-8">
+    <div class="max-w-2xl w-full text-center">
+        <!-- ERROR ICON (Glassmorphism) -->
+        <div class="w-24 h-24 md:w-32 md:h-32 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-10 border border-red-100 shadow-xl animate-in zoom-in duration-700">
+             <span class="material-symbols-outlined text-4xl md:text-6xl text-red-500 opacity-40">engineering</span>
+        </div>
+
+        <span class="font-mono text-[10px] uppercase tracking-[0.5em] text-red-600/40 font-bold mb-6 block">Error Code 500</span>
+        <h1 class="font-serif text-5xl md:text-7xl font-bold italic mb-8 leading-tight">Internal <br/><span class="text-primary">Disruption.</span></h1>
+        
+        <p class="font-sans text-lg text-on-surface-variant leading-relaxed mb-12 max-w-lg mx-auto opacity-70 italic">
+            Unexpected turbulence in our digital architecture. Our engineering team has been notified and is currently restoring the experience. 
+            Elegance will return shortly.
+        </p>
+        
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="{% url 'home' %}" class="bg-black text-white px-10 py-5 rounded-full font-mono text-[10px] tracking-[0.4em] uppercase font-bold hover:bg-zinc-800 transition-all shadow-2xl active:scale-95">
+                Go to Homepage
+            </a>
+            <a href="{% url 'contact' %}" class="bg-surface-container-low text-black px-10 py-5 rounded-full font-mono text-[10px] tracking-[0.4em] uppercase font-bold hover:bg-black/5 transition-all border border-black/5 active:scale-95">
+                Report Issue
+            </a>
+        </div>
+
+        <!-- DECORATIVE ELEMENT -->
+        <div class="mt-20 opacity-10">
+            <p class="font-serif italic text-sm">ShopperMart &mdash; Premium Modern Wardrobe</p>
+        </div>
+    </div>
+</section>
+{% endblock %}

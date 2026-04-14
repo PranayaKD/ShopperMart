@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "allauth.account",
     "allauth.socialaccount",
     "allauth.socialaccount.providers.google",
+    "csp",                     # Content Security Policy protection
 ]
 
 SITE_ID = 1
@@ -113,6 +114,7 @@ MIDDLEWARE = [
     "allauth.account.middleware.AccountMiddleware", # Required for allauth
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "csp.middleware.CSPMiddleware", # Standard Security Header (CSP)
 ]
 
 ROOT_URLCONF = "ShopperMart.urls"
@@ -140,20 +142,21 @@ WSGI_APPLICATION = "ShopperMart.wsgi.application"
 
 # ================= DATABASE =================
 # FIX: Simplified database configuration for Render
-DATABASES = {
-    "default": dj_database_url.config(
-        default=config(
-            "DATABASE_URL",
-            default="sqlite:///db.sqlite3"  # Fallback to SQLite for local dev
-        ),
-        conn_max_age=600
     )
+}
+
+# ================= CACHING (Required for Rate Limiting) =================
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
+    }
 }
 
 # ================= PASSWORD VALIDATION =================
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
-    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator", "OPTIONS": {"min_length": 10}},
     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
@@ -226,4 +229,48 @@ if not DEBUG:
     # Enable HSTS in production
     SECURE_HSTS_SECONDS = 31536000  # 1 year
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-    SECURE_HSTS_PRELOAD = True
+    SECURE_HSTS_PRELOAD = True
+
+# ================= CONTENT SECURITY POLICY (CSP) =================
+CSP_DEFAULT_SRC = ("'self'",)
+CSP_STYLE_SRC = ("'self'", "'unsafe-inline'", "fonts.googleapis.com", "cdn.tailwindcss.com")
+CSP_FONT_SRC = ("'self'", "fonts.gstatic.com", "fonts.googleapis.com")
+CSP_SCRIPT_SRC = ("'self'", "'unsafe-inline'", "cdn.tailwindcss.com", "checkout.razorpay.com")
+CSP_IMG_SRC = ("'self'", "data:", "res.cloudinary.com", "*.googleusercontent.com")
+CSP_FRAME_SRC = ("'self'", "checkout.razorpay.com")
+
+# ================= LOGGING (Operational Backup) =================
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+        'file': {
+            'level': 'ERROR',
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR / 'error.log',
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console', 'file'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'ShopperMartapp': {
+            'handlers': ['console', 'file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}

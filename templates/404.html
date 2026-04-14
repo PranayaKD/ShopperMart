@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}404 | Page Not Found | ShopperMart{% endblock %}
+
+{% block content %}
+<section class="min-h-[80vh] flex items-center justify-center p-8">
+    <div class="max-w-2xl w-full text-center">
+        <!-- ERROR ICON (Glassmorphism) -->
+        <div class="w-24 h-24 md:w-32 md:h-32 bg-surface-container-low rounded-full flex items-center justify-center mx-auto mb-10 border border-black/5 shadow-xl animate-in zoom-in duration-700">
+             <span class="material-symbols-outlined text-4xl md:text-6xl text-primary opacity-20">error</span>
+        </div>
+
+        <span class="font-mono text-[10px] uppercase tracking-[0.5em] text-black/30 font-bold mb-6 block">Error Code 404</span>
+        <h1 class="font-serif text-5xl md:text-7xl font-bold italic mb-8 leading-tight">Lost in the <br/><span class="text-primary">Collection.</span></h1>
+        
+        <p class="font-sans text-lg text-on-surface-variant leading-relaxed mb-12 max-w-lg mx-auto opacity-70 italic">
+            It seems the piece you're looking for has been archived or moved to a different department. 
+            Even in the digital world, elegance is sometimes elusive.
+        </p>
+        
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="{% url 'home' %}" class="bg-black text-white px-10 py-5 rounded-full font-mono text-[10px] tracking-[0.4em] uppercase font-bold hover:bg-zinc-800 transition-all shadow-2xl active:scale-95">
+                Return to Store
+            </a>
+            <a href="{% url 'public_store' %}" class="bg-surface-container-low text-black px-10 py-5 rounded-full font-mono text-[10px] tracking-[0.4em] uppercase font-bold hover:bg-black/5 transition-all border border-black/5 active:scale-95">
+                Shop All Items
+            </a>
+        </div>
+
+        <!-- DECORATIVE ELEMENT -->
+        <div class="mt-20 opacity-10">
+            <p class="font-serif italic text-sm">ShopperMart &mdash; Premium Modern Wardrobe</p>
+        </div>
+    </div>
+</section>
+{% endblock %}
