@@ -10,6 +10,7 @@ from django.db.models import Q, Case, When, Value, BooleanField
 from django.core.exceptions import ValidationError
 from decimal import Decimal, InvalidOperation
 from django.core.mail import send_mail
+from django.core.validators import validate_email
 from django.conf import settings
 import logging
 
@@ -101,11 +102,35 @@ def about_view(request):
 def contact_view(request):
     """Brand Support and Inquiry interface. Sends email to admin (AS REQUESTED)."""
     if request.method == "POST":
-        name = request.POST.get('name')
-        email = request.POST.get('email')
-        message = request.POST.get('message')
+        name = request.POST.get('name', '').strip()
+        email = request.POST.get('email', '').strip()
+        message = request.POST.get('message', '').strip()
         
-        # 1. SEND EMAIL TO ADMIN
+        # 1. RIGOROUS VALIDATION
+        if not all([name, email, message]):
+            messages.error(request, "All fields (Name, Email, Message) are required.")
+            return redirect("contact")
+
+        # Email Format Check
+        try:
+            validate_email(email)
+        except ValidationError:
+            logger.warning(f"ContactValidationFailure: Invalid email format attempted ({email[:5]}...)")
+            messages.error(request, "Please provide a valid email address.")
+            return redirect("contact")
+
+        # Length Constraints
+        if len(name) > 100:
+            messages.error(request, "Name is too long (max 100 characters).")
+            return redirect("contact")
+        if len(email) > 254:
+            messages.error(request, "Email address is too long.")
+            return redirect("contact")
+        if len(message) > 5000:
+            messages.error(request, "Message is too long (max 5000 characters).")
+            return redirect("contact")
+
+        # 2. SEND EMAIL TO ADMIN
         subject = f"New ShopperMart Contact Inquiry from {name}"
         email_body = f"Name: {name}\nEmail: {email}\n\nMessage:\n{message}"
         

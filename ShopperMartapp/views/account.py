@@ -4,6 +4,7 @@ from django_ratelimit.decorators import ratelimit
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from ..forms import UserRegistrationForm, UserUpdateForm, ProfileUpdateForm
+from ..models import Profile
 
 logger = logging.getLogger(__name__)
 
@@ -37,8 +38,11 @@ def profile_view(request):
 @login_required
 def profile_edit_view(request):
     """Edit user's profile and update information."""
-    # Fix: Securely get profile to prevent RelatedObjectDoesNotExist (CodeRabbit Case #8)
     profile = getattr(request.user, 'profile', None)
+    
+    # Ensure profile exists before editing
+    if profile is None:
+        profile = Profile.objects.create(user=request.user)
     
     if request.method == "POST":
         uform = UserUpdateForm(request.POST, instance=request.user)

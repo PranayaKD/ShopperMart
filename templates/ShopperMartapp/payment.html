@@ -56,7 +56,7 @@
         "prefill": {
             "name": "{{ order.full_name|escapejs }}",
             "email": "{{ order.email|escapejs }}",
-            "contact": "{{ order.user.profile.phone|default:'9999999999'|escapejs }}"
+            "contact": "{{ order.user.profile.phone|default:''|escapejs }}"
         },
         "theme": {
             "color": "#000000" 
@@ -94,5 +94,4 @@
         e.preventDefault();
     }
 </script>
-{% endblock %}
 {% endblock %}

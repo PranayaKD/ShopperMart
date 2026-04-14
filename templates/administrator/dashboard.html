@@ -71,8 +71,12 @@
                 </thead>
                 <tbody class="divide-y divide-black/5">
                     {% for order in recent_orders %}
-                    <tr class="hover:bg-black/[0.02] cursor-pointer" onclick="window.location='{% url 'admin_order_detail' order.id %}'" aria-label="View order #{{ order.id }}">
-                        <td class="px-8 py-6 font-mono text-[10px] font-bold">#{{ order.id|stringformat:".8s" }}</td>
+                    <tr class="hover:bg-black/[0.02]">
+                        <td class="px-8 py-6 font-mono text-[10px] font-bold">
+                            <a href="{% url 'admin_order_detail' order.id %}" class="hover:underline" aria-label="View details for order #{{ order.id }}">
+                                #{{ order.id|stringformat:".8s" }}
+                            </a>
+                        </td>
                         <td class="px-8 py-6 font-serif italic text-sm font-bold">{{ order.full_name }}</td>
                         <td class="px-8 py-6 font-bold text-sm">₹{{ order.total }}</td>
                         <td class="px-8 py-6">

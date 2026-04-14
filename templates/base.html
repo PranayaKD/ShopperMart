@@ -445,7 +445,7 @@
       <div class="md:col-span-1">
         <h6 class="font-serif text-lg mb-6 text-white">Mailing List</h6>
         <p class="text-xs font-sans text-white/60 mb-6 font-mono uppercase tracking-widest">Receive early access to drop announcements and store sales.</p>
-        <form class="flex flex-col gap-3" onsubmit="event.preventDefault(); alert('Subscribed! Early access invites are on the way.'); this.reset();">
+        <form id="mailing-list-form" class="flex flex-col gap-3">
           <input class="bg-transparent border-b border-white/20 py-2 text-sm focus:border-white focus:ring-0 placeholder:text-white/40 outline-none text-white" placeholder="Email Address" type="email" required/>
           <button type="submit" class="bg-white text-primary px-6 py-3 font-mono uppercase text-xs tracking-widest active:scale-95 transition-all text-center hover:bg-surface-container-low">
             Join Now
@@ -695,6 +695,21 @@
         nav.classList.remove('scrolled');
       }
     }, { passive: true });
+
+    // Mailing List Toast Integration (Case #9)
+    const mailingListForm = document.getElementById('mailing-list-form');
+    if (mailingListForm) {
+      mailingListForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (window.cartSync && typeof window.cartSync.showToast === 'function') {
+           window.cartSync.showToast('Subscribed! Early access invites are on the way.', 'success');
+        } else {
+           // Fallback if cartSync hasn't loaded yet
+           alert('Subscribed! Early access invites are on the way.');
+        }
+        mailingListForm.reset();
+      });
+    }
   </script>
 </body>
 </html>

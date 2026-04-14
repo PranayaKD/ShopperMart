@@ -43,9 +43,9 @@ class Command(BaseCommand):
                     conn.execute(f"VACUUM INTO '{backup_path.replace(\"'\", \"''\")}'")
                     self.stdout.write(self.style.SUCCESS(f'Atomic backup created via VACUUM INTO: {backup_path}'))
                 except sqlite3.OperationalError:
-                     # Fallback for older SQLite versions
-                     shutil.copy2(db_path, backup_path)
-                     self.stdout.write(self.style.SUCCESS(f'Database copied (legacy mode) to: {backup_path}'))
+                    # Fallback for older SQLite versions
+                    shutil.copy2(db_path, backup_path)
+                    self.stdout.write(self.style.SUCCESS(f'Database copied (legacy mode) to: {backup_path}'))
                 finally:
                     conn.close()
             except Exception as e:

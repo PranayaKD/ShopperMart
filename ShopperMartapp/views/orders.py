@@ -14,7 +14,7 @@ import razorpay
 from django.conf import settings
 
 # -------------------- CHECKOUT & ORDERS --------------------
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 
 # -------------------- CHECKOUT & ORDERS --------------------
 @transaction.atomic
@@ -35,11 +35,15 @@ def checkout(request):
             messages.warning(request, "This order is already being processed or has been completed.")
             return redirect("cart")
 
-        # 2. PRICE LOCK VERIFICATION (Fixed: Use Decimal)
+        # 2. PRICE LOCK VERIFICATION (Fixed: Guard against malformed input)
         posted_total = request.POST.get("total_verify")
-        if posted_total and Decimal(posted_total) != Decimal(total):
-             messages.error(request, "The prices in your cart have changed. Please review and try again.")
-             return redirect("cart")
+        try:
+            if posted_total and Decimal(posted_total) != Decimal(total):
+                 messages.error(request, "The prices in your cart have changed. Please review and try again.")
+                 return redirect("cart")
+        except (InvalidOperation, TypeError):
+            messages.error(request, "Price verification failed. Please try again.")
+            return redirect("cart")
 
         # 3. STOCK PRE-CHECK
         for item in cart_items:
@@ -132,33 +136,36 @@ def checkout(request):
     })
 
 
-@transaction.atomic
 def finalize_order(request, order, cart):
     """Internal helper to deduct stock and clear cart once payment is confirmed."""
     try:
-        for item in order.items.all():
-            # select_for_update to prevent race conditions during final deduction
-            product = Product.objects.select_for_update().get(id=item.product.id)
-            if item.quantity > product.stock:
-                raise ValueError(f"Insufficient stock for {product.name} during finalization.")
+        # Stock deduction and cart clearing must be atomic
+        with transaction.atomic():
+            for item in order.items.all():
+                # select_for_update to prevent race conditions during final deduction
+                product = Product.objects.select_for_update().get(id=item.product.id)
+                if item.quantity > product.stock:
+                    raise ValueError(f"Insufficient stock for {product.name} during finalization.")
 
-            product.stock = F('stock') - item.quantity
-            product.save()
+                product.stock = F('stock') - item.quantity
+                product.save()
 
-        # Update order status
+            # CLEAR CART (AS REQUESTED: Only clear after success)
+            cart.items.all().delete()
+        
+        # Status change and success messaging happens AFTER successful transaction
         user = request.user if request.user.is_authenticated else None
         order.change_status('processing', user=user, note="Stock deducted and order confirmed.")
         
-        # CLEAR CART (AS REQUESTED: Only clear after success)
-        cart.items.all().delete()
         request.session['last_order_id'] = str(order.id)
-        
         logger.info(f"OrderSuccess: Order {order.id} finalized.")
         messages.success(request, f"Order confirmed successfully! Order ID: {order.id}")
         return redirect("order_success")
         
     except ValueError as ve:
+        # Atomic block has rolled back. Now we handle the failure state.
         logger.error(f"FinalizationError: {ve}")
+        # Cancellation and user messaging happen outside the rolled-back transaction
         order.change_status('cancelled', note=str(ve))
         messages.error(request, "Unfortunately, some items sold out while you were paying. Your payment (if any) will be refunded.")
         return redirect("cart")
