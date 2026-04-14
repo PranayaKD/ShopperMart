@@ -270,9 +270,9 @@
     <div class="mt-auto pt-24 pb-8">
        <p class="font-mono text-[9px] uppercase tracking-[0.5em] text-white/20 leading-relaxed font-bold">Designed for the modern wardrobe.</p>
     </div>
-  <!-- SIDEBAR OVERLAY -->
-  <div id="sidebar-overlay" class="fixed inset-0 bg-black/70 z-[110] hidden opacity-0 transition-opacity duration-700"></div>
   </aside>
+  <!-- SIDEBAR OVERLAY (Moved outside for global scope) -->
+  <div id="sidebar-overlay" class="fixed inset-0 bg-black/70 z-[110] hidden opacity-0 transition-opacity duration-700"></div>
 
   <!-- LOGIN/SIGNUP MODAL -->
   <div id="auth-modal" class="fixed inset-0 z-[300] hidden items-center justify-center p-8 bg-black/60">
@@ -326,7 +326,7 @@
 
   <!-- MASTER CAPSULE NAV (GLASSMORPHISM) -->
   <header class="fixed top-8 inset-x-0 mx-auto w-[94vw] max-w-6xl z-[100]">
-    <nav id="master-nav" class="capsule-nav rounded-2xl px-6 md:px-8 py-3 flex gap-6 md:gap-10 items-center transition-all group">
+    <nav id="master-nav" class="capsule-nav rounded-2xl px-4 md:px-8 py-3 flex gap-3 md:gap-10 items-center transition-all group">
       
       <!-- BRAND & HAMBURGER -->
       <div class="flex items-center gap-6 shrink-0">
@@ -354,8 +354,8 @@
         </form>
       </div>
 
-      <!-- ACTIONS -->
-      <div class="flex items-center gap-4 md:gap-8 shrink-0">
+      <!-- ACTIONS (Robust spacing for small screens) -->
+      <div class="flex items-center gap-2 md:gap-8 shrink-0">
         {% if user.is_authenticated %}
           <div class="flex items-center gap-5 border-r border-black/10 pr-5">
             <a href="{% url 'profile' %}" class="flex items-center gap-2 group/user transition-colors" title="Profile">
@@ -370,24 +370,24 @@
             </form>
           </div>
         {% else %}
-          <a href="{% url 'login' %}" class="text-[10px] font-bold uppercase tracking-[0.2em] text-black/60 hover:text-black transition-all">Login</a>
+          <a href="{% url 'login' %}" class="text-[9px] md:text-[10px] font-bold uppercase tracking-[0.1em] md:tracking-[0.2em] text-black/60 hover:text-black transition-all">Login</a>
         {% endif %}
         
-        <a href="{% url 'wishlist' %}" class="relative flex items-center gap-2 group/wishlist bg-zinc-50 border border-black/5 text-black/70 px-5 py-2.5 rounded-xl hover:bg-zinc-100 transition-all">
+        <a href="{% url 'wishlist' %}" class="relative flex items-center gap-2 group/wishlist bg-zinc-50 border border-black/5 text-black/70 px-3 md:px-5 py-2.5 rounded-xl hover:bg-zinc-100 transition-all">
           <span class="material-symbols-outlined text-[18px]">favorite</span>
           <span class="text-[10px] font-bold uppercase tracking-widest hidden sm:block">Wishlist</span>
           {% if global_wishlist_count > 0 %}
-          <span id="wishlist-badge" class="absolute -top-2 -right-2 bg-black text-white text-[9px] font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-white shadow-lg animate-in zoom-in duration-300">
+          <span id="wishlist-badge" class="absolute -top-1 -right-1 bg-black text-white text-[8px] font-bold w-4 h-4 rounded-full flex items-center justify-center border-2 border-white shadow-lg animate-in zoom-in duration-300">
             {{ global_wishlist_count }}
           </span>
           {% endif %}
         </a>
 
-        <a href="{% url 'cart' %}" class="relative flex items-center gap-2 group/cart bg-black text-white px-5 py-2.5 rounded-xl hover:opacity-90 transition-all shadow-md">
+        <a href="{% url 'cart' %}" class="relative flex items-center gap-2 group/cart bg-black text-white px-3 md:px-5 py-2.5 rounded-xl hover:opacity-90 transition-all shadow-md">
           <span class="material-symbols-outlined text-[18px]">shopping_bag</span>
-          <span class="text-[10px] font-bold uppercase tracking-widest">Bag</span>
+          <span class="text-[10px] font-bold uppercase tracking-widest hidden sm:block">Bag</span>
           {% if global_cart_item_count > 0 %}
-          <span class="absolute -top-2 -right-2 bg-red-500 text-white text-[9px] font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-white shadow-lg animate-in zoom-in duration-300">
+          <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[8px] font-bold w-4 h-4 rounded-full flex items-center justify-center border-2 border-white shadow-lg animate-in zoom-in duration-300">
             {{ global_cart_item_count }}
           </span>
           {% endif %}
