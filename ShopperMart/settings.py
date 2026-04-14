@@ -142,6 +142,13 @@ WSGI_APPLICATION = "ShopperMart.wsgi.application"
 
 # ================= DATABASE =================
 # FIX: Simplified database configuration for Render
+DATABASES = {
+    "default": dj_database_url.config(
+        default=config(
+            "DATABASE_URL",
+            default="sqlite:///db.sqlite3"  # Fallback to SQLite for local dev
+        ),
+        conn_max_age=600
     )
 }
 
