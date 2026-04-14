@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction, models
 from django.db.models import F
+from django.views.decorators.csrf import csrf_exempt
 
 logger = logging.getLogger(__name__)
 from .cart import get_cart
@@ -11,6 +12,9 @@ from ..models import Product, Order, OrderItem, OrderStatusLog, ORDER_LIFECYCLE_
 from ..forms import CheckoutForm
 import razorpay
 from django.conf import settings
+
+# -------------------- CHECKOUT & ORDERS --------------------
+from decimal import Decimal
 
 # -------------------- CHECKOUT & ORDERS --------------------
 @transaction.atomic
@@ -25,25 +29,30 @@ def checkout(request):
             messages.error(request, "Your cart is empty.")
             return redirect("cart")
 
-        # 1. IDEMPOTENCY CHECK (Edge Case #5 - Double Submission)
+        # 1. IDEMPOTENCY CHECK
         checkout_token = request.POST.get("checkout_token")
         if not checkout_token or checkout_token == request.session.get('last_checkout_token'):
             messages.warning(request, "This order is already being processed or has been completed.")
             return redirect("cart")
 
-        # 2. PRICE LOCK VERIFICATION (Edge Case #16 - Price change during checkout)
+        # 2. PRICE LOCK VERIFICATION (Fixed: Use Decimal)
         posted_total = request.POST.get("total_verify")
-        if posted_total and float(posted_total) != float(total):
+        if posted_total and Decimal(posted_total) != Decimal(total):
              messages.error(request, "The prices in your cart have changed. Please review and try again.")
              return redirect("cart")
 
+        # 3. STOCK PRE-CHECK
+        for item in cart_items:
+            if item.quantity > item.product.stock:
+                messages.error(request, f"Sorry, {item.product.name} is no longer available in the requested quantity.")
+                return redirect("cart")
+
         form = CheckoutForm(request.POST)
         if form.is_valid():
-            # Create Order
             user = request.user if request.user.is_authenticated else None
             
-            # Start atomic block for stock gating
             try:
+                # Create Order (status remains pending)
                 order = Order.objects.create(
                     user=user,
                     total=total,
@@ -59,28 +68,15 @@ def checkout(request):
                 )
                 
                 for item in cart_items:
-                    # select_for_update handles Edge Case #4 (Inventory Race Condition)
-                    product = Product.objects.select_for_update().get(id=item.product.id)
-                    if item.quantity > product.stock:
-                        messages.error(request, f"Not enough stock for {product.name}. Only {product.stock} left.")
-                        raise ValueError("Insufficient stock")
-
-                    product.stock = F('stock') - item.quantity
-                    product.save()
-
                     OrderItem.objects.create(
                         order=order,
-                        product=product,
+                        product=item.product,
                         quantity=item.quantity,
-                        price=product.price,
+                        price=item.product.price,
                     )
                 
                 # Mark token as used
                 request.session['last_checkout_token'] = checkout_token
-                
-                # Clear cart and set last order id
-                cart.items.all().delete()
-                request.session['last_order_id'] = str(order.id)
                 
                 if form.cleaned_data["payment_method"] in ['card', 'upi']:
                     # Initiate Razorpay SDK
@@ -102,35 +98,29 @@ def checkout(request):
                     })
                 
                 else:
-                    # Cash on delivery
-                    order.change_status('processing', user=user, note="Order verified (COD) and processing started.")
-                    logger.info(f"OrderSuccess: Order {order.id} created for user {user} via COD")
-                    messages.success(request, f"Order confirmed successfully! Order ID: {order.id}")
-                    return redirect("order_success")
+                    # Cash on delivery - finalize immediately
+                    return finalize_order(request, order, cart)
 
-            except ValueError as ve:
-                messages.error(request, str(ve))
-                return redirect("cart")
             except Exception as e:
                 logger.error(f"CheckoutError: {e}")
                 messages.error(request, "An unexpected error occurred during checkout. Please try again.")
                 return redirect("cart")
     else:
-        # Pre-fill form with profile data if authenticated
         initial_data = {}
         if request.user.is_authenticated:
+            # Handle potential missing profile
+            profile = getattr(request.user, 'profile', None)
             initial_data = {
-                "full_name": getattr(request.user.profile, 'full_name', ''),
+                "full_name": getattr(profile, 'full_name', ''),
                 "email": request.user.email,
-                "address": getattr(request.user.profile, 'address_line1', ''),
-                "landmark": getattr(request.user.profile, 'landmark', ''),
-                "city": getattr(request.user.profile, 'city', ''),
-                "state": getattr(request.user.profile, 'state', ''),
-                "postal_code": getattr(request.user.profile, 'pincode', '')
+                "address": getattr(profile, 'address_line1', ''),
+                "landmark": getattr(profile, 'landmark', ''),
+                "city": getattr(profile, 'city', ''),
+                "state": getattr(profile, 'state', ''),
+                "postal_code": getattr(profile, 'pincode', '')
             }
         form = CheckoutForm(initial=initial_data)
 
-    # Generate unique checkout token
     import secrets
     checkout_token = secrets.token_hex(16)
 
@@ -142,7 +132,37 @@ def checkout(request):
     })
 
 
-from django.views.decorators.csrf import csrf_exempt
+@transaction.atomic
+def finalize_order(request, order, cart):
+    """Internal helper to deduct stock and clear cart once payment is confirmed."""
+    try:
+        for item in order.items.all():
+            # select_for_update to prevent race conditions during final deduction
+            product = Product.objects.select_for_update().get(id=item.product.id)
+            if item.quantity > product.stock:
+                raise ValueError(f"Insufficient stock for {product.name} during finalization.")
+
+            product.stock = F('stock') - item.quantity
+            product.save()
+
+        # Update order status
+        user = request.user if request.user.is_authenticated else None
+        order.change_status('processing', user=user, note="Stock deducted and order confirmed.")
+        
+        # CLEAR CART (AS REQUESTED: Only clear after success)
+        cart.items.all().delete()
+        request.session['last_order_id'] = str(order.id)
+        
+        logger.info(f"OrderSuccess: Order {order.id} finalized.")
+        messages.success(request, f"Order confirmed successfully! Order ID: {order.id}")
+        return redirect("order_success")
+        
+    except ValueError as ve:
+        logger.error(f"FinalizationError: {ve}")
+        order.change_status('cancelled', note=str(ve))
+        messages.error(request, "Unfortunately, some items sold out while you were paying. Your payment (if any) will be refunded.")
+        return redirect("cart")
+
 
 @csrf_exempt
 def payment_callback(request):
@@ -162,22 +182,22 @@ def payment_callback(request):
 
         try:
             client.utility.verify_payment_signature(params_dict)
-            # Signature matches!
             order = Order.objects.get(id=order_id_str)
-            if order.status == 'pending':
-                order.change_status('processing', note=f"Razorpay payment verified. ID: {razorpay_payment_id}")
+            cart = get_cart(request)
             
-            messages.success(request, "Payment successful! Your order has been placed.")
+            if order.status == 'pending':
+                return finalize_order(request, order, cart)
+            
             return redirect("order_success")
             
         except razorpay.errors.SignatureVerificationError:
             logger.error("PaymentFailed: Razorpay signature verification failed.")
             messages.error(request, "Payment verification failed. Please try again.")
-            return redirect("home")
+            return redirect("cart") # Take back to cart if payment fails
         except Exception as e:
             logger.error(f"PaymentCallbackError: {e}")
             messages.error(request, "An error occurred with your payment.")
-            return redirect("home")
+            return redirect("cart")
 
     return redirect("home")
 

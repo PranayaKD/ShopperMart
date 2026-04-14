@@ -1,5 +1,6 @@
+import logging
 from django.shortcuts import render, redirect, get_object_or_404
-from ratelimit.decorators import ratelimit
+from django_ratelimit.decorators import ratelimit
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from ..forms import UserRegistrationForm, UserUpdateForm, ProfileUpdateForm
@@ -36,9 +37,12 @@ def profile_view(request):
 @login_required
 def profile_edit_view(request):
     """Edit user's profile and update information."""
+    # Fix: Securely get profile to prevent RelatedObjectDoesNotExist (CodeRabbit Case #8)
+    profile = getattr(request.user, 'profile', None)
+    
     if request.method == "POST":
         uform = UserUpdateForm(request.POST, instance=request.user)
-        pform = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profile)
+        pform = ProfileUpdateForm(request.POST, request.FILES, instance=profile)
         if uform.is_valid() and pform.is_valid():
             uform.save()
             pform.save()
@@ -46,6 +50,6 @@ def profile_edit_view(request):
             return redirect("profile")
     else:
         uform = UserUpdateForm(instance=request.user)
-        pform = ProfileUpdateForm(instance=request.user.profile)
+        pform = ProfileUpdateForm(instance=profile)
 
     return render(request, "account/profile_edit.html", {"uform": uform, "pform": pform})

@@ -1,6 +1,6 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
-from ratelimit.decorators import ratelimit
+from django_ratelimit.decorators import ratelimit
 from django.views.generic import TemplateView
 from .views import catalog, cart, orders, account, administrator
 

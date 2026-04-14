@@ -14,7 +14,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # ================= SECURITY =================
 SECRET_KEY = config("SECRET_KEY")  # No default — MUST be set in .env or environment
-DEBUG = config("DEBUG", default=True, cast=bool)
+DEBUG = config("DEBUG", default=False, cast=bool)
+
+# 1. RAZORPAY ENVIRONMENT CHECK
+RAZORPAY_KEY_ID = config("RAZORPAY_KEY_ID", default="")
+RAZORPAY_KEY_SECRET = config("RAZORPAY_KEY_SECRET", default="")
+
+if not RAZORPAY_KEY_ID or not RAZORPAY_KEY_SECRET:
+    import logging
+    logging.getLogger(__name__).warning("CRITICAL: RAZORPAY_KEY_ID or RAZORPAY_KEY_SECRET is missing. Payments will fail.")
 
 # ================= ALLOWED_HOSTS =================
 # FIX: This was missing quotes and proper list format
@@ -101,7 +109,7 @@ SOCIALACCOUNT_PROVIDERS = {
 }
 
 ACCOUNT_EMAIL_VERIFICATION = "none"
-SOCIALACCOUNT_LOGIN_ON_GET = True
+SOCIALACCOUNT_LOGIN_ON_GET = False  # Fixed: prevent CSRF vulnerability (voter manipulation)
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -216,9 +224,7 @@ MESSAGE_TAGS = {
     messages.ERROR: "danger",
 }
 
-# ================= RAZORPAY =================
-RAZORPAY_KEY_ID = config("RAZORPAY_KEY_ID", default="")
-RAZORPAY_KEY_SECRET = config("RAZORPAY_KEY_SECRET", default="")
+# RAZORPAY KEYS MOVED TO SECURITY SECTION
 
 # ================= SECURITY SETTINGS (Production) =================
 SECURE_SSL_REDIRECT = False
@@ -239,12 +245,16 @@ if not DEBUG:
     SECURE_HSTS_PRELOAD = True
 
 # ================= CONTENT SECURITY POLICY (CSP) =================
-CSP_DEFAULT_SRC = ("'self'",)
-CSP_STYLE_SRC = ("'self'", "'unsafe-inline'", "fonts.googleapis.com", "cdn.tailwindcss.com")
-CSP_FONT_SRC = ("'self'", "fonts.gstatic.com", "fonts.googleapis.com")
-CSP_SCRIPT_SRC = ("'self'", "'unsafe-inline'", "cdn.tailwindcss.com", "checkout.razorpay.com")
-CSP_IMG_SRC = ("'self'", "data:", "res.cloudinary.com", "*.googleusercontent.com")
-CSP_FRAME_SRC = ("'self'", "checkout.razorpay.com")
+CONTENT_SECURITY_POLICY = {
+    'DIRECTIVES': {
+        'default-src': ("'self'",),
+        'style-src': ("'self'", "'unsafe-inline'", "fonts.googleapis.com", "cdn.tailwindcss.com"),
+        'font-src': ("'self'", "fonts.gstatic.com", "fonts.googleapis.com"),
+        'script-src': ("'self'", "'unsafe-inline'", "cdn.tailwindcss.com", "checkout.razorpay.com"),
+        'img-src': ("'self'", "data:", "res.cloudinary.com", "*.googleusercontent.com"),
+        'frame-src': ("'self'", "checkout.razorpay.com"),
+    }
+}
 
 # ================= LOGGING (Operational Backup) =================
 LOGGING = {

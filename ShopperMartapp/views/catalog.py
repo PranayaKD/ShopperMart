@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from ratelimit.decorators import ratelimit
+from django_ratelimit.decorators import ratelimit
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
@@ -8,6 +8,12 @@ from django.urls import reverse
 from django.http import HttpResponsePermanentRedirect
 from django.db.models import Q, Case, When, Value, BooleanField
 from django.core.exceptions import ValidationError
+from decimal import Decimal, InvalidOperation
+from django.core.mail import send_mail
+from django.conf import settings
+import logging
+
+logger = logging.getLogger(__name__)
 from ..models import Product, Category, Review, Wishlist
 
 
@@ -63,11 +69,14 @@ def public_store(request):
     if category_slug:
         products = products.filter(category__slug=category_slug)
     
-    # Price filtering
-    if min_price and min_price.isdigit():
-        products = products.filter(price__gte=min_price)
-    if max_price and max_price.isdigit():
-        products = products.filter(price__lte=max_price)
+    # Price filtering (Fixed: Use Decimal for precision)
+    try:
+        if min_price:
+            products = products.filter(price__gte=Decimal(min_price))
+        if max_price:
+            products = products.filter(price__lte=Decimal(max_price))
+    except (InvalidOperation, ValueError):
+        messages.error(request, "Invalid price filter range.")
         
     products = products.sort_by(sort_by)
 
@@ -90,9 +99,29 @@ def about_view(request):
 
 @ratelimit(key='ip', rate='3/m', block=True)
 def contact_view(request):
-    """Brand Support and Inquiry interface."""
+    """Brand Support and Inquiry interface. Sends email to admin (AS REQUESTED)."""
     if request.method == "POST":
-        messages.success(request, "Message sent! Our team will get back to you within 24 hours.")
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+        message = request.POST.get('message')
+        
+        # 1. SEND EMAIL TO ADMIN
+        subject = f"New ShopperMart Contact Inquiry from {name}"
+        email_body = f"Name: {name}\nEmail: {email}\n\nMessage:\n{message}"
+        
+        try:
+            send_mail(
+                subject,
+                email_body,
+                settings.DEFAULT_FROM_EMAIL,
+                [settings.EMAIL_HOST_USER], # Admin email
+                fail_silently=False,
+            )
+            messages.success(request, "Message sent! Our team will get back to you within 24 hours.")
+        except Exception as e:
+            logger.error(f"ContactMailError: {e}")
+            messages.warning(request, "Message processed, but email notification failed. We will check our logs.")
+            
         return redirect("contact")
     return render(request, "contact.html")
 

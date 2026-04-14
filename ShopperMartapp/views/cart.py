@@ -53,10 +53,9 @@ def add_to_cart(request, product_id):
         try:
             quantity = int(request.POST.get("quantity", 1))
             if quantity < 1: quantity = 1
-            # Edge Case #4: Overflow protection
             if quantity > 50:
-                messages.warning(request, "For bulk orders, please contact support. Individual limit is 50 units.")
-                quantity = 50
+                messages.error(request, "Individual limit is 50 units per order. For bulk orders, please contact support.")
+                return redirect("cart")
         except (ValueError, TypeError):
             quantity = 1
     

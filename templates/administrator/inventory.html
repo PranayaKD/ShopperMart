@@ -72,9 +72,13 @@
                             <a href="{% url 'admin_product_edit' product.id %}" class="w-10 h-10 rounded-full border border-black/5 flex items-center justify-center text-black/30 hover:text-black hover:border-black transition-all" title="Edit Item">
                                 <span class="material-symbols-outlined text-[20px]">edit</span>
                             </a>
-                            <a href="{% url 'admin_product_delete' product.id %}" class="w-10 h-10 rounded-full border border-black/5 flex items-center justify-center text-black/30 hover:text-red-500 hover:border-red-500 transition-all" title="Archive Item">
-                                <span class="material-symbols-outlined text-[20px]">delete</span>
-                            </a>
+                            <!-- FIX: Use POST for deletion to prevent CSRF / accidental hits (CodeRabbit Case #4) -->
+                            <form action="{% url 'admin_product_delete' product.id %}" method="POST" onsubmit="return confirm('Archive this item?');" class="inline-block m-0 p-0">
+                                {% csrf_token %}
+                                <button type="submit" class="w-10 h-10 rounded-full border border-black/5 flex items-center justify-center text-black/30 hover:text-red-500 hover:border-red-500 transition-all" title="Archive Item">
+                                    <span class="material-symbols-outlined text-[20px]">delete</span>
+                                </button>
+                            </form>
                         </div>
                     </td>
                 </tr>

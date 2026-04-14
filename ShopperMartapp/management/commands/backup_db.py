@@ -34,8 +34,20 @@ class Command(BaseCommand):
             backup_path = os.path.join(backup_dir, backup_filename)
 
             try:
-                shutil.copy2(db_path, backup_path)
-                self.stdout.write(self.style.SUCCESS(f'Successfully backed up database to: {backup_path}'))
+                # Optimized for SQLite: Use VACUUM INTO for a safe, atomic backup (SQLite 3.27+)
+                # Fallback to copy if engine is very old or VACUUM fails
+                import sqlite3
+                conn = sqlite3.connect(db_path)
+                try:
+                    # SQLite 3.27.0+ supports VACUUM INTO which is perfect for backups
+                    conn.execute(f"VACUUM INTO '{backup_path.replace(\"'\", \"''\")}'")
+                    self.stdout.write(self.style.SUCCESS(f'Atomic backup created via VACUUM INTO: {backup_path}'))
+                except sqlite3.OperationalError:
+                     # Fallback for older SQLite versions
+                     shutil.copy2(db_path, backup_path)
+                     self.stdout.write(self.style.SUCCESS(f'Database copied (legacy mode) to: {backup_path}'))
+                finally:
+                    conn.close()
             except Exception as e:
                 self.stdout.write(self.style.ERROR(f'Failed to backup database: {str(e)}'))
         else:

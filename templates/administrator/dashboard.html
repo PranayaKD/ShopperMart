@@ -6,21 +6,21 @@
 {% block admin_content %}
 <!-- KPI GRID -->
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
-    <a href="{% url 'admin_order_list' %}" class="card-flat p-8 group hover:-translate-y-1 transition-all">
+    <a href="{% url 'admin_order_list' %}" class="card-flat p-8 group hover:-translate-y-1 transition-all" aria-label="Total Revenue: ₹{{ total_revenue }}">
         <div class="flex justify-between items-start mb-6">
             <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center">
-                <span class="material-symbols-outlined">payments</span>
+                <span class="material-symbols-outlined" aria-hidden="true">payments</span>
             </div>
-            <span class="text-[9px] font-mono font-bold text-emerald-500 bg-emerald-50 px-2 py-1 rounded-full">+12.5%</span>
+            <span class="text-[9px] font-mono font-bold text-emerald-500 bg-emerald-50 px-2 py-1 rounded-full" aria-label="12.5% increase">+12.5%</span>
         </div>
         <p class="font-mono text-[10px] uppercase tracking-widest text-black/40 font-bold mb-2">Total Revenue</p>
         <h3 class="font-serif text-3xl font-bold tracking-tighter italic animate-number">₹{{ total_revenue }}</h3>
     </a>
 
-    <a href="{% url 'admin_order_list' %}?status=pending" class="card-flat p-8 group hover:-translate-y-1 transition-all">
+    <a href="{% url 'admin_order_list' %}?status=pending" class="card-flat p-8 group hover:-translate-y-1 transition-all" aria-label="Total Orders: {{ total_orders }}, with {{ pending_orders }} pending">
         <div class="flex justify-between items-start mb-6">
             <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center">
-                <span class="material-symbols-outlined">shopping_basket</span>
+                <span class="material-symbols-outlined" aria-hidden="true">shopping_basket</span>
             </div>
             <span class="text-[9px] font-mono font-bold text-black/20 bg-black/5 px-2 py-1 rounded-full">{{ pending_orders }} Pending</span>
         </div>
@@ -28,10 +28,10 @@
         <h3 class="font-serif text-3xl font-bold tracking-tighter italic animate-number">{{ total_orders }}</h3>
     </a>
 
-    <a href="{% url 'admin_product_list' %}" class="card-flat p-8 group hover:-translate-y-1 transition-all">
+    <a href="{% url 'admin_product_list' %}" class="card-flat p-8 group hover:-translate-y-1 transition-all" aria-label="Total Products: {{ total_products }}, with {{ low_stock_products }} low on stock">
         <div class="flex justify-between items-start mb-6">
             <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center">
-                <span class="material-symbols-outlined">inventory</span>
+                <span class="material-symbols-outlined" aria-hidden="true">inventory</span>
             </div>
             {% if low_stock_products > 0 %}
             <span class="text-[9px] font-mono font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded-full">{{ low_stock_products }} Low</span>
@@ -41,10 +41,10 @@
         <h3 class="font-serif text-3xl font-bold tracking-tighter italic animate-number">{{ total_products }}</h3>
     </a>
 
-    <div class="card-flat p-8 group hover:-translate-y-1 transition-all">
+    <div class="card-flat p-8 group hover:-translate-y-1 transition-all" aria-label="Total Customers: {{ total_customers }}">
         <div class="flex justify-between items-start mb-6">
             <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center">
-                <span class="material-symbols-outlined">group</span>
+                <span class="material-symbols-outlined" aria-hidden="true">group</span>
             </div>
         </div>
         <p class="font-mono text-[10px] uppercase tracking-widest text-black/40 font-bold mb-2">Total Customers</p>
@@ -71,7 +71,7 @@
                 </thead>
                 <tbody class="divide-y divide-black/5">
                     {% for order in recent_orders %}
-                    <tr class="hover:bg-black/[0.02] cursor-pointer" onclick="window.location='{% url 'admin_order_detail' order.id %}'">
+                    <tr class="hover:bg-black/[0.02] cursor-pointer" onclick="window.location='{% url 'admin_order_detail' order.id %}'" aria-label="View order #{{ order.id }}">
                         <td class="px-8 py-6 font-mono text-[10px] font-bold">#{{ order.id|stringformat:".8s" }}</td>
                         <td class="px-8 py-6 font-serif italic text-sm font-bold">{{ order.full_name }}</td>
                         <td class="px-8 py-6 font-bold text-sm">₹{{ order.total }}</td>
@@ -98,11 +98,11 @@
             <h4 class="font-serif text-xl font-bold tracking-tight mb-6">Quick Actions</h4>
             <div class="flex flex-col gap-4">
                 <a href="{% url 'admin_product_upsert' %}" class="flex items-center gap-4 bg-white/10 p-4 rounded-2xl hover:bg-white hover:text-black transition-all">
-                    <span class="material-symbols-outlined text-sm">add</span>
+                    <span class="material-symbols-outlined text-sm" aria-hidden="true">add</span>
                     <span class="font-mono text-[9px] uppercase tracking-widest font-bold">New Product</span>
                 </a>
                 <a href="{% url 'admin_review_list' %}" class="flex items-center gap-4 border border-white/20 p-4 rounded-2xl hover:border-white transition-all">
-                    <span class="material-symbols-outlined text-sm">rate_review</span>
+                    <span class="material-symbols-outlined text-sm" aria-hidden="true">rate_review</span>
                     <span class="font-mono text-[9px] uppercase tracking-widest font-bold">Moderation ({{ pending_reviews }})</span>
                 </a>
             </div>
@@ -116,7 +116,7 @@
                         <span>Low Stock Alert</span>
                         <span class="text-amber-600">{{ low_stock_products }} items</span>
                     </div>
-                    <div class="h-1.5 w-full bg-black/5 rounded-full overflow-hidden">
+                    <div class="h-1.5 w-full bg-black/5 rounded-full overflow-hidden" role="progressbar" aria-valuenow="{{ low_stock_products }}" aria-valuemin="0" aria-valuemax="{{ total_products }}">
                         <div class="h-full bg-amber-400" style="width: {% if total_products > 0 %}{{ low_stock_products|div:total_products|mul:100 }}{% else %}0{% endif %}%"></div>
                     </div>
                 </div>
@@ -125,7 +125,7 @@
                         <span>Fulfillment Load</span>
                         <span>{{ pending_orders }} queue</span>
                     </div>
-                    <div class="h-1.5 w-full bg-black/5 rounded-full overflow-hidden">
+                    <div class="h-1.5 w-full bg-black/5 rounded-full overflow-hidden" role="progressbar" aria-valuenow="{{ pending_orders }}" aria-valuemin="0" aria-valuemax="{{ total_orders }}">
                         <div class="h-full bg-blue-500" style="width: {% if total_orders > 0 %}{{ pending_orders|div:total_orders|mul:100 }}{% else %}0{% endif %}%"></div>
                     </div>
                 </div>

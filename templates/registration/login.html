@@ -42,13 +42,25 @@
         <p class="text-slate-500 font-mono text-[10px] uppercase tracking-widest">Enter your credentials to continue.</p>
       </header>
 
-      {% if messages %}
-      <div class="mb-8 space-y-2">
-        {% for message in messages %}
-        <div class="p-3 bg-red-50 text-red-600 rounded-lg text-center border border-red-100">
-          <p class="font-mono text-[9px] uppercase tracking-widest font-bold">{{ message }}</p>
-        </div>
-        {% endfor %}
+      <!-- 1. FORM ERRORS DISPLAY (CodeRabbit Case #9) -->
+      {% if form.errors %}
+      <div class="mb-8 p-4 bg-red-50 text-red-600 rounded-2xl border border-red-100 animate-in fade-in slide-in-from-top-4 duration-500">
+        <ul class="space-y-1">
+          {% for field in form %}
+            {% for error in field.errors %}
+              <li class="font-mono text-[9px] uppercase tracking-widest font-bold flex items-center gap-2">
+                <span class="w-1 h-1 bg-red-600 rounded-full"></span>
+                {{ field.label }}: {{ error }}
+              </li>
+            {% endfor %}
+          {% endfor %}
+          {% for error in form.non_field_errors %}
+            <li class="font-mono text-[9px] uppercase tracking-widest font-bold flex items-center gap-2">
+              <span class="w-1 h-1 bg-red-600 rounded-full"></span>
+              {{ error }}
+            </li>
+          {% endfor %}
+        </ul>
       </div>
       {% endif %}
 
@@ -73,7 +85,7 @@
         <div>
            <label class="block font-mono text-[9px] tracking-widest uppercase text-slate-500 mb-2 font-bold px-2" for="username">Username</label>
            <input class="w-full bg-slate-50 border border-slate-200 rounded-full px-6 py-4 text-sm focus:border-black focus:ring-0 transition-colors" 
-                  id="username" name="username" type="text" required/>
+                  id="username" name="username" type="text" value="{{ form.username.value|default:'' }}" required/>
         </div>
 
         <div>
@@ -89,10 +101,12 @@
 
         <div class="flex items-center justify-between pt-2">
            <div class="flex items-center gap-2">
-              <input type="checkbox" id="remember" class="w-4 h-4 text-black border-slate-300 rounded focus:ring-black">
+              <!-- FIX: Add name="remember" (CodeRabbit Case #10) -->
+              <input type="checkbox" id="remember" name="remember" class="w-4 h-4 text-black border-slate-300 rounded focus:ring-black">
               <label for="remember" class="font-mono text-[9px] uppercase tracking-widest text-slate-500 cursor-pointer">Remember Me</label>
            </div>
-           <a href="#" class="font-mono text-[9px] uppercase tracking-widest text-black font-bold hover:underline">Forgot?</a>
+           <!-- FIX: Link to allauth password reset -->
+           <a href="{% url 'account_reset_password' %}" class="font-mono text-[9px] uppercase tracking-widest text-black font-bold hover:underline">Forgot?</a>
         </div>
 
         <div class="pt-4">

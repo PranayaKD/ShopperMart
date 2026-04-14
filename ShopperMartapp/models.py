@@ -244,6 +244,10 @@ class Order(models.Model):
         if new_status not in status_keys:
             raise ValueError(f"Invalid status: {new_status}")
             
+        # Edge Case #3: Restrict cancellation for shipped/delivered orders
+        if new_status == 'cancelled' and self.status in ['shipped', 'out_for_delivery', 'delivered']:
+            raise ValueError(f"Cannot cancel order after it has been {self.status}.")
+            
         old_status = self.status
         self.status = new_status
         self.save()
