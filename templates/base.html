@@ -6,13 +6,13 @@
   <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
   
   <!-- SEO INFRASTRUCTURE -->
-  <title>{% block title %}ShopperMart | Premium Modern Wardrobe{% endblock %}</title>
-  <meta name="description" content="{% block meta_description %}A modern digital boutique specializing in the essential essentials. Crafted for those who define style on their own terms.{% endblock %}">
-  <meta name="keywords" content="{% block meta_keywords %}e-commerce, fashion, boutique, modern wardrobe, ShopperMart{% endblock %}">
+  <title>{% block title %}ShopperMart | Everything You Need, Delivered{% endblock %}</title>
+  <meta name="description" content="{% block meta_description %}Your one-stop online store for electronics, fashion, home essentials, and more. Quality products, great prices, fast delivery.{% endblock %}">
+  <meta name="keywords" content="{% block meta_keywords %}e-commerce, online shopping, electronics, fashion, home essentials, ShopperMart{% endblock %}">
   
   <!-- OpenGraph / Social SEO -->
   <meta property="og:title" content="ShopperMart | Modern E-commerce">
-  <meta property="og:description" content="Crafted for the high-performance modern wardrobe.">
+  <meta property="og:description" content="Everything you need, delivered. Shop electronics, fashion, home goods and more.">
   <meta property="og:type" content="website">
   <meta name="robots" content="index, follow">
   
@@ -268,7 +268,7 @@
     </nav>
 
     <div class="mt-auto pt-24 pb-8">
-       <p class="font-mono text-[9px] uppercase tracking-[0.5em] text-white/20 leading-relaxed font-bold">Designed for the modern wardrobe.</p>
+       <p class="font-mono text-[9px] uppercase tracking-[0.5em] text-white/20 leading-relaxed font-bold">Everything you need, delivered.</p>
     </div>
   </aside>
   <!-- SIDEBAR OVERLAY (Moved outside for global scope) -->
@@ -285,7 +285,7 @@
         </div>
         <span class="font-mono text-[9px] uppercase tracking-[0.4em] text-black/30 font-bold mb-4 block">Membership Required</span>
         <h3 class="font-serif text-4xl font-bold italic mb-6">Unlock the Store.</h3>
-        <p class="font-sans text-sm text-on-surface-variant leading-relaxed italic mb-12 opacity-70">To purchase curated items, manage your cart, or track your wardrobe history, please authenticate with your ShopperMart credentials.</p>
+        <p class="font-sans text-sm text-on-surface-variant leading-relaxed italic mb-12 opacity-70">To purchase items, manage your cart, or track your order history, please sign in with your ShopperMart credentials.</p>
         
         <div class="flex flex-col gap-4">
             <a href="{% url 'login' %}" class="bg-black text-white py-5 rounded-full font-mono text-[10px] tracking-[0.3em] uppercase font-bold hover:bg-zinc-800 transition-all shadow-xl active:scale-95">
@@ -295,7 +295,7 @@
                 Create Account
             </a>
         </div>
-        <p class="mt-10 font-mono text-[9px] uppercase tracking-widest text-black/20">Secure biometric verification standard</p>
+        <p class="mt-10 font-mono text-[9px] uppercase tracking-widest text-black/20">Secure login — 256-bit encrypted</p>
       </div>
     </div>
   </div>
@@ -422,8 +422,8 @@
         <h6 class="font-serif text-lg mb-6">The Brand</h6>
         <ul class="space-y-3 font-sans text-sm text-zinc-600 dark:text-zinc-400">
           <li><a class="hover:text-zinc-900 dark:hover:text-zinc-50 transition-all underline decoration-1 font-mono text-[10px] uppercase tracking-widest" href="{% url 'public_store' %}">The Store</a></li>
-          <li><a class="hover:text-zinc-900 dark:hover:text-zinc-50 transition-all underline decoration-1 font-mono text-[10px] uppercase tracking-widest" href="#">The Collection</a></li>
-          <li><a class="hover:text-zinc-900 dark:hover:text-zinc-50 transition-all font-mono text-[10px] uppercase tracking-widest" href="#">Sustainability</a></li>
+          <li><a class="hover:text-zinc-900 dark:hover:text-zinc-50 transition-all underline decoration-1 font-mono text-[10px] uppercase tracking-widest" href="{% url 'public_store' %}">All Products</a></li>
+          <li><a class="hover:text-zinc-900 dark:hover:text-zinc-50 transition-all font-mono text-[10px] uppercase tracking-widest" href="{% url 'about' %}">Our Story</a></li>
         </ul>
       </div>
       <div>
@@ -438,13 +438,13 @@
         <h6 class="font-serif text-lg mb-6">Contact</h6>
         <ul class="space-y-3 font-sans text-sm text-zinc-600 dark:text-zinc-400">
           <li><a class="hover:text-zinc-900 dark:hover:text-zinc-50 transition-all font-mono text-[10px] uppercase tracking-widest" href="{% url 'contact' %}">Help Center</a></li>
-          <li><a class="hover:text-zinc-900 dark:hover:text-zinc-50 transition-all font-mono text-[10px] uppercase tracking-widest" href="{% url 'legal' %}">Store Locator</a></li>
-          <li><a class="hover:text-zinc-900 dark:hover:text-zinc-50 transition-all font-mono text-[10px] uppercase tracking-widest" href="{% url 'legal' %}">Shipping</a></li>
+          <li><a class="hover:text-zinc-900 dark:hover:text-zinc-50 transition-all font-mono text-[10px] uppercase tracking-widest" href="{% url 'contact' %}">Store Locator</a></li>
+          <li><a class="hover:text-zinc-900 dark:hover:text-zinc-50 transition-all font-mono text-[10px] uppercase tracking-widest" href="{% url 'legal' %}">Shipping Info</a></li>
         </ul>
       </div>
       <div class="md:col-span-1">
         <h6 class="font-serif text-lg mb-6 text-white">Mailing List</h6>
-        <p class="text-xs font-sans text-white/60 mb-6 font-mono uppercase tracking-widest">Receive early access to drop announcements and store sales.</p>
+        <p class="text-xs font-sans text-white/60 mb-6 font-mono uppercase tracking-widest">Get notified about new products, deals, and exclusive discounts.</p>
         <form id="mailing-list-form" class="flex flex-col gap-3">
           <input name="email" class="bg-transparent border-b border-white/20 py-2 text-sm focus:border-white focus:ring-0 placeholder:text-white/40 outline-none text-white" placeholder="Email Address" type="email" required/>
           <button type="submit" class="bg-white text-primary px-6 py-3 font-mono uppercase text-xs tracking-widest active:scale-95 transition-all text-center hover:bg-surface-container-low">
