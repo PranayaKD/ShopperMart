@@ -4,10 +4,13 @@
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>{% block title %}ShopperMart Admin | Control Center{% endblock %}</title>
+    <title>{% block title %}ShopperMart Admin Desk | Store Control Center{% endblock %}</title>
     
+    <!-- Tailwind CSS & Google Fonts -->
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,700;0,800;1,400;1,700&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500&display=swap" rel="stylesheet"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 
     <script id="tailwind-config">
@@ -15,17 +18,13 @@
             theme: {
                 extend: {
                     colors: {
-                        "background": "#f9f9f7",
-                        "primary": "#000000",
-                        "surface": "#ffffff",
-                        "surface-container": "#f4f4f2",
-                        "on-surface-variant": "#45464d",
-                        "outline-variant": "#c6c6cd",
+                        "brand-orange": "#E85002",
+                        "brand-flame": "#F16001",
+                        "brand-crimson": "#C10801",
+                        "brand-bg": "#F8FAFC",
                     },
                     fontFamily: {
-                        "serif": ["Playfair Display", "serif"],
-                        "sans": ["Inter", "sans-serif"],
-                        "mono": ["JetBrains Mono", "monospace"],
+                        "sans": ["Inter", "system-ui", "-apple-system", "sans-serif"],
                     }
                 }
             }
@@ -33,140 +32,161 @@
     </script>
 
     <style>
-        body { background-color: #f9f9f7; }
+        body { 
+            background-color: #F8FAFC; 
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
         .sidebar-item-active { 
-            background-color: #000000; 
-            color: #ffffff;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            background-color: #E85002; 
+            color: #ffffff !important;
+            box-shadow: 0 8px 16px -2px rgba(232, 80, 2, 0.25);
+        }
+        .sidebar-item-active span {
+            color: #ffffff !important;
         }
         .card-flat {
             background: #ffffff;
-            border: 1px solid rgba(0,0,0,0.05);
+            border: 1px solid rgba(226, 232, 240, 0.9);
             border-radius: 1.5rem;
-            transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.4s ease;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
-        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
+        .card-flat:hover {
+            box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.06);
+        }
+        .material-symbols-outlined { 
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; 
+        }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        
-        /* SHARPEN UI (Remove universal transitions that cause blur) */
-        a, button, input {
-            transition: all 0.3s ease;
-        }
     </style>
 </head>
 
-<body class="font-sans text-primary antialiased min-h-screen flex bg-background">
+<body class="font-sans text-gray-900 antialiased min-h-screen flex bg-brand-bg">
 
-    <!-- SIDEBAR (Fixed for Efficiency) -->
-    <aside class="fixed left-0 top-0 bottom-0 w-72 bg-white border-r border-black/5 flex flex-col p-8 z-50">
-        <div class="mb-12 flex items-center gap-3">
-             <div class="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
-                 <span class="material-symbols-outlined text-white text-[18px]">dashboard</span>
-             </div>
-             <span class="font-serif italic text-xl font-bold tracking-tighter uppercase">ShopperMart</span>
-             <span class="text-[9px] font-mono bg-black text-white px-2 py-0.5 rounded-full uppercase tracking-widest ml-auto">Admin</span>
+    <!-- DESKTOP SIDEBAR -->
+    <aside class="fixed left-0 top-0 bottom-0 w-64 bg-white border-r border-gray-200/90 flex flex-col p-6 z-50 overflow-y-auto no-scrollbar">
+        
+        <!-- Brand Header -->
+        <div class="mb-8 flex items-center justify-between pb-5 border-b border-gray-100">
+            <a href="{% url 'admin_dashboard' %}" class="flex items-center gap-2.5">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-orange to-brand-flame flex items-center justify-center text-white shadow-md shadow-brand-orange/20">
+                    <span class="material-symbols-outlined text-[20px] font-bold">bolt</span>
+                </div>
+                <div class="flex flex-col">
+                    <span class="text-lg font-black tracking-tight text-gray-950 leading-none">Shopper<span class="text-brand-orange">Mart</span></span>
+                    <span class="text-[9px] font-bold uppercase tracking-wider text-gray-400 mt-0.5">Control Center</span>
+                </div>
+            </a>
+            <span class="bg-orange-50 text-brand-orange text-[9px] font-black uppercase px-2 py-0.5 rounded-md border border-orange-200">Admin</span>
         </div>
 
-        <nav class="flex flex-col gap-2">
-            <span class="font-mono text-[9px] uppercase tracking-[0.4em] text-black/30 font-bold mb-4 ml-4">Management</span>
+        <!-- Navigation Menu -->
+        <nav class="flex flex-col gap-1.5 flex-grow">
+            <span class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 px-3">Management</span>
             
-            <a href="{% url 'admin_dashboard' %}" class="flex items-center gap-4 px-6 py-4 rounded-2xl group transition-all {% if active_tab == 'dashboard' %}sidebar-item-active{% else %}hover:bg-black/5 text-black/50 hover:text-black{% endif %}">
-                <span class="material-symbols-outlined text-[20px]">analytics</span>
-                <span class="font-mono text-[10px] uppercase tracking-widest font-bold">Insights</span>
+            <a href="{% url 'admin_dashboard' %}" class="flex items-center gap-3 px-3.5 py-3 rounded-2xl font-bold text-xs transition-all {% if active_tab == 'dashboard' %}sidebar-item-active{% else %}text-gray-600 hover:text-gray-950 hover:bg-gray-100{% endif %}">
+                <span class="material-symbols-outlined text-[19px]">dashboard</span>
+                <span>Insights Overview</span>
             </a>
             
-            <a href="{% url 'admin_product_list' %}" class="flex items-center gap-4 px-6 py-4 rounded-2xl group transition-all {% if active_tab == 'products' %}sidebar-item-active{% else %}hover:bg-black/5 text-black/50 hover:text-black{% endif %}">
-                <span class="material-symbols-outlined text-[20px]">inventory_2</span>
-                <span class="font-mono text-[10px] uppercase tracking-widest font-bold">Catalog</span>
+            <a href="{% url 'admin_product_list' %}" class="flex items-center gap-3 px-3.5 py-3 rounded-2xl font-bold text-xs transition-all {% if active_tab == 'products' %}sidebar-item-active{% else %}text-gray-600 hover:text-gray-950 hover:bg-gray-100{% endif %}">
+                <span class="material-symbols-outlined text-[19px]">inventory_2</span>
+                <span>Product Catalog</span>
             </a>
             
-            <a href="{% url 'admin_order_list' %}" class="flex items-center gap-4 px-6 py-4 rounded-2xl group transition-all {% if active_tab == 'orders' %}sidebar-item-active{% else %}hover:bg-black/5 text-black/50 hover:text-black{% endif %}">
-                <span class="material-symbols-outlined text-[20px]">local_shipping</span>
-                <span class="font-mono text-[10px] uppercase tracking-widest font-bold">Fulfillment</span>
+            <a href="{% url 'admin_order_list' %}" class="flex items-center gap-3 px-3.5 py-3 rounded-2xl font-bold text-xs transition-all {% if active_tab == 'orders' %}sidebar-item-active{% else %}text-gray-600 hover:text-gray-950 hover:bg-gray-100{% endif %}">
+                <span class="material-symbols-outlined text-[19px]">local_shipping</span>
+                <span>Fulfillment & Orders</span>
             </a>
             
-            <a href="{% url 'admin_review_list' %}" class="flex items-center gap-4 px-6 py-4 rounded-2xl group transition-all {% if active_tab == 'reviews' %}sidebar-item-active{% else %}hover:bg-black/5 text-black/50 hover:text-black{% endif %}">
-                <span class="material-symbols-outlined text-[20px]">reviews</span>
-                <span class="font-mono text-[10px] uppercase tracking-widest font-bold">Moderation</span>
+            <a href="{% url 'admin_review_list' %}" class="flex items-center gap-3 px-3.5 py-3 rounded-2xl font-bold text-xs transition-all {% if active_tab == 'reviews' %}sidebar-item-active{% else %}text-gray-600 hover:text-gray-950 hover:bg-gray-100{% endif %}">
+                <span class="material-symbols-outlined text-[19px]">rate_review</span>
+                <span>Review Moderation</span>
             </a>
 
-            <div class="mt-12 pt-8 border-t border-black/5">
-                <span class="font-mono text-[9px] uppercase tracking-[0.4em] text-black/30 font-bold mb-4 ml-4 block">System</span>
-                <a href="{% url 'home' %}" class="flex items-center gap-4 px-6 py-4 rounded-2xl text-black/40 hover:text-black hover:bg-black/5">
-                    <span class="material-symbols-outlined text-[20px]">storefront</span>
-                    <span class="font-mono text-[10px] uppercase tracking-widest font-bold">View Store</span>
-                </a>
-                <form method="POST" action="{% url 'logout' %}">
-                    {% csrf_token %}
-                    <button type="submit" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl text-red-400 hover:text-red-500 hover:bg-red-50 transition-all">
-                        <span class="material-symbols-outlined text-[20px]">logout</span>
-                        <span class="font-mono text-[10px] uppercase tracking-widest font-bold">Sign Out</span>
-                    </button>
-                </form>
-            </div>
+            <div class="my-4 border-t border-gray-100"></div>
+
+            <span class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 px-3">Quick Links</span>
+            
+            <a href="{% url 'home' %}" target="_blank" class="flex items-center justify-between px-3.5 py-3 rounded-2xl font-bold text-xs text-gray-700 hover:text-brand-orange hover:bg-orange-50 transition-all group">
+                <div class="flex items-center gap-3">
+                    <span class="material-symbols-outlined text-[19px] text-gray-400 group-hover:text-brand-orange transition-colors">storefront</span>
+                    <span>View Live Store</span>
+                </div>
+                <span class="material-symbols-outlined text-[15px] text-gray-400 group-hover:text-brand-orange">open_in_new</span>
+            </a>
+
+            <a href="{% url 'admin_product_upsert' %}" class="flex items-center gap-3 px-3.5 py-3 rounded-2xl font-bold text-xs bg-orange-50 text-brand-orange hover:bg-orange-100 transition-all mt-1">
+                <span class="material-symbols-outlined text-[19px]">add_circle</span>
+                <span>Add New Product</span>
+            </a>
         </nav>
 
-        <div class="mt-auto p-6 bg-black/5 rounded-3xl">
-            <p class="font-mono text-[9px] uppercase tracking-widest text-black/30 mb-2 font-bold italic">User session</p>
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 bg-black/10 rounded-full flex items-center justify-center text-[10px] font-bold">AD</div>
-                <div class="flex flex-col">
-                    <span class="text-[11px] font-bold tracking-tight">{{ user.username }}</span>
-                    <span class="text-[9px] text-black/40">Super Administrator</span>
+        <!-- User Session Card -->
+        <div class="mt-auto pt-4 border-t border-gray-100">
+            <div class="p-3 bg-gray-50 rounded-2xl border border-gray-100 flex items-center justify-between">
+                <div class="flex items-center gap-2.5 overflow-hidden">
+                    <div class="w-8 h-8 rounded-full bg-brand-orange text-white font-black text-xs flex items-center justify-center shrink-0">
+                        {{ user.username|slice:":1"|upper }}
+                    </div>
+                    <div class="flex flex-col truncate">
+                        <span class="text-xs font-bold text-gray-900 truncate leading-tight">{{ user.username }}</span>
+                        <span class="text-[10px] font-semibold text-emerald-600 leading-tight">Superadmin</span>
+                    </div>
                 </div>
+
+                <form method="POST" action="{% url 'logout' %}" class="m-0 p-0">
+                    {% csrf_token %}
+                    <button type="submit" class="p-1.5 text-gray-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition-colors" title="Sign out">
+                        <span class="material-symbols-outlined text-[18px]">logout</span>
+                    </button>
+                </form>
             </div>
         </div>
     </aside>
 
-    <!-- MAIN CONTENT -->
-    <main class="ml-72 flex-grow p-12 overflow-x-hidden">
-        <!-- HEADER -->
-        <header class="mb-16 flex justify-between items-center">
+    <!-- MAIN CONTENT AREA -->
+    <main class="ml-64 flex-grow p-6 sm:p-8 lg:p-10 min-h-screen overflow-x-hidden">
+        
+        <!-- TOP HEADER BAR -->
+        <header class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-gray-200/80">
             <div>
-                <span class="font-mono text-[10px] uppercase tracking-[0.5em] text-black/30 font-bold mb-2 block">ShopperMart / Control</span>
-                <h1 class="font-serif text-5xl font-bold tracking-tighter uppercase italic">{% block header_title %}Dashboard{% endblock %}</h1>
+                <div class="flex items-center gap-2 text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">
+                    <span>ShopperMart</span>
+                    <span>&bull;</span>
+                    <span class="text-brand-orange">Store Admin Desk</span>
+                </div>
+                <h1 class="text-2xl sm:text-3xl font-black text-gray-950 tracking-tight">{% block header_title %}Insights Overview{% endblock %}</h1>
             </div>
             
-            <div class="flex items-center gap-6">
+            <div class="flex items-center gap-3.5">
                 <form action="{% url 'admin_product_list' %}" method="GET" class="relative group/search hidden md:block">
-                    <input type="text" name="q" placeholder="Global catalog search..." 
-                           class="bg-white border border-black/5 rounded-full px-12 py-3 text-[11px] font-mono tracking-wider focus:ring-1 focus:ring-black focus:border-black transition-all placeholder:text-black/20 outline-none w-64 focus:w-80">
-                    <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-black/20 text-[18px] group-focus-within/search:text-black transition-colors">search</span>
+                    <input type="text" name="q" placeholder="Search catalog items, SKU..." 
+                           class="bg-white border border-gray-200 rounded-xl pl-10 pr-4 py-2 text-xs font-bold focus:border-brand-orange focus:ring-2 focus:ring-brand-orange/20 outline-none w-56 focus:w-72 transition-all">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-[18px]">search</span>
                 </form>
-                
-                <div class="flex items-center gap-4">
-                    {% if messages %}
-                      {% for message in messages %}
-                      <div class="bg-black text-white px-6 py-3 rounded-full font-mono text-[10px] uppercase tracking-widest flex items-center gap-3 shadow-2xl animate-in fade-in slide-in-from-top-4 duration-500">
-                          <span class="material-symbols-outlined text-sm">notifications</span>
-                          {{ message }}
-                      </div>
-                      {% endfor %}
-                    {% endif %}
-                </div>
+
+                <a href="{% url 'home' %}" target="_blank" class="hidden sm:inline-flex items-center gap-1.5 bg-white border border-gray-200 hover:border-gray-300 text-gray-700 px-3.5 py-2 rounded-xl text-xs font-bold shadow-2xs hover:shadow transition-all">
+                    <span class="material-symbols-outlined text-[16px] text-brand-orange">storefront</span>
+                    <span>Open Store</span>
+                </a>
             </div>
         </header>
+
+        <!-- GLOBAL MESSAGES -->
+        {% if messages %}
+        <div class="mb-6 space-y-2">
+            {% for message in messages %}
+            <div class="p-3.5 rounded-2xl text-xs font-bold flex items-center gap-2.5 {% if message.tags == 'error' %}bg-rose-50 text-rose-700 border border-rose-200{% else %}bg-emerald-50 text-emerald-700 border border-emerald-200{% endif %}">
+                <span class="material-symbols-outlined text-[18px]">{% if message.tags == 'error' %}error{% else %}check_circle{% endif %}</span>
+                <span>{{ message }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
 
         {% block admin_content %}{% endblock %}
     </main>
 
-    <script>
-        // Micro-animations for numbers
-        document.querySelectorAll('.animate-number').forEach(el => {
-            const target = parseFloat(el.innerText.replace(/[^0-9.]/g, ''));
-            const suffix = el.innerText.replace(/[0-9.]/g, '');
-            let count = 0;
-            const step = target / 50;
-            const timer = setInterval(() => {
-                count += step;
-                if (count >= target) {
-                    el.innerText = target + suffix;
-                    clearInterval(timer);
-                } else {
-                    el.innerText = Math.floor(count) + suffix;
-                }
-            }, 20);
-        });
-    </script>
 </body>
 </html>

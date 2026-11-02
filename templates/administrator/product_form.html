@@ -1,82 +1,94 @@
 {% extends "administrator/base_admin.html" %}
+{% load widget_tweaks %}
 
-{% block header_title %}{% if product %}Edit Product{% else %}New Collection Item{% endif %}{% endblock %}
+{% block header_title %}{% if product %}Edit Product{% else %}Add New Product{% endif %}{% endblock %}
 
 {% block admin_content %}
-<div class="max-w-4xl">
-    <div class="card-flat p-12">
-        <form method="POST" enctype="multipart/form-data" class="space-y-10">
+<div class="max-w-3xl">
+    <div class="card-flat p-6 sm:p-8">
+        <div class="pb-6 border-b border-gray-100 mb-6">
+            <h2 class="text-xl font-black text-gray-950">{% if product %}Update Product Details{% else %}Create Catalog Item{% endif %}</h2>
+            <p class="text-xs text-gray-400 font-medium mt-1">Configure pricing, stock, category and product details</p>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data" class="space-y-6">
             {% csrf_token %}
             
             <!-- SECTION 1: IDENTITY -->
-            <div>
-                <span class="font-mono text-[9px] uppercase tracking-[0.4em] text-black/30 font-bold mb-6 block">Identity & Classification</span>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div class="space-y-2">
-                        <label class="font-mono text-[10px] uppercase tracking-widest font-bold text-black/60">{{ form.name.label }}</label>
-                        {{ form.name|add_class:"w-full bg-black/5 border-0 rounded-2xl px-6 py-4 text-sm font-sans focus:ring-1 focus:ring-black transition-all" }}
-                        {% if form.name.errors %}<p class="text-red-500 text-[10px]">{{ form.name.errors.0 }}</p>{% endif %}
+            <div class="space-y-4">
+                <span class="text-xs font-black uppercase tracking-wider text-brand-orange block">1. Basic Information</span>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-black uppercase tracking-wider text-gray-700 mb-1.5">{{ form.name.label }}</label>
+                        {{ form.name|add_class:"w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-xs font-bold text-gray-900 focus:bg-white focus:border-brand-orange focus:ring-2 focus:ring-brand-orange/20 outline-none transition-all" }}
+                        {% if form.name.errors %}<p class="text-rose-600 text-xs mt-1 font-bold">{{ form.name.errors.0 }}</p>{% endif %}
                     </div>
-                    <div class="space-y-2">
-                        <label class="font-mono text-[10px] uppercase tracking-widest font-bold text-black/60">{{ form.category.label }}</label>
-                        {{ form.category|add_class:"w-full bg-black/5 border-0 rounded-2xl px-6 py-4 text-sm font-sans focus:ring-1 focus:ring-black transition-all" }}
-                        {% if form.category.errors %}<p class="text-red-500 text-[10px]">{{ form.category.errors.0 }}</p>{% endif %}
+                    <div>
+                        <label class="block text-xs font-black uppercase tracking-wider text-gray-700 mb-1.5">{{ form.category.label }}</label>
+                        {{ form.category|add_class:"w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-xs font-bold text-gray-900 focus:bg-white focus:border-brand-orange focus:ring-2 focus:ring-brand-orange/20 outline-none transition-all" }}
+                        {% if form.category.errors %}<p class="text-rose-600 text-xs mt-1 font-bold">{{ form.category.errors.0 }}</p>{% endif %}
                     </div>
                 </div>
-                <div class="mt-8 space-y-2">
-                    <label class="font-mono text-[10px] uppercase tracking-widest font-bold text-black/60">{{ form.slug.label }}</label>
-                    {{ form.slug|add_class:"w-full bg-black/5 border-0 rounded-2xl px-6 py-4 text-sm font-mono focus:ring-1 focus:ring-black transition-all" }}
-                    <p class="text-[9px] font-mono text-black/30 pt-1">Determine the canonical URL handle for this item.</p>
+
+                <div>
+                    <label class="block text-xs font-black uppercase tracking-wider text-gray-700 mb-1.5">{{ form.slug.label }}</label>
+                    {{ form.slug|add_class:"w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-xs font-mono font-bold text-gray-900 focus:bg-white focus:border-brand-orange focus:ring-2 focus:ring-brand-orange/20 outline-none transition-all" }}
+                    <p class="text-[10px] text-gray-400 font-medium mt-1">Unique URL identifier for customer browsing</p>
                 </div>
             </div>
 
-            <!-- SECTION 2: SPECIFICATIONS -->
-            <div>
-                 <span class="font-mono text-[9px] uppercase tracking-[0.4em] text-black/30 font-bold mb-6 block">Specifications & Economics</span>
-                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div class="space-y-2">
-                        <label class="font-mono text-[10px] uppercase tracking-widest font-bold text-black/60">{{ form.price.label }} (₹)</label>
-                        {{ form.price|add_class:"w-full bg-black/5 border-0 rounded-2xl px-6 py-4 text-sm font-sans focus:ring-1 focus:ring-black transition-all" }}
+            <!-- SECTION 2: PRICING & INVENTORY -->
+            <div class="space-y-4 pt-4 border-t border-gray-100">
+                 <span class="text-xs font-black uppercase tracking-wider text-brand-orange block">2. Pricing & Stock</span>
+                 
+                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-black uppercase tracking-wider text-gray-700 mb-1.5">{{ form.price.label }} (₹ Selling Price)</label>
+                        {{ form.price|add_class:"w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-xs font-bold text-gray-900 focus:bg-white focus:border-brand-orange focus:ring-2 focus:ring-brand-orange/20 outline-none transition-all" }}
                     </div>
-                    <div class="space-y-2">
-                        <label class="font-mono text-[10px] uppercase tracking-widest font-bold text-black/60">{{ form.stock.label }}</label>
-                        {{ form.stock|add_class:"w-full bg-black/5 border-0 rounded-2xl px-6 py-4 text-sm font-sans focus:ring-1 focus:ring-black transition-all" }}
+                    <div>
+                        <label class="block text-xs font-black uppercase tracking-wider text-gray-700 mb-1.5">{{ form.stock.label }} (Units in Stock)</label>
+                        {{ form.stock|add_class:"w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-xs font-bold text-gray-900 focus:bg-white focus:border-brand-orange focus:ring-2 focus:ring-brand-orange/20 outline-none transition-all" }}
                     </div>
                  </div>
-                 <div class="mt-8 space-y-2">
-                    <label class="font-mono text-[10px] uppercase tracking-widest font-bold text-black/60">{{ form.description.label }}</label>
-                    {{ form.description|add_class:"w-full bg-black/5 border-0 rounded-2xl px-6 py-4 text-sm font-newsreader italic text-on-surface-variant focus:ring-1 focus:ring-black transition-all" }}
+
+                 <div>
+                    <label class="block text-xs font-black uppercase tracking-wider text-gray-700 mb-1.5">{{ form.description.label }}</label>
+                    {{ form.description|add_class:"w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-xs font-medium text-gray-900 focus:bg-white focus:border-brand-orange focus:ring-2 focus:ring-brand-orange/20 outline-none transition-all rows-3" }}
                  </div>
             </div>
 
-            <!-- SECTION 3: ASSETS -->
-            <div class="pb-8">
-                 <span class="font-mono text-[9px] uppercase tracking-[0.4em] text-black/30 font-bold mb-6 block">Visual Assets & Status</span>
-                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div class="space-y-2">
-                        <label class="font-mono text-[10px] uppercase tracking-widest font-bold text-black/60">Product Image</label>
-                        {{ form.image|add_class:"w-full text-sm font-mono file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-semibold file:bg-black file:text-white hover:file:bg-zinc-800" }}
+            <!-- SECTION 3: IMAGE & VISIBILITY -->
+            <div class="space-y-4 pt-4 border-t border-gray-100">
+                 <span class="text-xs font-black uppercase tracking-wider text-brand-orange block">3. Media & Store Status</span>
+                 
+                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+                    <div>
+                        <label class="block text-xs font-black uppercase tracking-wider text-gray-700 mb-1.5">Product Image</label>
+                        {{ form.image|add_class:"w-full text-xs font-bold text-gray-600 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-black file:bg-gray-100 file:text-gray-900 hover:file:bg-gray-200 cursor-pointer" }}
                     </div>
-                    <div class="flex items-center gap-4 py-8">
-                        {{ form.available|add_class:"w-6 h-6 border-black/10 rounded-lg text-black focus:ring-0" }}
-                        <label class="font-mono text-[10px] uppercase tracking-widest font-bold text-black/60">Mark as Available online</label>
+                    <div class="flex items-center gap-3 pt-2">
+                        {{ form.available|add_class:"w-5 h-5 rounded-md text-brand-orange focus:ring-brand-orange border-gray-300" }}
+                        <label class="text-xs font-bold text-gray-800">Available for online ordering</label>
                     </div>
                  </div>
             </div>
 
-            <!-- ACTIONS -->
-            <div class="pt-10 border-t border-black/5 flex items-center gap-6">
-                <button type="submit" class="bg-black text-white px-12 py-5 rounded-3xl font-mono text-[10px] uppercase tracking-[0.3em] font-bold shadow-2xl hover:-translate-y-1 transition-all">
-                    {% if product %}Update Item{% else %}Create Product{% endif %}
+            <!-- ACTION BUTTONS -->
+            <div class="pt-6 border-t border-gray-100 flex items-center gap-3">
+                <button type="submit" class="bg-brand-orange hover:bg-brand-flame text-white px-8 py-3 rounded-xl text-xs font-black uppercase tracking-wider shadow-md hover:scale-[1.01] active:scale-95 transition-all">
+                    {% if product %}Save Changes{% else %}Create Product{% endif %}
                 </button>
-                <a href="{% url 'admin_product_list' %}" class="font-mono text-[10px] uppercase tracking-widest font-bold text-black/30 hover:text-black transition-all">Discard Changes</a>
+                <a href="{% url 'admin_product_list' %}" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 rounded-xl text-xs font-bold transition-all">
+                    Cancel
+                </a>
             </div>
         </form>
     </div>
 </div>
 
 <script>
-    // Auto-generate slug from name if empty
     const nameInput = document.querySelector('input[name="name"]');
     const slugInput = document.querySelector('input[name="slug"]');
     

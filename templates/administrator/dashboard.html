@@ -1,94 +1,127 @@
 {% extends "administrator/base_admin.html" %}
-{% load admin_extras %}
 
 {% block header_title %}Insights Overview{% endblock %}
 
 {% block admin_content %}
-<!-- KPI GRID -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
-    <a href="{% url 'admin_order_list' %}" class="card-flat p-8 group hover:-translate-y-1 transition-all" aria-label="Total Revenue: ₹{{ total_revenue }}">
-        <div class="flex justify-between items-start mb-6">
-            <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center">
-                <span class="material-symbols-outlined" aria-hidden="true">payments</span>
+<!-- STATS KPI GRID -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-8">
+    
+    <!-- Total Revenue -->
+    <a href="{% url 'admin_order_list' %}" class="card-flat p-6 group hover:-translate-y-0.5 transition-all">
+        <div class="flex items-center justify-between mb-4">
+            <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center border border-emerald-100">
+                <span class="material-symbols-outlined text-[24px]">payments</span>
             </div>
-            <span class="text-[9px] font-mono font-bold text-emerald-500 bg-emerald-50 px-2 py-1 rounded-full" aria-label="12.5% increase">+12.5%</span>
+            <span class="text-[11px] font-black text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full">+12.5%</span>
         </div>
-        <p class="font-mono text-[10px] uppercase tracking-widest text-black/40 font-bold mb-2">Total Revenue</p>
-        <h3 class="font-serif text-3xl font-bold tracking-tighter italic animate-number">₹{{ total_revenue }}</h3>
+        <p class="text-[11px] font-black uppercase tracking-wider text-gray-400 mb-1">Total Revenue</p>
+        <h3 class="text-2xl sm:text-3xl font-black text-gray-950 tracking-tight">₹{{ total_revenue|floatformat:0 }}</h3>
     </a>
 
-    <a href="{% url 'admin_order_list' %}?status=pending" class="card-flat p-8 group hover:-translate-y-1 transition-all" aria-label="Total Orders: {{ total_orders }}, with {{ pending_orders }} pending">
-        <div class="flex justify-between items-start mb-6">
-            <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center">
-                <span class="material-symbols-outlined" aria-hidden="true">shopping_basket</span>
+    <!-- Order Count -->
+    <a href="{% url 'admin_order_list' %}" class="card-flat p-6 group hover:-translate-y-0.5 transition-all">
+        <div class="flex items-center justify-between mb-4">
+            <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center border border-blue-100">
+                <span class="material-symbols-outlined text-[24px]">shopping_bag</span>
             </div>
-            <span class="text-[9px] font-mono font-bold text-black/20 bg-black/5 px-2 py-1 rounded-full">{{ pending_orders }} Pending</span>
+            <span class="text-[11px] font-black text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-0.5 rounded-full">{{ pending_orders }} Pending</span>
         </div>
-        <p class="font-mono text-[10px] uppercase tracking-widest text-black/40 font-bold mb-2">Order Count</p>
-        <h3 class="font-serif text-3xl font-bold tracking-tighter italic animate-number">{{ total_orders }}</h3>
+        <p class="text-[11px] font-black uppercase tracking-wider text-gray-400 mb-1">Order Volume</p>
+        <h3 class="text-2xl sm:text-3xl font-black text-gray-950 tracking-tight">{{ total_orders }}</h3>
     </a>
 
-    <a href="{% url 'admin_product_list' %}" class="card-flat p-8 group hover:-translate-y-1 transition-all" aria-label="Total Products: {{ total_products }}, with {{ low_stock_products }} low on stock">
-        <div class="flex justify-between items-start mb-6">
-            <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center">
-                <span class="material-symbols-outlined" aria-hidden="true">inventory</span>
+    <!-- Inventory Items -->
+    <a href="{% url 'admin_product_list' %}" class="card-flat p-6 group hover:-translate-y-0.5 transition-all">
+        <div class="flex items-center justify-between mb-4">
+            <div class="w-12 h-12 bg-orange-50 text-brand-orange rounded-2xl flex items-center justify-center border border-orange-100">
+                <span class="material-symbols-outlined text-[24px]">inventory_2</span>
             </div>
             {% if low_stock_products > 0 %}
-            <span class="text-[9px] font-mono font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded-full">{{ low_stock_products }} Low</span>
+            <span class="text-[11px] font-black text-rose-700 bg-rose-50 border border-rose-200 px-2.5 py-0.5 rounded-full">{{ low_stock_products }} Low Stock</span>
+            {% else %}
+            <span class="text-[11px] font-black text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full">Optimal</span>
             {% endif %}
         </div>
-        <p class="font-mono text-[10px] uppercase tracking-widest text-black/40 font-bold mb-2">Inventory Items</p>
-        <h3 class="font-serif text-3xl font-bold tracking-tighter italic animate-number">{{ total_products }}</h3>
+        <p class="text-[11px] font-black uppercase tracking-wider text-gray-400 mb-1">Catalog Items</p>
+        <h3 class="text-2xl sm:text-3xl font-black text-gray-950 tracking-tight">{{ total_products }}</h3>
     </a>
 
-    <div class="card-flat p-8 group hover:-translate-y-1 transition-all" aria-label="Total Customers: {{ total_customers }}">
-        <div class="flex justify-between items-start mb-6">
-            <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center">
-                <span class="material-symbols-outlined" aria-hidden="true">group</span>
+    <!-- Total Customers -->
+    <div class="card-flat p-6">
+        <div class="flex items-center justify-between mb-4">
+            <div class="w-12 h-12 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center border border-purple-100">
+                <span class="material-symbols-outlined text-[24px]">group</span>
             </div>
+            <span class="text-[11px] font-black text-purple-700 bg-purple-50 border border-purple-200 px-2.5 py-0.5 rounded-full">Shoppers</span>
         </div>
-        <p class="font-mono text-[10px] uppercase tracking-widest text-black/40 font-bold mb-2">Total Customers</p>
-        <h3 class="font-serif text-3xl font-bold tracking-tighter italic animate-number">{{ total_customers }}</h3>
+        <p class="text-[11px] font-black uppercase tracking-wider text-gray-400 mb-1">Active Customers</p>
+        <h3 class="text-2xl sm:text-3xl font-black text-gray-950 tracking-tight">{{ total_customers }}</h3>
     </div>
 </div>
 
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
-    <!-- RECENT ORDERS -->
-    <div class="lg:col-span-2 card-flat p-0 overflow-hidden">
-        <div class="p-8 border-b border-black/5 flex justify-between items-center">
-            <h4 class="font-serif text-xl font-bold italic uppercase tracking-tight">Recent Fulfillment</h4>
-            <a href="{% url 'admin_order_list' %}" class="font-mono text-[9px] uppercase tracking-widest font-bold text-black/40 hover:text-black">View All</a>
+<!-- MAIN GRID: RECENT ORDERS & QUICK ACTIONS -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    
+    <!-- RECENT ORDERS TABLE (2 COLS) -->
+    <div class="lg:col-span-2 card-flat overflow-hidden p-6 sm:p-7">
+        <div class="flex items-center justify-between pb-5 border-b border-gray-100 mb-5">
+            <div>
+                <h2 class="text-lg font-black text-gray-950 tracking-tight">Recent Fulfillment Orders</h2>
+                <p class="text-xs text-gray-400 font-medium">Real-time orders placed on ShopperMart</p>
+            </div>
+            <a href="{% url 'admin_order_list' %}" class="bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs font-bold px-3 py-1.5 rounded-xl transition-all">
+                View All
+            </a>
         </div>
+
         <div class="overflow-x-auto no-scrollbar">
             <table class="w-full text-left">
-                <thead class="bg-black/5 font-mono text-[9px] uppercase tracking-[0.3em] font-bold text-black/40">
-                    <tr>
-                        <th class="px-8 py-4">Order ID</th>
-                        <th class="px-8 py-4">Customer</th>
-                        <th class="px-8 py-4">Total</th>
-                        <th class="px-8 py-4">Status</th>
+                <thead>
+                    <tr class="text-[11px] font-black uppercase tracking-wider text-gray-400 border-b border-gray-100">
+                        <th class="pb-3 pr-4">Order ID</th>
+                        <th class="pb-3 px-4">Customer</th>
+                        <th class="pb-3 px-4">Total</th>
+                        <th class="pb-3 px-4">Status</th>
+                        <th class="pb-3 pl-4 text-right">Action</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-black/5">
+                <tbody class="divide-y divide-gray-100">
                     {% for order in recent_orders %}
-                    <tr class="hover:bg-black/[0.02]">
-                        <td class="px-8 py-6 font-mono text-[10px] font-bold">
-                            <a href="{% url 'admin_order_detail' order.id %}" class="hover:underline" aria-label="View details for order #{{ order.id }}">
+                    <tr class="hover:bg-gray-50/60 transition-colors">
+                        <td class="py-3.5 pr-4">
+                            <a href="{% url 'admin_order_detail' order.id %}" class="font-mono text-xs font-bold text-brand-orange hover:underline">
                                 #{{ order.id|stringformat:".8s" }}
                             </a>
                         </td>
-                        <td class="px-8 py-6 font-serif italic text-sm font-bold">{{ order.full_name }}</td>
-                        <td class="px-8 py-6 font-bold text-sm">₹{{ order.total }}</td>
-                        <td class="px-8 py-6">
-                            <span class="px-3 py-1 rounded-full text-[9px] font-mono font-bold uppercase tracking-widest
-                                {% if order.status == 'delivered' %}bg-emerald-50 text-emerald-600{% elif order.status == 'pending' %}bg-amber-50 text-amber-600{% else %}bg-black text-white{% endif %}">
-                                {{ order.status|replace:"_, " }}
+                        <td class="py-3.5 px-4 font-bold text-xs text-gray-900">
+                            {{ order.full_name }}
+                        </td>
+                        <td class="py-3.5 px-4 font-black text-xs text-gray-900">
+                            ₹{{ order.total|floatformat:0 }}
+                        </td>
+                        <td class="py-3.5 px-4">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider
+                                {% if order.status == 'delivered' %}bg-emerald-50 text-emerald-700 border border-emerald-200
+                                {% elif order.status == 'pending' %}bg-amber-50 text-amber-700 border border-amber-200
+                                {% elif order.status == 'shipped' %}bg-blue-50 text-blue-700 border border-blue-200
+                                {% elif order.status == 'cancelled' %}bg-rose-50 text-rose-700 border border-rose-200
+                                {% else %}bg-gray-100 text-gray-700{% endif %}">
+                                {{ order.status }}
                             </span>
+                        </td>
+                        <td class="py-3.5 pl-4 text-right">
+                            <a href="{% url 'admin_order_detail' order.id %}" class="text-xs font-bold text-gray-500 hover:text-brand-orange inline-flex items-center gap-1 transition-colors">
+                                <span>Details</span>
+                                <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+                            </a>
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="4" class="px-8 py-12 text-center font-serif italic text-black/30">No orders recorded yet.</td>
+                        <td colspan="5" class="py-12 text-center text-xs font-bold text-gray-400">
+                            <span class="material-symbols-outlined text-3xl block mb-2 text-gray-300">shopping_cart_off</span>
+                            No orders placed yet. Orders will appear here live.
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -96,45 +129,72 @@
         </div>
     </div>
 
-    <!-- QUICK ACTIONS / NOTIFICATIONS -->
-    <div class="space-y-8">
-        <div class="card-flat p-8 bg-black text-white">
-            <h4 class="font-serif text-xl font-bold tracking-tight mb-6">Quick Actions</h4>
-            <div class="flex flex-col gap-4">
-                <a href="{% url 'admin_product_upsert' %}" class="flex items-center gap-4 bg-white/10 p-4 rounded-2xl hover:bg-white hover:text-black transition-all">
-                    <span class="material-symbols-outlined text-sm" aria-hidden="true">add</span>
-                    <span class="font-mono text-[9px] uppercase tracking-widest font-bold">New Product</span>
+    <!-- QUICK ACTIONS & INVENTORY HEALTH (1 COL) -->
+    <div class="space-y-6">
+        
+        <!-- Quick Actions Card -->
+        <div class="card-flat p-6 sm:p-7 bg-white">
+            <h2 class="text-lg font-black text-gray-950 tracking-tight mb-1">Quick Actions</h2>
+            <p class="text-xs text-gray-400 font-medium mb-5">Common administrative tasks</p>
+            
+            <div class="space-y-3">
+                <a href="{% url 'admin_product_upsert' %}" class="w-full flex items-center justify-between p-3.5 rounded-2xl bg-brand-orange hover:bg-brand-flame text-white font-black text-xs uppercase tracking-wider shadow-sm hover:scale-[1.01] active:scale-95 transition-all">
+                    <div class="flex items-center gap-2.5">
+                        <span class="material-symbols-outlined text-[18px]">add_box</span>
+                        <span>Add New Product</span>
+                    </div>
+                    <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
                 </a>
-                <a href="{% url 'admin_review_list' %}" class="flex items-center gap-4 border border-white/20 p-4 rounded-2xl hover:border-white transition-all">
-                    <span class="material-symbols-outlined text-sm" aria-hidden="true">rate_review</span>
-                    <span class="font-mono text-[9px] uppercase tracking-widest font-bold">Moderation ({{ pending_reviews }})</span>
+
+                <a href="{% url 'admin_product_list' %}" class="w-full flex items-center justify-between p-3.5 rounded-2xl bg-gray-50 hover:bg-gray-100 text-gray-900 font-bold text-xs border border-gray-200/80 transition-all">
+                    <div class="flex items-center gap-2.5">
+                        <span class="material-symbols-outlined text-[18px] text-brand-orange">inventory_2</span>
+                        <span>Manage Inventory</span>
+                    </div>
+                    <span class="text-xs text-gray-400">({{ total_products }})</span>
+                </a>
+
+                <a href="{% url 'admin_review_list' %}" class="w-full flex items-center justify-between p-3.5 rounded-2xl bg-gray-50 hover:bg-gray-100 text-gray-900 font-bold text-xs border border-gray-200/80 transition-all">
+                    <div class="flex items-center gap-2.5">
+                        <span class="material-symbols-outlined text-[18px] text-amber-500">rate_review</span>
+                        <span>Review Moderation</span>
+                    </div>
+                    <span class="text-[10px] font-black bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">{{ pending_reviews }} Pending</span>
                 </a>
             </div>
         </div>
 
-        <div class="card-flat p-8">
-             <h4 class="font-serif text-xl font-bold tracking-tight mb-6 italic">Inventory Health</h4>
-             <div class="space-y-6">
+        <!-- Inventory Health Card -->
+        <div class="card-flat p-6 sm:p-7 bg-white">
+            <h2 class="text-lg font-black text-gray-950 tracking-tight mb-1">Store Health</h2>
+            <p class="text-xs text-gray-400 font-medium mb-5">Stock & order queue status</p>
+            
+            <div class="space-y-4">
                 <div>
-                    <div class="flex justify-between text-[10px] font-mono font-bold uppercase tracking-widest mb-2">
-                        <span>Low Stock Alert</span>
-                        <span class="text-amber-600">{{ low_stock_products }} items</span>
+                    <div class="flex justify-between text-xs font-bold mb-1.5">
+                        <span class="text-gray-600">Low Stock Alert</span>
+                        <span class="font-black {% if low_stock_products > 0 %}text-rose-600{% else %}text-emerald-600{% endif %}">
+                            {{ low_stock_products }} items
+                        </span>
                     </div>
-                    <div class="h-1.5 w-full bg-black/5 rounded-full overflow-hidden" role="progressbar" aria-valuenow="{{ low_stock_products }}" aria-valuemin="0" aria-valuemax="{{ total_products }}">
-                        <div class="h-full bg-amber-400" style="width: {% if total_products > 0 %}{{ low_stock_products|div:total_products|mul:100 }}{% else %}0{% endif %}%"></div>
+                    <div class="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+                        <div class="h-full bg-amber-500 rounded-full" style="width: {% if total_products > 0 %}{% widthratio low_stock_products total_products 100 %}{% else %}0{% endif %}%;"></div>
                     </div>
                 </div>
+
                 <div>
-                    <div class="flex justify-between text-[10px] font-mono font-bold uppercase tracking-widest mb-2">
-                        <span>Fulfillment Load</span>
-                        <span>{{ pending_orders }} queue</span>
+                    <div class="flex justify-between text-xs font-bold mb-1.5">
+                        <span class="text-gray-600">Pending Orders</span>
+                        <span class="font-black text-blue-600">{{ pending_orders }} in queue</span>
                     </div>
-                    <div class="h-1.5 w-full bg-black/5 rounded-full overflow-hidden" role="progressbar" aria-valuenow="{{ pending_orders }}" aria-valuemin="0" aria-valuemax="{{ total_orders }}">
-                        <div class="h-full bg-blue-500" style="width: {% if total_orders > 0 %}{{ pending_orders|div:total_orders|mul:100 }}{% else %}0{% endif %}%"></div>
+                    <div class="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+                        <div class="h-full bg-blue-500 rounded-full" style="width: {% if total_orders > 0 %}{% widthratio pending_orders total_orders 100 %}{% else %}0{% endif %}%;"></div>
                     </div>
                 </div>
-             </div>
+            </div>
         </div>
+
     </div>
+
 </div>
 {% endblock %}
