@@ -3,12 +3,33 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django_ratelimit.decorators import ratelimit
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.conf import settings
+from django.contrib.auth import login as auth_login
+from django.contrib.auth.models import User
+from django.urls import reverse
+from django.utils.http import url_has_allowed_host_and_scheme
 from ..forms import UserRegistrationForm, UserUpdateForm, ProfileUpdateForm
 from ..models import Profile
 
 logger = logging.getLogger(__name__)
 
 # -------------------- AUTH --------------------
+def google_login_dispatcher(request):
+    """
+    Dispatches Google Sign-In:
+    - If Google OAuth keys are set in settings/env, delegates to allauth's /accounts/google/login/
+    - If keys are not configured, informs the user and redirects to standard login.
+    """
+    google_client_id = getattr(settings, 'SOCIALACCOUNT_PROVIDERS', {}).get('google', {}).get('APP', {}).get('client_id', '')
+    
+    # If a real client id is set (not empty, not placeholder)
+    if google_client_id and google_client_id not in ('', 'your-client-id'):
+        return redirect('google_login')
+
+    messages.info(request, "Google Sign-In is not currently configured. Please sign in with your username and password or register an account.")
+    return redirect('login')
+
+
 @ratelimit(key='ip', rate='5/m', block=True)
 def register_view(request):
     """User registration view."""
@@ -31,13 +52,7 @@ def register_view(request):
 # -------------------- PROFILE --------------------
 @login_required
 def profile_view(request):
-    """Display logged-in user's profile."""
-    return render(request, "account/profile.html")
-
-
-@login_required
-def profile_edit_view(request):
-    """Edit user's profile and update information."""
+    """Unified user profile overview and in-place profile editing."""
     profile, created = Profile.objects.get_or_create(user=request.user)
     
     if request.method == "POST":
@@ -46,10 +61,22 @@ def profile_edit_view(request):
         if uform.is_valid() and pform.is_valid():
             uform.save()
             pform.save()
-            messages.success(request, "Profile updated successfully.")
+            messages.success(request, "🎉 Your profile has been updated successfully!")
             return redirect("profile")
+        else:
+            messages.error(request, "Please check the highlighted errors below and try again.")
     else:
         uform = UserUpdateForm(instance=request.user)
         pform = ProfileUpdateForm(instance=profile)
 
-    return render(request, "account/profile_edit.html", {"uform": uform, "pform": pform})
+    return render(request, "account/profile.html", {
+        "profile": profile,
+        "uform": uform,
+        "pform": pform,
+    })
+
+
+@login_required
+def profile_edit_view(request):
+    """Redirects to unified profile page with edit section active."""
+    return redirect(f"{reverse('profile')}#edit-profile")

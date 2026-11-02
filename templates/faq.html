@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Help Center & FAQs | ShopperMart 10-Minute Delivery{% endblock %}
+{% block meta_description %}Frequently Asked Questions about ShopperMart's 10-minute delivery, payment methods, returns, and order tracking.{% endblock %}
+
+{% block content %}
+<section class="py-12 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto min-h-screen">
+    <div class="mb-8 p-6 sm:p-10 bg-gradient-to-r from-zepto-purple-dark via-zepto-purple to-zepto-pink rounded-3xl text-white shadow-zepto">
+      <span class="text-[10px] font-black uppercase tracking-widest text-zepto-yellow block mb-1">Got Questions?</span>
+      <h1 class="text-3xl sm:text-4xl font-black tracking-tight leading-none">Frequently Asked Questions</h1>
+      <p class="text-xs text-white/80 font-medium mt-1">Everything you need to know about 10-minute shopping with ShopperMart</p>
+    </div>
+
+    <div class="space-y-4">
+        
+        <details class="bg-white rounded-3xl p-6 border border-zepto-border shadow-sm group" open>
+            <summary class="text-sm font-black text-zepto-purple-dark cursor-pointer list-none flex items-center justify-between">
+                <span>⚡ How does ShopperMart deliver in 10 minutes?</span>
+                <span class="material-symbols-outlined text-zepto-purple group-open:rotate-180 transition-transform">expand_more</span>
+            </summary>
+            <p class="text-xs text-zepto-muted leading-relaxed mt-4 pt-3 border-t border-zepto-border">
+                We use hyper-local micro-fulfillment centers ("dark stores") placed inside high-density neighborhoods. Our advanced warehouse technology routes pickers to pack orders in under 90 seconds, and local delivery partners deliver within a 2 km radius.
+            </p>
+        </details>
+
+        <details class="bg-white rounded-3xl p-6 border border-zepto-border shadow-sm group">
+            <summary class="text-sm font-black text-zepto-purple-dark cursor-pointer list-none flex items-center justify-between">
+                <span>💳 What payment methods are supported?</span>
+                <span class="material-symbols-outlined text-zepto-purple group-open:rotate-180 transition-transform">expand_more</span>
+            </summary>
+            <p class="text-xs text-zepto-muted leading-relaxed mt-4 pt-3 border-t border-zepto-border">
+                We accept all major UPI apps (Google Pay, PhonePe, Paytm, CRED), Debit and Credit cards (Visa, MasterCard, RuPay), NetBanking, and Cash on Delivery (COD).
+            </p>
+        </details>
+
+        <details class="bg-white rounded-3xl p-6 border border-zepto-border shadow-sm group">
+            <summary class="text-sm font-black text-zepto-purple-dark cursor-pointer list-none flex items-center justify-between">
+                <span>🛵 Is there a minimum order requirement?</span>
+                <span class="material-symbols-outlined text-zepto-purple group-open:rotate-180 transition-transform">expand_more</span>
+            </summary>
+            <p class="text-xs text-zepto-muted leading-relaxed mt-4 pt-3 border-t border-zepto-border">
+                There is zero minimum order value! You can order a single pack of milk or a whole week's groceries. Orders over ₹149 get free delivery automatically.
+            </p>
+        </details>
+
+        <details class="bg-white rounded-3xl p-6 border border-zepto-border shadow-sm group">
+            <summary class="text-sm font-black text-zepto-purple-dark cursor-pointer list-none flex items-center justify-between">
+                <span>🔄 What if an item is damaged or missing?</span>
+                <span class="material-symbols-outlined text-zepto-purple group-open:rotate-180 transition-transform">expand_more</span>
+            </summary>
+            <p class="text-xs text-zepto-muted leading-relaxed mt-4 pt-3 border-t border-zepto-border">
+                We have a strict 100% satisfaction guarantee. If an item is missing or doesn't meet quality expectations, you can request an instant refund or replacement directly from the <a href="{% url 'my_orders' %}" class="text-zepto-purple font-bold underline">My Orders</a> screen.
+            </p>
+        </details>
+
+        <details class="bg-white rounded-3xl p-6 border border-zepto-border shadow-sm group">
+            <summary class="text-sm font-black text-zepto-purple-dark cursor-pointer list-none flex items-center justify-between">
+                <span>📍 Which areas in Bhadrak are currently covered?</span>
+                <span class="material-symbols-outlined text-zepto-purple group-open:rotate-180 transition-transform">expand_more</span>
+            </summary>
+            <p class="text-xs text-zepto-muted leading-relaxed mt-4 pt-3 border-t border-zepto-border">
+                We currently cover Sector 1 through 7, Town Hall area, Station Road, and surrounding localities in Bhadrak with active 10-minute fulfillment.
+            </p>
+        </details>
+
+    </div>
+
+    <div class="mt-12 text-center bg-white rounded-3xl p-8 border border-zepto-border shadow-sm">
+        <h3 class="text-base font-black text-zepto-purple-dark mb-1">Still need help?</h3>
+        <p class="text-xs text-zepto-muted mb-4">Our friendly 24/7 team is ready to assist you right now.</p>
+        <a href="{% url 'contact' %}" class="inline-flex items-center gap-2 bg-gradient-to-r from-zepto-purple to-zepto-pink text-white text-xs font-black uppercase px-6 py-3 rounded-2xl shadow-zepto hover:shadow-zepto-hover active:scale-95 transition-all">
+          <span>Contact 24/7 Support</span>
+          <span class="material-symbols-outlined text-[16px]">support_agent</span>
+        </a>
+    </div>
+</section>
+{% endblock %}
+

@@ -1,316 +1,654 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}ShopperMart | Everything You Need, Delivered{% endblock %}
+{% block title %}ShopperMart | Groceries, Essentials & More in 10 Minutes{% endblock %}
 
-{% block meta_description %}Your one-stop online store for electronics, fashion, home essentials, books, and more. Quality products at great prices with fast delivery across India.{% endblock %}
+{% block meta_description %}Order fresh groceries, dairy, rice, cleaning essentials, snacks, and daily necessities delivered to your doorstep in 10 minutes at ShopperMart India.{% endblock %}
 
-{% block meta_keywords %}online store india, electronics, fashion, home essentials, books, groceries, ShopperMart, best deals{% endblock %}
+{% block meta_keywords %}shoppermart, 10 min delivery india, groceries online, cleaning essentials, laundry care, basmati rice, ShopperMart deals{% endblock %}
 
 {% block content %}
     {% if query %}
     <!-- SEARCH RESULTS VIEW -->
-    <section class="pt-44 pb-24 px-8 md:px-24 bg-background">
-      <span class="font-mono text-[10px] tracking-[.3em] text-on-surface-variant uppercase mb-4 block font-bold">Search</span>
-      <h2 class="font-serif text-[clamp(3.5rem,8vw,5.5rem)] font-bold tracking-tighter italic">Search Results</h2>
-      <p class="font-mono text-[clamp(9px,2vw,11px)] text-on-surface-variant mt-6 uppercase tracking-widest font-bold">{{ products|length }} items found</p>
+    <section class="pt-8 pb-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+      <div class="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
+        <div>
+          <span class="text-[11px] font-black uppercase tracking-widest text-brand-orange flex items-center gap-1.5 mb-1">
+            <span class="w-2 h-2 rounded-full bg-brand-orange animate-pulse"></span> Instant 10-Min Search
+          </span>
+          <h1 class="text-2xl md:text-3xl font-black text-gray-900">
+            Showing results for <span class="text-brand-orange">"{{ query }}"</span>
+          </h1>
+        </div>
+
+      </div>
 
       {% if products %}
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-16 mt-24">
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-5">
         {% for product in products %}
-        <div class="group">
-          <div class="aspect-square bg-surface-container-low mb-6 overflow-hidden relative">
-            <a href="{% url 'product_detail' product.slug %}" class="block w-full h-full">
-               {% if product.image %}
-               <img data-boneyard="pulse" data-boneyard-bg="bg-black/5" data-boneyard-class="w-full h-full" src="{{ product.image.url }}" class="w-full h-full object-contain p-8 group-hover:scale-110 transition-transform duration-700"/>
-               {% else %}
-               <div class="w-full h-full flex items-center justify-center font-serif text-slate-200 italic">No Image</div>
-               {% endif %}
-            </a>
-            <form method="POST" action="{% url 'add_to_cart' product.id %}" class="absolute bottom-4 right-4 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
-                {% csrf_token %}
-                <input type="hidden" name="quantity" value="1">
-                <button type="submit" 
-                        class="js-add-to-cart-btn btn-smooth bg-primary text-white p-4 hover:bg-primary-container transition-colors shadow-2xl"
-                        data-product-id="{{ product.id }}"
-                        data-product-name="{{ product.name }}">
-                   <span class="material-symbols-outlined text-sm">shopping_bag</span>
-                </button>
-            </form>
+        <div class="bg-white rounded-2xl border border-gray-200 hover:border-gray-300 p-3 flex flex-col justify-between group shadow-xs hover:shadow-md transition-all relative">
+          
+          <!-- Badges & Wishlist -->
+          <div class="flex items-center justify-between mb-2">
+            <span class="bg-green-50 text-emerald-700 text-[10px] font-black uppercase px-2 py-0.5 rounded-md flex items-center gap-0.5">
+              ⚡ 10 MINS
+            </span>
+            <button type="button" 
+                    onclick="toggleWishlist('{{ product.id }}', this)"
+                    class="w-7 h-7 rounded-full bg-gray-50 hover:bg-rose-50 text-gray-400 hover:text-brand-crimson flex items-center justify-center transition-colors js-require-auth" title="Save item">
+              <span class="material-symbols-outlined text-[17px] {% if product.id in wishlisted_ids %}fill-current text-brand-crimson{% endif %}">favorite</span>
+            </button>
           </div>
-          <div class="space-y-1">
-             <p class="font-mono text-[10px] uppercase text-on-surface-variant tracking-widest">{{ product.category.name }}</p>
-             <h4 class="font-sans text-sm font-medium uppercase tracking-tight">{{ product.name }}</h4>
-             <div class="flex items-center gap-1.5 pt-1">
-                <span class="material-symbols-outlined text-primary text-[12px] fill-current">star</span>
-                <span class="font-mono text-[11px] font-bold text-on-background">{{ product.rating }}</span>
-                <span class="font-mono text-[10px] text-on-surface-variant">({{ product.reviews_count }})</span>
-             </div>
-             <p class="font-mono text-sm pt-2 font-bold italic">₹{{ product.price }}</p>
+
+          <!-- Product Image Area with ADD Button -->
+          <div class="w-full h-[125px] mb-2.5 overflow-hidden rounded-xl bg-white p-2 relative flex items-center justify-center">
+            <a href="{% url 'product_detail' product.slug %}" class="w-full h-full flex items-center justify-center">
+              {% if product.image %}
+              <img src="{{ product.image.url }}" alt="{{ product.name }}" class="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+              {% else %}
+              <div class="w-full h-full flex items-center justify-center text-xs font-bold text-gray-400 italic">ShopperMart</div>
+              {% endif %}
+            </a>
+
+            <!-- Quick Add Button -->
+            <button type="button"
+                    onclick="quickAddToCart('{{ product.id }}', this, event)"
+                    class="absolute bottom-1 right-1 bg-white hover:bg-brand-orange text-brand-orange hover:text-white border-[1.5px] border-brand-orange text-[11px] font-black uppercase px-2.5 py-0.5 rounded-lg shadow-sm transition-all active:scale-95 z-10">
+              <span>ADD</span>
+            </button>
+          </div>
+
+          <!-- Price & Title -->
+          <div class="space-y-1 mb-2">
+            <div class="flex items-center gap-1.5">
+              <span class="bg-[#0C831F] text-white text-[11px] font-black px-1.5 py-0.5 rounded leading-none">₹{{ product.price|floatformat:0 }}</span>
+              <span class="text-[11px] text-gray-400 line-through font-medium leading-none">₹{{ product.mrp|floatformat:0 }}</span>
+            </div>
+            <a href="{% url 'product_detail' product.slug %}" class="text-xs sm:text-[13px] font-bold text-gray-900 hover:text-brand-orange line-clamp-2 leading-snug min-h-[34px] block">
+              {{ product.name }}
+            </a>
+            <div class="text-[11px] text-gray-500 font-medium">
+              {{ product.unit|default:"1 pc" }}
+            </div>
           </div>
         </div>
         {% endfor %}
       </div>
       {% else %}
-      <div class="py-44 flex flex-col items-center justify-center text-center">
-         <div class="col-span-full border-t border-black border-dashed pt-20 mt-10">
-           <h2 class="font-serif text-6xl italic">No Results.</h2>
-           <p class="text-on-surface-variant mt-10 font-light text-xl max-w-sm italic">No items found matching your store request.</p>
-           <a href="{% url 'home' %}" class="mt-16 bg-primary text-white px-12 py-5 font-mono text-[10px] uppercase tracking-[0.4em] hover:bg-primary-container transition-all inline-block">Clear Search</a>
-         </div>
+      <div class="py-20 text-center bg-white rounded-3xl border border-gray-200 p-8 max-w-lg mx-auto shadow-sm">
+        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
+          🔍
+        </div>
+        <h3 class="text-lg font-black text-gray-900 mb-1">No 10-Minute Results Found</h3>
+        <p class="text-xs text-gray-500 mb-5">We couldn't find items matching "{{ query }}". Try searching for 'rice', 'detergent', 'milk', or explore categories.</p>
+        <a href="{% url 'home' %}" class="inline-flex items-center gap-2 bg-brand-orange hover:bg-brand-crimson text-white text-xs font-black uppercase px-6 py-3 rounded-xl shadow-md transition-all">
+          Explore All Categories ⚡
+        </a>
       </div>
       {% endif %}
     </section>
 
     {% else %}
-    <!-- HERO SECTION -->
-    <section class="flex flex-col md:flex-row min-h-[90vh] -mt-16 pt-[140px] overflow-hidden bg-[#FAFAF8] relative">
-      <div class="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-white to-transparent opacity-60"></div>
-      <div class="w-full md:w-[60%] flex flex-col justify-center px-12 md:px-24 py-20 relative z-10">
-        <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_var(--tw-gradient-stops))] from-surface-container-low/60 via-transparent to-transparent -z-10"></div>
-        <span class="font-mono text-xs tracking-[0.5em] uppercase text-on-surface-variant mb-10 block font-bold opacity-50">Established 2025 / Bhadrak</span>
-        <h1 class="font-serif text-[clamp(2.5rem,10vw,8rem)] leading-[0.9] text-on-background mb-14 tracking-tighter font-bold uppercase">
-          Everything <span class="text-primary italic">You Need.</span> <br><span class="opacity-80">Delivered</span> <span class="text-primary italic font-normal">Fast.</span>
-        </h1>
-        <p class="font-sans text-on-surface-variant text-xl leading-relaxed max-w-xl mb-16 italic opacity-70">From top-rated electronics to everyday home essentials, we bring you quality products at prices that make sense. Shop smarter, live better.</p>
-        <div class="flex items-center gap-12">
-          <a href="#collection" class="bg-black text-white px-14 py-6 font-mono text-[11px] tracking-[0.4em] uppercase hover:bg-zinc-800 transition-all shadow-[0_20px_40px_rgba(0,0,0,0.15)] hover:-translate-y-1 active:scale-95 duration-500 rounded-full">
-            Shop Catalog
-          </a>
-          <a href="{% url 'about' %}" class="font-newsreader italic text-xl border-b border-primary/20 pb-2 hover:border-primary transition-all duration-500">Our Story</a>
-        </div>
-      </div>
-      <div class="w-full md:w-[45%] relative min-h-[50vh] md:min-h-0">
-        <img data-boneyard="shimmer" data-boneyard-bg="bg-surface-dim" data-boneyard-class="w-full h-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBnXy0ovzuRKbp5IdsSsEehZUoSLcdfSqhkRprbaVE3C5Z8IPuLEPRwWJWoS6zDcyP4Bw2sV4xv_37RXRUCDh9zyBPT4W4I76WQSWIkQpAN05Pds3z_NfDRo8gA7ivRvw2YPMz5F3V6HQE3FPE2ln8xKr9PevlkXWtNU-7KpjxORxLci-yo_mQPjUSKq55lKIVPIXAcS546IVirxvAprstN7E1LIG-cO9WLaRtUZo5zS4gFN2JNGrPJKzoGNA6KSnWjoF4tHSSvBjQ" 
-             class="w-full h-full object-cover grayscale-[20%] brightness-95"/>
-        <div class="absolute inset-0 bg-primary/5 pointer-events-none"></div>
-      </div>
-    </section>
 
-    <!-- MARQUEE RIBBON -->
-    <div class="h-[60px] bg-primary flex items-center overflow-hidden whitespace-nowrap border-y border-white/5">
-      <div class="flex animate-marquee items-center gap-16 font-mono text-[11px] tracking-[0.5em] uppercase text-white/95 font-bold">
-        <span>New Arrivals Drop 001</span><span class="text-tertiary-fixed text-xl">★</span>
-        <span>Worldwide Shipping</span><span class="text-tertiary-fixed text-xl">★</span>
-        <span>Limited Edition</span><span class="text-tertiary-fixed text-xl">★</span>
-        <span>Premium Daily Goods</span><span class="text-tertiary-fixed text-xl">★</span>
-        <span>New Arrivals Drop 001</span><span class="text-tertiary-fixed text-xl">★</span>
-        <span>Worldwide Shipping</span><span class="text-tertiary-fixed text-xl">★</span>
-        <span>Limited Edition</span><span class="text-tertiary-fixed text-xl">★</span>
-        <span>Premium Daily Goods</span><span class="text-tertiary-fixed text-xl">★</span>
-      </div>
-    </div>
 
-    <!-- CATEGORY BENTO GRID -->
-    <section class="px-8 md:px-24 py-32 bg-surface">
-      <div class="mb-20 flex flex-col md:flex-row justify-between items-end gap-10">
-        <div class="max-w-xl">
-          <span class="font-mono text-[9px] tracking-[0.5em] text-on-surface-variant uppercase mb-4 block font-bold opacity-40">Categories</span>
-          <h2 class="font-serif text-[clamp(2.5rem,7vw,4.5rem)] font-bold tracking-tighter text-on-background uppercase">The Collections</h2>
-          <p class="font-sans text-on-surface-variant mt-6 text-lg italic opacity-70">Browse our curated departments — from cutting-edge electronics to everyday home essentials.</p>
-        </div>
-        <span class="font-mono text-xs text-on-surface-variant font-bold tracking-widest opacity-30">2025 / INDIA</span>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-12 gap-8 h-auto md:h-[900px]">
-        {% with cat=categories %}
-        <!-- Large: Primary Category -->
-        <div class="md:col-span-8 relative group overflow-hidden bg-surface-container-low cursor-pointer">
-          {% if cat.0 %}
-          <a href="{{ cat.0.get_absolute_url }}" class="block w-full h-full">
-            <img data-boneyard="shimmer" data-boneyard-bg="bg-black/20" data-boneyard-class="w-full h-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAau4fKHwJOQIy_d9gHLtHTMO4aPt-fF_k5V2uDGc9wQqOkTUytjKJuv1gg5RgEPkENO8Zo78EH0vdGGGaRYG895HI7k84f2_XpgbLwOGb_8ojxAwifkTOJad7h-p62JuDW7zdck6eZ_4b7_zWEScscec6jU9nwkW5EPkL_Sl5WdtpU7hZBwkumHWIvfdQQ0UhxNtspuh61t6qkt4Y9DgMHddsG3_M8tWLAfRa0B2wVJEo4RK1YpTJL6t438NhdrrIM6bR1ChklOFo" 
-                 class="w-full h-full object-cover desaturate-[20%] group-hover:scale-110 transition-transform duration-[4s]"/>
-            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity"></div>
-            <div class="absolute bottom-8 left-8 right-8 md:bottom-12 md:left-12 md:right-12 text-white flex flex-col md:flex-row md:items-end justify-between gap-6">
-              <div>
-                <p class="font-mono text-[10px] uppercase tracking-[0.5em] mb-3 md:mb-4 font-bold opacity-60 italic">Top Pick</p>
-                <h3 class="font-serif text-[clamp(2rem,6vw,4rem)] font-bold tracking-tighter uppercase leading-none">Electronics</h3>
-              </div>
-              <span class="inline-flex items-center gap-2 font-mono text-[9px] md:text-[10px] tracking-widest uppercase border border-white/30 px-5 md:px-6 py-2.5 md:py-3 rounded-full hover:bg-white hover:text-black transition-colors shrink-0 self-start md:self-auto">
-                 View Collection <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
-              </span>
+        <!-- 1. SPLIT TOP BANNERS (HORIZONTAL SIDE-BY-SIDE ON DESKTOP, STACKED ON MOBILE) -->
+    <section class="pt-3 sm:pt-4 pb-6 px-3 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">
+        
+        <!-- BANNER 1 (LEFT): SOLID VIBRANT BRAND ORANGE FIRST-ORDER OFFER -->
+        <div class="relative overflow-hidden rounded-3xl text-white shadow-xl bg-[#E85002] p-5 sm:p-7 md:p-8 flex flex-col justify-between group hover:shadow-2xl transition-all duration-300">
+          <div class="space-y-3">
+            <div class="inline-flex items-center gap-2 bg-black/20 px-3 py-1 rounded-full border border-white/25 text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-white shadow-xs">
+              <span class="w-2 h-2 rounded-full bg-white animate-pulse"></span>
+              <span>⚡ LIMITED TIME OFFER &bull; FIRST 3 ORDERS</span>
             </div>
-          </a>
-          {% endif %}
-        </div>
-        <!-- Tall: Secondary Category -->
-        <div class="md:col-span-4 relative group overflow-hidden bg-surface-container-low cursor-pointer">
-          {% if cat.1 %}
-          <a href="{{ cat.1.get_absolute_url }}" class="block w-full h-full">
-            <img data-boneyard="shimmer" data-boneyard-bg="bg-black/20" data-boneyard-class="w-full h-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNHFu3wkse4Natwz3HradWMEHdtVh8l5WU27ilDwrD4Y5_RRv9l7QCyaFhOtYV6i9fRK9qQhsT0WTdRsKARGqCVOi2_3xHocifF3R-PjnqdqYeGjFGaMG2rVw-yTouD9Kdf3MS9jvmc_9C-BI-vf27CBhYFy3qIQMaZm7lVT5lwvEoS-ELbdqQ0aWz3aUZBc_Mxyzu50sp82FB7FrcMcdi3R6XQlGiRB0y3Rw0kH1MK50M2934Id0G8Q1l7EZE-QR7-3uZZfdkShw" 
-                 class="w-full h-full object-cover desaturate-[30%] group-hover:scale-110 transition-transform duration-[4s]"/>
-            <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-60"></div>
-            <!-- Fix: Changed layout to flex-col to prevent button cut-off in narrow 4-col card -->
-            <div class="absolute bottom-8 left-8 right-8 md:bottom-12 md:left-12 md:right-12 text-white flex flex-col items-start gap-4 md:gap-6">
-              <div>
-                <p class="font-mono text-[10px] uppercase tracking-[0.5em] mb-3 md:mb-4 font-bold opacity-60 italic">Seasonal</p>
-                <h3 class="font-serif text-[clamp(2rem,5vw,3rem)] font-bold tracking-tighter uppercase leading-none">Fashion</h3>
-              </div>
-              <span class="inline-flex items-center gap-2 font-mono text-[9px] md:text-[10px] tracking-widest uppercase border border-white/30 px-5 md:px-6 py-2.5 md:py-3 rounded-full hover:bg-white hover:text-black transition-colors shrink-0">
-                 View Collection <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
-              </span>
-            </div>
-          </a>
-          {% endif %}
-        </div>
-        <!-- Small: Home Category -->
-        <div class="md:col-span-6 relative group overflow-hidden bg-surface-container-low h-[400px] cursor-pointer">
-          {% if cat.2 %}
-          <a href="{{ cat.2.get_absolute_url }}" class="js-require-auth block w-full h-full">
-            <img data-boneyard="shimmer" data-boneyard-bg="bg-black/20" data-boneyard-class="w-full h-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBeKaSNQW_xJY8ETKuE2uWZGrgkQn6suOl1nk0YjXivV1jIdeQyagjJb_3dwoU7P16NalsAx1JoMEomLRhqtPPD-syrLrj0Yn8oaWQTl5AGo0jHQUMQ8yB0_3DTIqHgzL4yBdaFq5leih3IX0l_Zk6uZIwi20axnRYgToVu-Xmg8wcU8-_3wy15vYf9m_wZGTDAMrOYZdPDQH3ncRM9WyAt_8LIOokSDX-zHKSwWfQqUPrltQO12YEY3NfsiDAlds91Yd2gTr-alwo" 
-                 class="w-full h-full object-cover desaturate-[10%] group-hover:scale-110 transition-transform duration-[4s]"/>
-            <div class="absolute inset-0 bg-black/20 group-hover:bg-black/60 transition-colors"></div>
-            <div class="absolute bottom-8 left-8 right-8 md:bottom-10 md:left-10 md:right-10 text-white flex flex-col xl:flex-row xl:items-end justify-between gap-6">
-              <h3 class="font-serif text-3xl font-bold tracking-tighter uppercase">Home & Living</h3>
-              <span class="inline-flex items-center gap-2 font-mono text-[9px] md:text-[10px] tracking-widest uppercase border border-white/30 px-5 md:px-6 py-2.5 md:py-3 rounded-full hover:bg-white hover:text-black transition-colors shrink-0 self-start xl:self-auto">
-                 View Collection <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
-              </span>
-            </div>
-          </a>
-          {% endif %}
-        </div>
-        <!-- Small: Aesthetic Category -->
-        <div class="md:col-span-6 relative group overflow-hidden bg-surface-container-low h-[400px] cursor-pointer">
-          {% if cat.3 %}
-          <a href="{{ cat.3.get_absolute_url }}" class="js-require-auth block w-full h-full">
-            <img data-boneyard="shimmer" data-boneyard-bg="bg-black/20" data-boneyard-class="w-full h-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCe-3MfIALFCBmVIba7e-qq8p09HUX_y1om-5k_dqaElpY-4ueBx2XQu5sgb5iXrqT_QHf-IVbW71yadbLpS82eI6wy2sYCDdauB2gs-xz5z9faWxS81ANvPUH7rcmfCYa8Scq5KkmspWRoF_gTLR_nhoIflBDEKes7Lk-TvkIF_c_G_5JhRtoqhoralu3qhRt7mRBhaUcLjg5aF8OGBhgNQXEvieZM0zN4k4JMBfcradnVa5nRwFtUS6B_z4IJF64M2Hd_AK2C61M" 
-                 class="w-full h-full object-cover object-bottom desaturate-[20%] group-hover:scale-110 transition-transform duration-[4s]"/>
-            <div class="absolute inset-0 bg-black/20 group-hover:bg-black/60 transition-colors"></div>
-            <div class="absolute bottom-8 left-8 right-8 md:bottom-10 md:left-10 md:right-10 text-white flex flex-col xl:flex-row xl:items-end justify-between gap-6">
-              <h3 class="font-serif text-3xl font-bold tracking-tighter uppercase">Books & More</h3>
-              <span class="inline-flex items-center gap-2 font-mono text-[9px] md:text-[10px] tracking-widest uppercase border border-white/30 px-5 md:px-6 py-2.5 md:py-3 rounded-full hover:bg-white hover:text-black transition-colors shrink-0 self-start xl:self-auto">
-                 View Collection <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
-              </span>
-            </div>
-          </a>
-          {% endif %}
-        </div>
-        {% endwith %}
-      </div>
-    </section>
 
-    <!-- PRODUCT CATALOG -->
-    <section id="collection" class="px-8 md:px-24 py-32 bg-surface-container-lowest">
-      <div class="flex flex-col md:flex-row md:items-end justify-between mb-24 gap-12">
-        <div>
-           <span class="font-mono text-[9px] tracking-[0.5em] text-on-surface-variant uppercase mb-4 block font-bold opacity-40">Curated Choice</span>
-           <h2 class="font-serif text-[clamp(3rem,8vw,6rem)] font-bold tracking-tighter text-on-background uppercase leading-none">New Objects</h2>
-        </div>
-        <div class="flex items-center gap-10 border-b border-primary/10 pb-4">
-           <span class="font-mono text-[10px] tracking-[.4em] uppercase text-on-surface-variant font-bold italic">Top Picks</span>
-        </div>
-      </div>
+            <h2 class="text-2xl sm:text-3xl font-black tracking-tight leading-tight text-white drop-shadow-sm">
+              Get ₹100 Cashback on your First 3 Orders!
+            </h2>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 md:gap-x-12 gap-y-16 md:gap-y-24">
-        {% for product in products|slice:":8" %}
-        <div class="group relative bg-white border border-black/5 rounded-[2.5rem] p-6 pb-10 shadow-sm hover:shadow-2xl hover:border-black/10 transition-all duration-700 hover:-translate-y-2">
-          <!-- Image Container -->
-          <div class="aspect-square bg-zinc-50/50 mb-8 overflow-hidden relative border border-black/[0.03] rounded-3xl group-hover:shadow-inner transition-all duration-500">
-            <a href="{% url 'product_detail' product.slug %}" class="block w-full h-full">
-               {% if product.image %}
-               <img data-boneyard="pulse" data-boneyard-bg="bg-black/5" data-boneyard-class="w-full h-full" src="{{ product.image.url }}" class="w-full h-full object-contain p-8 group-hover:scale-105 transition-transform duration-[8s] mix-blend-multiply"/>
-               {% else %}
-               <div class="w-full h-full flex items-center justify-center font-serif text-surface-container text-4xl italic font-bold">Object</div>
-               {% endif %}
+            <p class="text-xs sm:text-sm text-white/95 font-medium leading-relaxed">
+              Use code <strong class="bg-black/25 text-white font-black px-2 py-0.5 rounded tracking-wider border border-white/30">FIRST100</strong> during checkout. Minimum order ₹199. Instant delivery in 10 minutes.
+            </p>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-between gap-3 pt-5 mt-auto border-t border-white/20">
+            <a href="{% url 'public_store' %}" class="bg-black hover:bg-neutral-900 text-white px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl text-xs font-black uppercase tracking-wider shadow-lg hover:scale-105 active:scale-95 transition-all flex items-center gap-2">
+              <span>CLAIM ₹100 OFF</span>
+              <span class="text-brand-orange font-bold">⚡</span>
             </a>
-            <div class="absolute inset-0 bg-gradient-to-t from-black/[0.01] to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
             
-            <!-- Wishlist Toggle -->
-            <button type="button" 
-                    onclick="toggleWishlist('{{ product.id }}', this)"
-                    class="absolute top-4 right-4 z-30 w-10 h-10 flex items-center justify-center bg-white/80 backdrop-blur-md rounded-full border border-black/5 shadow-sm hover:scale-110 active:scale-95 transition-all js-require-auth">
-              <span class="material-symbols-outlined text-[20px] {% if product.id in wishlisted_ids %}fill-current text-red-500{% else %}text-black/20{% endif %}">favorite</span>
-            </button>
+            <div class="flex items-center gap-2 bg-black/20 px-3.5 py-1.5 rounded-xl border border-white/20 text-xs font-black text-white">
+              <span>⚡ 10 MINS</span>
+              <span class="text-white/60 font-normal text-[11px]">Doorstep</span>
+            </div>
           </div>
-          
-          <!-- Product Meta -->
-          <div class="space-y-4 px-2">
-             <div class="flex justify-between items-center border-b border-black/5 pb-4">
-                <p class="font-mono text-[9px] uppercase text-black/40 tracking-[0.4em] font-bold italic">{{ product.category.name }}</p>
-                <div class="flex items-center gap-1">
-                   <span class="material-symbols-outlined text-black text-[14px] fill-current">star</span>
-                   <span class="font-mono text-[12px] font-bold text-black">{{ product.rating }}</span>
-                </div>
-             </div>
-             <div>
-                <h4 class="font-serif text-[20px] font-bold text-on-background tracking-tight uppercase leading-snug mb-2">{{ product.name }}</h4>
-                <p class="font-mono text-xl font-bold text-primary italic">₹{{ product.price }}</p>
-             </div>
+        </div>
+
+        <!-- BANNER 2 (RIGHT): SLEEK DARK OBSIDIAN DARK STORE & FREE DELIVERY -->
+        <div class="relative overflow-hidden rounded-3xl text-white shadow-xl bg-[#111827] border border-white/10 p-5 sm:p-7 md:p-8 flex flex-col justify-between group hover:shadow-2xl hover:border-brand-orange/40 transition-all duration-300">
+          <div class="space-y-3">
+            <div class="inline-flex items-center gap-2 bg-emerald-500/20 px-3 py-1 rounded-full border border-emerald-500/30 text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-emerald-400 shadow-xs">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+              <span>🟢 FREE DELIVERY &bull; ORDERS ABOVE ₹149</span>
+            </div>
+
+            <h2 class="text-2xl sm:text-3xl font-black tracking-tight leading-tight text-white drop-shadow-sm">
+              Free Delivery on Orders Above ₹149!
+            </h2>
+
+            <p class="text-xs sm:text-sm text-gray-300 font-medium leading-relaxed">
+              Farm-fresh milk, bread, organic vegetables, crisp munchies & ice-cold drinks packed fresh in temperature-controlled dark store bags.
+            </p>
           </div>
 
-          <!-- Floating Action Button (Always Visible on Overhauled Grid) -->
-          <form method="POST" action="{% url 'add_to_cart' product.id %}" class="absolute -bottom-8 left-1/2 -translate-x-1/2 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 z-20">
-              {% csrf_token %}
-              <input type="hidden" name="quantity" value="1">
-              <button type="submit" 
-                      class="js-add-to-cart-btn bg-black text-white w-14 h-14 md:w-16 md:h-16 flex items-center justify-center hover:scale-110 transition-all shadow-[0_25px_50px_rgba(0,0,0,0.3)] rounded-full active:scale-90"
-                      data-product-id="{{ product.id }}"
-                      data-product-name="{{ product.name }}">
-                 <span class="material-symbols-outlined text-[20px] md:text-[22px]">shopping_bag</span>
-              </button>
-          </form>
+          <div class="flex flex-wrap items-center justify-between gap-3 pt-5 mt-auto border-t border-white/10">
+            <a href="{% url 'public_store' %}" class="bg-brand-orange hover:bg-brand-flame text-white px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl text-xs font-black uppercase tracking-wider shadow-lg hover:scale-105 active:scale-95 transition-all flex items-center gap-2">
+              <span>ORDER GROCERIES NOW</span>
+              <span class="material-symbols-outlined text-[16px]">shopping_cart</span>
+            </a>
+
+            <div class="flex items-center gap-2 text-xs font-bold text-gray-400">
+              <span class="flex items-center gap-1 text-emerald-400 font-extrabold text-[11px]">
+                <span class="material-symbols-outlined text-[14px]">verified</span> 100% Fresh
+              </span>
+              <span>&bull;</span>
+              <span class="text-[11px]">No Surge Fee</span>
+            </div>
+          </div>
         </div>
+
+      </div>
+    </section>
+
+    <!-- TRENDING SEARCHES BAR (TOP ACCELERATOR) -->
+    <section class="pt-3 pb-1 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+      <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1 text-xs">
+        <span class="text-[10px] font-black uppercase tracking-wider text-gray-400 shrink-0 flex items-center gap-1">
+          <span class="material-symbols-outlined text-[14px] text-brand-orange">trending_up</span> Trending:
+        </span>
+        {% for item in trending_searches %}
+        <a href="{% url 'home' %}?q={{ item.query }}" 
+           class="shrink-0 bg-white hover:bg-brand-orange hover:text-white text-gray-700 px-3 py-1 rounded-full border border-gray-200 hover:border-brand-orange font-bold text-[11px] shadow-2xs transition-all active:scale-95">
+          {{ item.name }}
+        </a>
         {% endfor %}
       </div>
-      
-      <div class="mt-24 flex justify-center border-t border-primary/5 pt-16">
-         <a href="{% url 'product_list' %}" class="font-mono text-[11px] tracking-[0.3em] uppercase border border-primary/20 px-10 py-5 hover:bg-primary hover:text-white transition-all duration-300">
-            View All Products
-         </a>
+    </section>
+
+    <!-- 2. GROUPED CATEGORY SECTIONS (EXACT MATCHING ZEPTO IMAGE 2: SMALL CLEAN CARDS) -->
+    
+    <!-- GROUP A: GROCERY & KITCHEN -->
+    {% if grocery_categories %}
+    <section class="scroll-reveal py-5 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-lg sm:text-xl font-black text-gray-900 tracking-tight">Grocery & Kitchen</h2>
+        <a href="{% url 'public_store' %}" class="text-xs font-extrabold text-brand-orange hover:text-brand-flame flex items-center gap-0.5 transition-colors">
+          <span>See All</span>
+          <span class="material-symbols-outlined text-[15px]">chevron_right</span>
+        </a>
       </div>
-    </section>
 
-    <!-- SALE BANNER -->
-    <section class="mx-8 md:mx-24 my-32 bg-primary-container py-32 px-12 md:px-32 flex flex-col items-center text-center relative overflow-hidden group rounded-3xl">
-      <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-white/10 via-transparent to-transparent opacity-50 group-hover:scale-110 transition-transform duration-[10s]"></div>
-      <span class="font-mono text-xs tracking-[0.5em] uppercase text-tertiary-fixed mb-10 font-bold opacity-60">Limited Time Deals</span>
-      
-      <h2 class="font-serif text-[clamp(2.5rem,7vw,5rem)] font-bold text-white mb-10 tracking-tighter leading-none"><span class="italic text-tertiary-fixed">The Big</span> Sale</h2>
-      
-      <p class="font-sans text-white/50 mb-16 max-w-xl text-lg italic leading-relaxed">Great prices on selected electronics, fashion, home goods, and more. Don’t miss out — deals are refreshed regularly.</p>
-      <a href="{% url 'product_list' %}" class="px-12 py-5 bg-white text-primary font-mono text-[10px] tracking-[0.4em] uppercase hover:bg-tertiary-fixed transition-colors hover:scale-105 transition-transform duration-300 font-bold tracking-widest rounded-full relative z-10 shadow-lg block mx-auto">
-         Shop The Sale
-      </a>
-    </section>
+      <div class="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-7 gap-2.5 sm:gap-3">
+        {% for cat in grocery_categories %}
+        <a href="{% url 'category_products' cat.slug %}" 
+           class="group flex flex-col items-center text-center transition-all duration-200">
+          
+          <div class="w-full aspect-[4/3] rounded-2xl bg-[#F4F5F7] hover:bg-white border border-gray-100 hover:border-gray-200 hover:shadow-md p-2 flex items-center justify-center transition-all">
+            {% if cat.image %}
+            <img src="{{ cat.image.url }}" alt="{{ cat.name }}" class="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+            {% else %}
+            <span class="text-3xl">{{ cat.icon|default:'🛍️' }}</span>
+            {% endif %}
+          </div>
 
-    <!-- TRUST FEATURES -->
-    <section class="max-w-7xl mx-auto px-8 md:px-24 py-24 mb-12">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
-        <div class="flex flex-col items-center text-center group bg-white border border-black/5 p-12 rounded-[2rem] shadow-sm hover:shadow-xl transition-all duration-500">
-           <div class="w-16 h-16 bg-surface-container-low rounded-full flex items-center justify-center mb-10 group-hover:bg-primary group-hover:text-white transition-all duration-500">
-              <span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'wght' 200;">inventory_2</span>
-           </div>
-           <h5 class="font-serif text-xl mb-4 font-bold tracking-tight uppercase">Global Shipping</h5>
-           <p class="font-sans text-sm text-on-surface-variant leading-relaxed italic opacity-70">Secured worldwide shipping on all orders. Fast delivery across India and beyond.</p>
-        </div>
-        <div class="flex flex-col items-center text-center group bg-white border border-black/5 p-12 rounded-[2rem] shadow-sm hover:shadow-xl transition-all duration-500">
-           <div class="w-16 h-16 bg-surface-container-low rounded-full flex items-center justify-center mb-10 group-hover:bg-primary group-hover:text-white transition-all duration-500">
-              <span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'wght' 200;">shield_with_heart</span>
-           </div>
-           <h5 class="font-serif text-xl mb-4 font-bold tracking-tight uppercase">Quality Check</h5>
-           <p class="font-sans text-sm text-on-surface-variant leading-relaxed italic opacity-70">Every item is inspected by our team in Bhadrak before dispatch to ensure quality.</p>
-        </div>
-        <div class="flex flex-col items-center text-center group bg-white border border-black/5 p-12 rounded-[2rem] shadow-sm hover:shadow-xl transition-all duration-500">
-           <div class="w-16 h-16 bg-surface-container-low rounded-full flex items-center justify-center mb-10 group-hover:bg-primary group-hover:text-white transition-all duration-500">
-              <span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'wght' 200;">eco</span>
-           </div>
-           <h5 class="font-serif text-xl mb-4 font-bold tracking-tight uppercase">Conscious Cycle</h5>
-           <p class="font-sans text-sm text-on-surface-variant leading-relaxed italic opacity-70">Offsetting our carbon footprint with every curated release. Thoughtfully sourced essentials.</p>
-        </div>
+          <span class="text-[11px] sm:text-xs font-bold text-gray-800 group-hover:text-brand-orange leading-tight line-clamp-2 mt-2 w-full">
+            {{ cat.name }}
+          </span>
+        </a>
+        {% endfor %}
       </div>
     </section>
     {% endif %}
 
-    <style>
-      @keyframes marquee {
-        0% { transform: translateX(0); }
-        100% { transform: translateX(-50%); }
+    <!-- GROUP B: SNACKS & DRINKS -->
+    {% if snacks_categories %}
+    <section class="scroll-reveal py-5 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-lg sm:text-xl font-black text-gray-900 tracking-tight">Snacks & Drinks</h2>
+        <a href="{% url 'public_store' %}" class="text-xs font-extrabold text-brand-orange hover:text-brand-flame flex items-center gap-0.5 transition-colors">
+          <span>See All</span>
+          <span class="material-symbols-outlined text-[15px]">chevron_right</span>
+        </a>
+      </div>
+
+      <div class="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-7 gap-2.5 sm:gap-3">
+        {% for cat in snacks_categories %}
+        <a href="{% url 'category_products' cat.slug %}" 
+           class="group flex flex-col items-center text-center transition-all duration-200">
+          
+          <div class="w-full aspect-[4/3] rounded-2xl bg-[#F4F5F7] hover:bg-white border border-gray-100 hover:border-gray-200 hover:shadow-md p-2 flex items-center justify-center transition-all">
+            {% if cat.image %}
+            <img src="{{ cat.image.url }}" alt="{{ cat.name }}" class="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+            {% else %}
+            <span class="text-3xl">{{ cat.icon|default:'🍿' }}</span>
+            {% endif %}
+          </div>
+
+          <span class="text-[11px] sm:text-xs font-bold text-gray-800 group-hover:text-brand-orange leading-tight line-clamp-2 mt-2 w-full">
+            {{ cat.name }}
+          </span>
+        </a>
+        {% endfor %}
+      </div>
+    </section>
+    {% endif %}
+
+    <!-- 3. DYNAMIC CATEGORY PRODUCT SHELVES (AT LEAST 10+ CATEGORIES FOR RICH SCROLLING) -->
+    {% for shelf in home_shelves %}
+    <section class="scroll-reveal py-4 sm:py-6 px-3 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+      <div class="flex items-center justify-between mb-2.5 sm:mb-3.5">
+        <div class="flex items-center gap-1.5 sm:gap-2 min-w-0">
+          <h3 class="text-base sm:text-xl md:text-2xl font-black text-gray-900 tracking-tight truncate">{{ shelf.title }}</h3>
+          <span class="text-[11px] sm:text-xs font-bold text-gray-400 shrink-0">({{ shelf.count }} item{{ shelf.count|pluralize }})</span>
+        </div>
+
+        <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+          <!-- Chevron Navigation Controls: White < and Solid Black > matching Zepto design exactly -->
+          <div class="flex items-center gap-1.5 sm:gap-2">
+            
+            
+          </div>
+
+          <a href="{% url 'category_products' shelf.category.slug %}" class="ml-0.5 sm:ml-1 text-xs sm:text-sm font-extrabold text-[#E85002] hover:text-[#c43f00] flex items-center gap-0.5 transition-colors">
+            <span>See All</span>
+            <span class="material-symbols-outlined text-[15px] sm:text-[16px]">chevron_right</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Rail wrapper with clean spacing and zero card obstruction -->
+      <div class="relative group/rail">
+
+        <!-- Product Track (Edge to edge on mobile, contained on desktop) -->
+        <div id="rail-{{ shelf.category.slug }}" 
+             class="flex gap-2.5 sm:gap-3.5 overflow-x-auto pb-3 pt-1 scroll-smooth no-scrollbar cursor-grab active:cursor-grabbing select-none px-1 sm:px-0 -mx-1 sm:mx-0" 
+             style="scrollbar-width: none; -ms-overflow-style: none; -webkit-overflow-scrolling: touch;">
+          {% for product in shelf.products %}
+          <div class="w-[136px] sm:w-[155px] md:w-[165px] flex-shrink-0 scroll-reveal-card bg-white rounded-2xl border border-gray-200/90 hover:border-brand-orange/40 p-2 sm:p-2.5 flex flex-col justify-between shadow-xs hover:shadow-md transition-all group relative">
+            
+            <!-- Image Area with Single ADD Button -->
+            <div class="w-full h-[112px] sm:h-[125px] rounded-xl bg-white p-2 relative flex items-center justify-center mb-1.5 sm:mb-2 overflow-hidden border border-gray-50">
+              <a href="{% url 'product_detail' product.slug %}" class="w-full h-full flex items-center justify-center">
+                {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+                {% else %}
+                <span class="text-3xl text-gray-400">{{ shelf.icon|default:'🛍️' }}</span>
+                {% endif %}
+              </a>
+
+              <!-- Quick Add Button (Solid Brand Orange) -->
+              <button type="button" 
+                      onclick="quickAddToCart('{{ product.id }}', this, event)"
+                      class="absolute bottom-1 right-1 bg-white hover:bg-brand-orange text-brand-orange hover:text-white border-[1.5px] border-brand-orange text-[10px] sm:text-[11px] font-black uppercase px-2.5 py-0.5 rounded-lg shadow-2xs transition-all active:scale-90 z-10 cursor-pointer">
+                <span>ADD</span>
+              </button>
+            </div>
+
+            <!-- Price & Title -->
+            <div class="space-y-0.5 sm:space-y-1 mb-1.5 sm:mb-2">
+              <div class="flex items-center gap-1 sm:gap-1.5">
+                <span class="text-xs sm:text-[13px] font-black text-gray-900 leading-none">₹{{ product.price|floatformat:0 }}</span>
+                {% if product.mrp and product.mrp > product.price %}
+                <span class="text-[10px] text-gray-400 line-through leading-none">₹{{ product.mrp|floatformat:0 }}</span>
+                {% endif %}
+              </div>
+              <a href="{% url 'product_detail' product.slug %}" class="block">
+                <h4 class="text-[11px] sm:text-xs font-bold text-gray-900 leading-snug line-clamp-2 hover:text-brand-orange transition-colors min-h-[28px] sm:min-h-[32px]">
+                  {{ product.name }}
+                </h4>
+              </a>
+            </div>
+
+            <!-- Pack Size -->
+            <div class="text-[10px] sm:text-[11px] text-gray-400 font-medium pt-1 sm:pt-1.5 border-t border-gray-100 truncate">
+              {{ product.unit|default:'1 unit' }}
+            </div>
+
+          </div>
+          {% endfor %}
+        </div>
+
+      </div>
+    </section>
+    {% endfor %}
+
+    <!-- GROUP C: BEAUTY & HOUSEHOLD CATEGORIES (ZEPTO-STYLE AISLE CARDS) -->
+    {% if beauty_categories %}
+    <section class="scroll-reveal py-5 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-lg sm:text-xl font-black text-gray-900 tracking-tight">Beauty & Personal Care</h2>
+        <a href="{% url 'public_store' %}" class="text-xs font-extrabold text-brand-orange hover:text-brand-flame flex items-center gap-0.5 transition-colors">
+          <span>See All</span>
+          <span class="material-symbols-outlined text-[15px]">chevron_right</span>
+        </a>
+      </div>
+
+      <div class="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-7 gap-2.5 sm:gap-3">
+        {% for cat in beauty_categories %}
+        <a href="{% url 'category_products' cat.slug %}" 
+           class="group flex flex-col items-center text-center transition-all duration-200">
+          
+          <div class="w-full aspect-[4/3] rounded-2xl bg-[#F4F5F7] hover:bg-white border border-gray-100 hover:border-gray-200 hover:shadow-md p-2 flex items-center justify-center transition-all">
+            {% if cat.image %}
+            <img src="{{ cat.image.url }}" alt="{{ cat.name }}" class="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+            {% else %}
+            <span class="text-3xl">{{ cat.icon|default:'💄' }}</span>
+            {% endif %}
+          </div>
+
+          <span class="text-[11px] sm:text-xs font-bold text-gray-800 group-hover:text-brand-orange leading-tight line-clamp-2 mt-2 w-full">
+            {{ cat.name }}
+          </span>
+        </a>
+        {% endfor %}
+      </div>
+    </section>
+    {% endif %}
+
+    <!-- 6. TRENDING & EXISTING USER PRODUCTS (COMPACT QUICK-COMMERCE CARDS MATCHING CATEGORY RAILS ABOVE) -->
+    <section id="quick-deals" class="scroll-reveal py-6 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-4 gap-3 pb-3 border-b border-gray-200">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <span class="bg-brand-crimson text-white text-[9px] font-black uppercase px-2 py-0.5 rounded-full shadow-xs">
+              ⚡ TOP PICKS
+            </span>
+            <span class="text-xs font-bold text-gray-500">Trending Everyday Essentials</span>
+          </div>
+          <h2 class="text-xl sm:text-2xl font-black text-gray-900 tracking-tight">
+            Explore More Products
+          </h2>
+        </div>
+        <a href="{% url 'public_store' %}" class="px-4 py-2 rounded-xl bg-white border border-gray-200 text-xs font-extrabold text-gray-800 hover:bg-brand-orange hover:text-white transition-all shadow-xs flex items-center gap-1">
+          <span>View All Products</span>
+          <span class="material-symbols-outlined text-[15px]">chevron_right</span>
+        </a>
+      </div>
+
+      <!-- Compact 7-column / responsive grid with card dimensions matching category rails above -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 gap-2.5 sm:gap-3">
+        {% for product in featured_products %}
+        <div class="bg-white rounded-2xl border border-gray-200/90 hover:border-gray-300 p-2.5 flex flex-col justify-between shadow-xs hover:shadow-md transition-all group relative">
+          
+          <!-- Image Area with Single ADD Button -->
+          <div class="w-full h-[125px] rounded-xl bg-white p-2 relative flex items-center justify-center mb-2 overflow-hidden border border-gray-50">
+            <a href="{% url 'product_detail' product.slug %}" class="w-full h-full flex items-center justify-center">
+              {% if product.image %}
+              <img src="{{ product.image.url }}" alt="{{ product.name }}" class="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+              {% else %}
+              <span class="text-3xl text-gray-400">🛍️</span>
+              {% endif %}
+            </a>
+
+            <button type="button" 
+                    onclick="quickAddToCart('{{ product.id }}', this, event)"
+                    class="absolute bottom-1 right-1 bg-white hover:bg-brand-orange text-brand-orange hover:text-white border-[1.5px] border-brand-orange text-[11px] font-black uppercase px-2.5 py-0.5 rounded-lg shadow-sm transition-all duration-150 active:scale-95 z-10">
+              <span>ADD</span>
+            </button>
+          </div>
+
+          <!-- Price Tag -->
+          <div class="flex items-center gap-1.5 mb-1">
+            <span class="bg-[#0C831F] text-white text-[11px] font-extrabold px-1.5 py-0.5 rounded leading-none">
+              ₹{{ product.price|floatformat:0 }}
+            </span>
+            <span class="text-[11px] text-gray-400 line-through font-medium leading-none">
+              ₹{{ product.mrp|floatformat:0 }}
+            </span>
+          </div>
+
+          <!-- Title -->
+          <a href="{% url 'product_detail' product.slug %}" class="text-[12px] font-bold text-gray-900 line-clamp-2 leading-snug hover:text-brand-orange transition-colors min-h-[32px] mb-1" title="{{ product.name }}">
+            {{ product.name }}
+          </a>
+
+          <!-- Pack Size -->
+          <div class="text-[11px] text-gray-500 font-medium truncate">
+            {{ product.unit|default:"1 pc" }}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      
+      <div class="mt-8 text-center">
+        <a href="{% url 'public_store' %}" class="inline-flex items-center gap-2 bg-white text-gray-900 border-2 border-gray-300 hover:border-brand-orange hover:text-brand-orange px-8 py-3 rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-xs active:scale-95">
+          <span>Explore All Products</span>
+          <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- 7. BRAND STATEMENT (MATCHING IMAGE 3: "THE PLACE THAT FITS ALL YOUR NEEDS" & PRANAYA PORTFOLIO) -->
+    <section class="scroll-reveal py-12 sm:py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto my-4">
+      <div class="bg-[#F4F6FA] border border-gray-200/80 rounded-3xl p-8 sm:p-14 text-center shadow-xs">
+        <h2 class="text-3xl sm:text-5xl lg:text-6xl font-black text-[#505F75] tracking-tight leading-tight">
+          The place that fits all your needs
+        </h2>
+        <p class="text-base sm:text-lg font-bold text-gray-600 mt-4 flex items-center justify-center gap-2 flex-wrap">
+          Crafted with love by 
+          <a href="https://pranayakd.in/" target="_blank" rel="noopener noreferrer" class="text-brand-orange hover:text-brand-crimson font-black underline decoration-2 transition-colors">
+            Pranaya
+          </a> 
+          for <span class="text-gray-900 font-black">ShopperMart</span> 
+          <span class="text-rose-500 animate-pulse text-2xl">❤️</span>
+        </p>
+      </div>
+    </section>
+
+    <!-- 8. TRUST & PROMISE FEATURES -->
+    <section class="scroll-reveal py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-gray-200">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+        
+        <div class="bg-white p-5 rounded-2xl border border-gray-200 flex items-start gap-4 shadow-2xs">
+          <div class="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+            <span class="material-symbols-outlined text-2xl font-bold">bolt</span>
+          </div>
+          <div>
+            <h4 class="text-sm font-extrabold text-gray-900 mb-0.5">10-Minute Delivery</h4>
+            <p class="text-xs text-gray-500 leading-relaxed">Lightning-fast fulfillment from local micro-warehouses right to your doorstep.</p>
+          </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-gray-200 flex items-start gap-4 shadow-2xs">
+          <div class="w-11 h-11 rounded-xl bg-orange-50 text-brand-orange flex items-center justify-center shrink-0">
+            <span class="material-symbols-outlined text-2xl font-bold">verified</span>
+          </div>
+          <div>
+            <h4 class="text-sm font-extrabold text-gray-900 mb-0.5">Best Quality Guarantee</h4>
+            <p class="text-xs text-gray-500 leading-relaxed">Hand-inspected fresh vegetables, hygienic dairy, and authentic branded goods.</p>
+          </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-gray-200 flex items-start gap-4 shadow-2xs">
+          <div class="w-11 h-11 rounded-xl bg-rose-50 text-brand-crimson flex items-center justify-center shrink-0">
+            <span class="material-symbols-outlined text-2xl font-bold">savings</span>
+          </div>
+          <div>
+            <h4 class="text-sm font-extrabold text-gray-900 mb-0.5">Super Saver Prices</h4>
+            <p class="text-xs text-gray-500 leading-relaxed">Direct manufacturer rates, everyday discounts, and no sneaky peak charges.</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+    {% endif %}
+
+    <!-- Hidden CSRF Token for Quick Cart Actions -->
+    <input type="hidden" id="page-csrf-token" value="{{ csrf_token }}">
+
+    <!-- RAIL SCROLL, MOUSE DRAG & AJAX QUICK ADD SCRIPT -->
+    <script>
+      // Smooth Horizontal Rail Scrolling with Auto-Arrow Visibility
+      function scrollRail(railId, distance) {
+        const el = document.getElementById(railId);
+        if (el) {
+          el.scrollBy({ left: distance, behavior: 'smooth' });
+          setTimeout(() => updateRailControls(railId), 350);
+        }
       }
-      .animate-marquee {
-        animation: marquee 40s linear infinite;
-        display: flex;
-        width: 200%;
+
+      function updateRailControls(railId) {
+        const el = document.getElementById(railId);
+        if (!el) return;
+        const leftBtn = document.getElementById('btn-left-' + railId);
+        const rightBtn = document.getElementById('btn-right-' + railId);
+        
+        if (leftBtn) {
+          if (el.scrollLeft > 15) {
+            leftBtn.classList.remove('opacity-40');
+            leftBtn.classList.add('opacity-100');
+          } else {
+            leftBtn.classList.add('opacity-40');
+            leftBtn.classList.remove('opacity-100');
+          }
+        }
+        
+        if (rightBtn) {
+          const maxScroll = el.scrollWidth - el.clientWidth - 15;
+          if (el.scrollLeft >= maxScroll) {
+            rightBtn.classList.add('opacity-40');
+            rightBtn.classList.remove('opacity-100');
+          } else {
+            rightBtn.classList.remove('opacity-40');
+            rightBtn.classList.add('opacity-100');
+          }
+        }
       }
-      .animate-marquee:hover { animation-play-state: paused; }
-    </style>
+
+      // Setup Listeners: Drag, Scroll & Dynamic Arrow State for ALL shelves
+      document.addEventListener('DOMContentLoaded', () => {
+        const rails = document.querySelectorAll('[id^="rail-"]');
+        rails.forEach(rail => {
+          const id = rail.id;
+
+          // Update arrows on scroll
+          rail.addEventListener('scroll', () => {
+            updateRailControls(id);
+          }, { passive: true });
+
+          // Mouse Drag to Scroll
+          let isDown = false;
+          let startX, scrollLeft;
+
+          rail.addEventListener('mousedown', (e) => {
+            if (e.target.closest('button') || e.target.closest('a')) return;
+            isDown = true;
+            startX = e.pageX - rail.offsetLeft;
+            scrollLeft = rail.scrollLeft;
+          });
+
+          window.addEventListener('mouseup', () => {
+            isDown = false;
+          });
+
+          rail.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+            e.preventDefault();
+            const x = e.pageX - rail.offsetLeft;
+            const walk = (x - startX) * 1.5;
+            rail.scrollLeft = scrollLeft - walk;
+            updateRailControls(id);
+          });
+
+          // Horizontal Wheel Support
+          rail.addEventListener('wheel', (e) => {
+            if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+              updateRailControls(id);
+            }
+          }, { passive: true });
+
+          // Initial check
+          updateRailControls(id);
+        });
+      });
+
+      // Quick Add to Cart with AJAX
+      function quickAddToCart(productId, btn, event) {
+        if (event) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+
+        const originalText = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="inline-block animate-spin text-[10px]">↻</span>';
+
+        function getCookie(name) {
+          let cookieValue = null;
+          if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+              const cookie = cookies[i].trim();
+              if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+              }
+            }
+          }
+          return cookieValue;
+        }
+        const csrftoken = document.getElementById('page-csrf-token')?.value || getCookie('csrftoken') || '';
+
+        fetch('/api/cart/add/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken
+          },
+          body: JSON.stringify({ product_id: productId, quantity: 1 })
+        })
+        .then(async res => {
+          const data = await res.json();
+          if (res.ok && (data.success || data.item_count !== undefined || data.items)) {
+            const count = data.item_count !== undefined ? data.item_count : (data.total_items || 1);
+            btn.innerHTML = '<span class="text-emerald-600 font-black">ADDED ✓</span>';
+            btn.classList.add('border-emerald-500');
+
+            // Update Header Cart UI
+            if (window.updateCartHeaderUI) {
+              window.updateCartHeaderUI(count);
+            } else {
+              const cartBtn = document.getElementById('main-cart-btn');
+              if (cartBtn && count) {
+                let badge = cartBtn.querySelector('.animate-pulse');
+                if (badge) badge.textContent = count;
+                const countText = cartBtn.querySelector('.text-xs.font-extrabold');
+                if (countText) countText.textContent = count + ' item' + (count > 1 ? 's' : '');
+              }
+            }
+
+            // Trigger 5-Second Quick-Commerce Added-to-Cart Tooltip
+            if (window.showCartAddedPopup && data.added_item) {
+              window.showCartAddedPopup(data.added_item, data.cart || { total_items: count });
+            }
+
+            setTimeout(() => {
+              btn.innerHTML = originalText;
+              btn.classList.remove('border-emerald-500');
+              btn.disabled = false;
+            }, 1200);
+          } else {
+            alert(data.error || data.detail || 'Could not add to cart.');
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+          }
+        })
+        .catch(err => {
+          console.error('Cart add error:', err);
+          btn.innerHTML = originalText;
+          btn.disabled = false;
+        });
+      }
+    </script>
 {% endblock %}

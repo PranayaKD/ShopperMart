@@ -1,66 +1,73 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Order #{{ order.id }} – Tracking | ShopperMart{% endblock %}
-{% block meta_description %}Track the status of your ShopperMart order #{{ order.id }}. View real-time delivery progress and order details.{% endblock %}
-{% block meta_keywords %}shoppermart order tracking, order status india, delivery tracking, order history, shipment progress{% endblock %}
+{% block title %}Order #{{ order.id }} – 10-Minute Live Tracking | ShopperMart{% endblock %}
+{% block meta_description %}Track the live status of your ShopperMart 10-minute delivery for order #{{ order.id }}.{% endblock %}
+{% block meta_keywords %}shoppermart order tracking, 10 min grocery tracking, live delivery status{% endblock %}
 
 {% block content %}
     <!-- PAGE HEADER -->
-    <header class="pt-24 pb-12 px-8 md:px-24 bg-zinc-50/50 border-b border-black/5">
-      <div class="max-w-5xl mx-auto">
-        <nav class="flex items-center gap-4 mb-6 font-mono text-[9px] tracking-[.4em] uppercase text-black/40 font-bold">
-          <a href="{% url 'my_orders' %}" class="hover:text-black transition-colors">← My Orders</a>
-          <span class="opacity-30">/</span>
-          <span class="text-black italic">Order #{{ order.id }}</span>
-        </nav>
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
-          <div>
-            <h1 class="font-serif text-5xl md:text-7xl font-bold tracking-tighter text-black uppercase leading-none">Order Manifest</h1>
-            <p class="font-mono text-[10px] text-black/40 mt-4 uppercase tracking-[0.3em] font-bold italic">Placed {{ order.created_at|date:"d M Y" }} at {{ order.created_at|date:"H:i" }}</p>
-          </div>
-          <div class="text-right">
-            <span class="font-mono text-[9px] uppercase tracking-[0.4em] text-black/30 block mb-2 font-bold">Total Paid</span>
-            <span class="font-serif text-4xl font-bold text-black italic">₹{{ order.total }}</span>
-          </div>
+    <header class="py-8 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
+      <nav class="flex items-center gap-2 text-xs font-bold text-zepto-muted mb-4">
+        <a href="{% url 'my_orders' %}" class="hover:text-zepto-purple transition-colors">← Back to My Orders</a>
+        <span>/</span>
+        <span class="text-zepto-purple-dark">Order #{{ order.id|stringformat:".8s" }}</span>
+      </nav>
+
+      <div class="bg-gradient-to-r from-zepto-purple-dark via-zepto-purple to-zepto-pink rounded-3xl p-6 sm:p-8 text-white relative overflow-hidden shadow-zepto flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <span class="bg-zepto-green text-white text-[10px] font-black uppercase px-2.5 py-1 rounded-lg inline-block mb-2 shadow-sm">
+            ⚡ 10-MINUTE DELIVERY DISPATCH
+          </span>
+          <h1 class="text-2xl sm:text-4xl font-black tracking-tight leading-none">Order Tracking Manifest</h1>
+          <p class="text-xs text-white/80 font-medium mt-1">Placed on {{ order.created_at|date:"d M Y, h:i A" }}</p>
+        </div>
+        <div class="text-left md:text-right bg-white/10 backdrop-blur-md px-4 py-3 rounded-2xl border border-white/20">
+          <span class="text-[10px] uppercase font-bold text-white/80 block">Total Bill</span>
+          <span class="text-2xl sm:text-3xl font-black text-white">₹{{ order.total }}</span>
         </div>
       </div>
     </header>
 
-    <section class="max-w-5xl mx-auto px-8 md:px-24 py-16">
+    <section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
 
       <!-- ═══════════ LIFECYCLE PROGRESS TRACKER ═══════════ -->
       {% if order.status != 'cancelled' %}
-      <div class="bg-white border border-black/5 rounded-[2rem] p-10 md:p-16 mb-16 shadow-sm">
-        <span class="font-mono text-[9px] uppercase tracking-[0.5em] text-black/30 block mb-10 font-bold">Order Lifecycle</span>
+      <div class="bg-white border border-zepto-border rounded-3xl p-6 sm:p-10 mb-8 shadow-sm">
+        <div class="flex items-center justify-between mb-8 pb-4 border-b border-zepto-border">
+          <span class="text-xs font-black uppercase tracking-wider text-zepto-purple">Live Delivery Progress</span>
+          <span class="text-xs font-black text-zepto-green flex items-center gap-1">
+            <span class="w-2 h-2 rounded-full bg-zepto-green animate-ping"></span> Guaranteed 10 Mins
+          </span>
+        </div>
 
         <!-- Progress Bar -->
-        <div class="relative mb-12">
-          <div class="h-1 bg-zinc-100 rounded-full w-full absolute top-5"></div>
-          <div class="h-1 bg-black rounded-full absolute top-5 transition-all duration-1000" style="width: {{ order.lifecycle_percentage }}%"></div>
+        <div class="relative mb-10">
+          <div class="h-2 bg-zepto-bg rounded-full w-full absolute top-5"></div>
+          <div class="h-2 bg-gradient-to-r from-zepto-purple to-zepto-pink rounded-full absolute top-5 transition-all duration-1000" style="width: {{ order.lifecycle_percentage }}%"></div>
 
           <div class="flex justify-between relative">
             {% for step in lifecycle_steps %}
             <div class="flex flex-col items-center text-center w-1/5">
-              <div class="w-10 h-10 rounded-full flex items-center justify-center z-10 transition-all duration-500
+              <div class="w-11 h-11 rounded-2xl flex items-center justify-center z-10 transition-all duration-500
                 {% if forloop.counter0 <= order.lifecycle_progress %}
-                  bg-black text-white shadow-lg
+                  bg-gradient-to-br from-zepto-purple to-zepto-pink text-white shadow-zepto
                 {% elif forloop.counter0 == order.lifecycle_progress|add:1 %}
-                  bg-zinc-200 text-black/40 border-2 border-dashed border-black/20
+                  bg-zepto-bg text-zepto-purple border-2 border-dashed border-zepto-purple/50 animate-pulse
                 {% else %}
-                  bg-zinc-100 text-black/20
+                  bg-zepto-bg text-zepto-muted/50
                 {% endif %}">
-                <span class="material-symbols-outlined text-[18px]">
+                <span class="material-symbols-outlined text-[20px]">
                   {% if step == 'pending' %}schedule
-                  {% elif step == 'processing' %}settings
+                  {% elif step == 'processing' %}inventory_2
                   {% elif step == 'shipped' %}local_shipping
                   {% elif step == 'out_for_delivery' %}directions_bike
                   {% elif step == 'delivered' %}check_circle
                   {% endif %}
                 </span>
               </div>
-              <span class="font-mono text-[8px] md:text-[9px] uppercase tracking-widest mt-4 font-bold
-                {% if forloop.counter0 <= order.lifecycle_progress %}text-black{% else %}text-black/20{% endif %}">
+              <span class="text-[10px] uppercase tracking-wider mt-3 font-bold
+                {% if forloop.counter0 <= order.lifecycle_progress %}text-zepto-purple-dark font-black{% else %}text-zepto-muted{% endif %}">
                 {{ step|title }}
               </span>
             </div>
@@ -69,110 +76,86 @@
         </div>
 
         <!-- Current Status Badge -->
-        <div class="flex items-center justify-center gap-4 pt-6 border-t border-black/5">
-          <span class="w-3 h-3 rounded-full animate-pulse
-            {% if order.status == 'delivered' %}bg-emerald-500
-            {% elif order.status == 'shipped' or order.status == 'out_for_delivery' %}bg-blue-500
-            {% else %}bg-amber-400{% endif %}"></span>
-          <span class="font-mono text-[11px] uppercase tracking-[0.3em] font-bold">Currently: {{ order.get_status_display }}</span>
+        <div class="flex items-center justify-center gap-3 pt-4 border-t border-zepto-border">
+          <span class="w-2.5 h-2.5 rounded-full animate-ping
+            {% if order.status == 'delivered' %}bg-zepto-green
+            {% elif order.status == 'shipped' or order.status == 'out_for_delivery' %}bg-zepto-purple
+            {% else %}bg-zepto-yellow{% endif %}"></span>
+          <span class="text-xs font-black uppercase tracking-wider text-zepto-purple-dark">
+            Current Status: {{ order.get_status_display }}
+          </span>
         </div>
       </div>
       {% else %}
       <!-- CANCELLED STATE -->
-      <div class="bg-red-50 border border-red-100 rounded-[2rem] p-10 md:p-16 mb-16 text-center">
-        <span class="material-symbols-outlined text-6xl text-red-300 mb-6 block">cancel</span>
-        <h2 class="font-serif text-3xl font-bold text-red-600 mb-4">Order Cancelled</h2>
-        <p class="font-mono text-[10px] uppercase tracking-widest text-red-400 font-bold">This order was cancelled. Stock has been restored to inventory.</p>
+      <div class="bg-red-50 border border-red-200 rounded-3xl p-8 mb-8 text-center">
+        <span class="material-symbols-outlined text-5xl text-red-400 mb-2 block">cancel</span>
+        <h2 class="text-xl font-black text-red-600 mb-1">Order Cancelled</h2>
+        <p class="text-xs text-red-500 font-bold">This 10-minute order was cancelled.</p>
       </div>
       {% endif %}
 
       <!-- ═══════════ ORDER ITEMS ═══════════ -->
-      <div class="bg-white border border-black/5 rounded-[2rem] p-10 md:p-16 mb-16 shadow-sm">
-        <span class="font-mono text-[9px] uppercase tracking-[0.5em] text-black/30 block mb-10 font-bold">Items in This Order</span>
-        <div class="space-y-8">
+      <div class="bg-white border border-zepto-border rounded-3xl p-6 sm:p-10 mb-8 shadow-sm">
+        <h3 class="text-sm font-black text-zepto-purple-dark uppercase tracking-wider mb-6 pb-3 border-b border-zepto-border">
+          Items in this Delivery
+        </h3>
+        <div class="space-y-4 divide-y divide-zepto-border">
           {% for item in order.items.all %}
-          <div class="flex items-center gap-8 pb-8 {% if not forloop.last %}border-b border-black/5{% endif %}">
-            <div class="w-20 h-20 bg-zinc-50 rounded-2xl flex items-center justify-center overflow-hidden shrink-0 border border-black/[0.03]">
-              {% if item.product and item.product.image %}
-              <img src="{{ item.product.image.url }}" class="w-full h-full object-contain p-2 mix-blend-multiply"/>
-              {% else %}
-              <span class="material-symbols-outlined text-zinc-200 text-3xl">inventory_2</span>
-              {% endif %}
-            </div>
-            <div class="flex-grow">
-              <h3 class="font-serif text-lg font-bold text-black uppercase tracking-tight">{{ item.product.name|default:"Deleted Product" }}</h3>
-              <p class="font-mono text-[10px] text-black/40 uppercase tracking-widest font-bold mt-1">Qty: {{ item.quantity }} × ₹{{ item.price }}</p>
-            </div>
-            <div class="text-right shrink-0">
-              <span class="font-mono text-lg font-bold text-black italic">₹{{ item.get_total }}</span>
-            </div>
-          </div>
-          {% endfor %}
-        </div>
-      </div>
-
-      <!-- ═══════════ STATUS AUDIT LOG (Event Sourcing) ═══════════ -->
-      {% if status_logs %}
-      <div class="bg-white border border-black/5 rounded-[2rem] p-10 md:p-16 mb-16 shadow-sm">
-        <span class="font-mono text-[9px] uppercase tracking-[0.5em] text-black/30 block mb-10 font-bold">Status History (Audit Trail)</span>
-        <div class="space-y-6">
-          {% for log in status_logs %}
-          <div class="flex items-start gap-6 relative">
-            <div class="w-8 h-8 bg-zinc-100 rounded-full flex items-center justify-center shrink-0 z-10">
-              <span class="material-symbols-outlined text-[14px] text-black/40">update</span>
-            </div>
-            {% if not forloop.last %}
-            <div class="absolute left-4 top-8 bottom-0 w-px bg-zinc-100"></div>
-            {% endif %}
-            <div class="flex-grow pb-4">
-              <div class="flex items-center gap-4 mb-2">
-                <span class="font-mono text-[10px] uppercase tracking-widest font-bold text-black">{{ log.old_status|default:"—" }} → {{ log.new_status }}</span>
-                <span class="font-mono text-[9px] text-black/30 italic">{{ log.created_at|date:"d M Y, H:i" }}</span>
+          <div class="pt-4 first:pt-0 flex items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+              <div class="w-16 h-16 bg-zepto-bg rounded-2xl flex items-center justify-center overflow-hidden shrink-0 border border-zepto-border p-2">
+                {% if item.product and item.product.image %}
+                <img src="{{ item.product.image.url }}" class="w-full h-full object-contain mix-blend-multiply"/>
+                {% else %}
+                <span class="text-xs text-zepto-muted font-bold">Item</span>
+                {% endif %}
               </div>
-              {% if log.note %}
-              <p class="font-mono text-[10px] text-black/40 italic">{{ log.note }}</p>
-              {% endif %}
+              <div>
+                <h4 class="text-xs sm:text-sm font-extrabold text-zepto-purple-dark line-clamp-1">{{ item.product.name }}</h4>
+                <p class="text-[10px] text-zepto-muted font-bold mt-0.5">Quantity: {{ item.quantity }}</p>
+              </div>
             </div>
+            <span class="text-xs sm:text-sm font-black text-zepto-purple-dark shrink-0">₹{{ item.price }}</span>
           </div>
           {% endfor %}
         </div>
       </div>
-      {% endif %}
 
-      <!-- ═══════════ SHIPPING DETAILS ═══════════ -->
-      <div class="bg-white border border-black/5 rounded-[2rem] p-10 md:p-16 shadow-sm">
-        <span class="font-mono text-[9px] uppercase tracking-[0.5em] text-black/30 block mb-10 font-bold">Delivery Address</span>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
-          <div>
-            <span class="font-mono text-[9px] uppercase tracking-widest text-black/30 block mb-2 font-bold">Name</span>
-            <p class="font-serif text-xl font-bold text-black">{{ order.full_name }}</p>
-          </div>
-          <div>
-            <span class="font-mono text-[9px] uppercase tracking-widest text-black/30 block mb-2 font-bold">Email</span>
-            <p class="font-mono text-sm text-black/70">{{ order.email }}</p>
-          </div>
-          <div>
-            <span class="font-mono text-[9px] uppercase tracking-widest text-black/30 block mb-2 font-bold">Address</span>
-            <p class="text-sm text-black/70 leading-relaxed">{{ order.address }}, {{ order.city }} – {{ order.postal_code }}</p>
-          </div>
-          <div>
-            <span class="font-mono text-[9px] uppercase tracking-widest text-black/30 block mb-2 font-bold">Payment Method</span>
-            <p class="font-mono text-sm font-bold text-black uppercase">{{ order.payment }}</p>
+      <!-- ═══════════ SHIPPING & DELIVERY INFO ═══════════ -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-white border border-zepto-border rounded-3xl p-6 shadow-sm">
+          <h4 class="text-xs font-black uppercase tracking-wider text-zepto-purple-dark mb-4 pb-2 border-b border-zepto-border flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-[18px] text-zepto-green">home_pin</span> Delivery Address
+          </h4>
+          <p class="text-xs text-zepto-purple-dark font-extrabold">{{ order.full_name }}</p>
+          <p class="text-xs text-zepto-muted leading-relaxed mt-1">
+            {{ order.address }}, {{ order.city }}, {{ order.state }} - {{ order.postal_code }}
+          </p>
+          {% if order.landmark %}
+          <p class="text-[11px] text-zepto-muted mt-1">Landmark: {{ order.landmark }}</p>
+          {% endif %}
+        </div>
+
+        <div class="bg-white border border-zepto-border rounded-3xl p-6 shadow-sm">
+          <h4 class="text-xs font-black uppercase tracking-wider text-zepto-purple-dark mb-4 pb-2 border-b border-zepto-border flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-[18px] text-zepto-purple">receipt</span> Payment & Billing
+          </h4>
+          <div class="space-y-1.5 text-xs text-zepto-muted">
+            <div class="flex justify-between">
+              <span>Payment Mode:</span>
+              <span class="font-extrabold uppercase text-zepto-purple-dark">{{ order.payment_method }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span>Delivery Time:</span>
+              <span class="font-black text-zepto-green">10 Mins (Express)</span>
+            </div>
+            <div class="flex justify-between pt-2 border-t border-zepto-border text-sm">
+              <span class="font-bold text-zepto-purple-dark">Total Paid:</span>
+              <span class="font-black text-zepto-purple-dark">₹{{ order.total }}</span>
+            </div>
           </div>
         </div>
       </div>
-
-      <!-- Actions -->
-      {% if order.status == 'pending' or order.status == 'processing' %}
-      <div class="flex justify-center mt-16">
-        <form method="POST" action="{% url 'cancel_order' order.id %}">
-          {% csrf_token %}
-          <button type="submit" onclick="return confirm('Are you sure you want to cancel this order?')" class="bg-white border border-red-200 text-red-500 px-12 py-5 rounded-full font-mono text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-red-50 hover:border-red-300 transition-all active:scale-95">
-            Cancel This Order
-          </button>
-        </form>
-      </div>
-      {% endif %}
-
     </section>
 {% endblock %}

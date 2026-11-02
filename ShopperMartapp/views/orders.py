@@ -1,10 +1,14 @@
 import logging
+import json
+from django.http import HttpResponse, JsonResponse
+from django.urls import reverse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction, models
 from django.db.models import F
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 
 logger = logging.getLogger(__name__)
 from .cart import get_cart
@@ -12,17 +16,57 @@ from ..models import Product, Order, OrderItem, OrderStatusLog, ORDER_LIFECYCLE_
 from ..forms import CheckoutForm
 import razorpay
 from django.conf import settings
-
-# -------------------- CHECKOUT & ORDERS --------------------
+from django_ratelimit.decorators import ratelimit
 from decimal import Decimal, InvalidOperation
 
+from datetime import timedelta
+from django.utils import timezone
+
+def cleanup_stale_pending_orders(user=None, timeout_minutes=15):
+    """Auto-cancel pending orders older than 15 mins to restore inventory stock."""
+    try:
+        cutoff = timezone.now() - timedelta(minutes=timeout_minutes)
+        qs = Order.objects.filter(status='pending', created_at__lte=cutoff)
+        if user and user.is_authenticated:
+            qs = qs.filter(user=user)
+        for order in qs[:20]:
+            with transaction.atomic():
+                locked_order = Order.objects.select_for_update().filter(id=order.id, status='pending').first()
+                if not locked_order:
+                    continue
+                for item in locked_order.items.select_related('product').all():
+                    if item.product_id:
+                        Product.objects.filter(id=item.product_id).update(stock=F('stock') + item.quantity)
+                locked_order.change_status('cancelled', note=f"Auto-cancelled: Payment window expired after {timeout_minutes} minutes.")
+    except Exception as e:
+        logger.warning(f"Opportunistic stale order cleanup notice: {e}")
+
 # -------------------- CHECKOUT & ORDERS --------------------
+@ratelimit(key='ip', rate='10/m', block=True)
 @transaction.atomic
 def checkout(request):
-    """Checkout process - create an order from cart items. Support Guest Checkout."""
+    """Checkout process - create an order from cart items with FIRST100 coupon support. Support Guest Checkout."""
+    # Opportunistically expire user's stale pending orders
+    cleanup_stale_pending_orders(user=request.user if request.user.is_authenticated else None)
+
     cart = get_cart(request)
     cart_items = cart.items.select_related('product').all()
-    total = cart.total_price()
+    subtotal = Decimal(cart.total_price())
+
+    applied_coupon = request.session.get('applied_coupon')
+    discount = Decimal("0.00")
+    if applied_coupon in ('FIRST100', 'SHOPPER100', 'ZEPTO100') and subtotal >= Decimal("100.00"):
+        discount = min(Decimal("100.00"), subtotal)
+    else:
+        applied_coupon = None
+
+    free_delivery_threshold = Decimal("149.00")
+    if cart_items:
+        delivery_fee = Decimal("0.00") if subtotal >= free_delivery_threshold else Decimal("25.00")
+    else:
+        delivery_fee = Decimal("0.00")
+
+    total = max(Decimal("0.00"), subtotal - discount + delivery_fee)
 
     if request.method == "POST":
         if not cart_items:
@@ -93,6 +137,20 @@ def checkout(request):
                     razorpay_order = client.order.create(data=payment_data)
                     
                     logger.info(f"PaymentInitiated: Razorpay order created for Django order {order.id}")
+
+                    if request.headers.get('x-requested-with') == 'XMLHttpRequest' or 'application/json' in request.headers.get('accept', ''):
+                        profile = getattr(order.user, 'profile', None) if order.user else None
+                        return JsonResponse({
+                            "success": True,
+                            "order_id": str(order.id),
+                            "razorpay_order_id": razorpay_order["id"],
+                            "razorpay_key_id": settings.RAZORPAY_KEY_ID,
+                            "amount": int(total * 100),
+                            "currency": "INR",
+                            "customer_name": order.full_name,
+                            "customer_email": order.email,
+                            "customer_contact": getattr(profile, 'phone', '')
+                        })
                     
                     return render(request, "ShopperMartapp/payment.html", {
                         "order": order,
@@ -103,10 +161,19 @@ def checkout(request):
                 
                 else:
                     # Cash on delivery - finalize immediately
+                    if request.headers.get('x-requested-with') == 'XMLHttpRequest' or 'application/json' in request.headers.get('accept', ''):
+                        finalize_order(request, order, cart)
+                        return JsonResponse({
+                            "success": True,
+                            "order_id": str(order.id),
+                            "redirect_url": reverse("order_success")
+                        })
                     return finalize_order(request, order, cart)
 
             except Exception as e:
                 logger.error(f"CheckoutError: {e}")
+                if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                    return JsonResponse({"success": False, "error": str(e)}, status=500)
                 messages.error(request, "An unexpected error occurred during checkout. Please try again.")
                 return redirect("cart")
     else:
@@ -123,6 +190,20 @@ def checkout(request):
                 "state": getattr(profile, 'state', ''),
                 "postal_code": getattr(profile, 'pincode', '')
             }
+
+        # Seamlessly fallback to session delivery location (from GPS / Map pin)
+        session_loc = request.session.get('delivery_location', {})
+        if session_loc:
+            if not initial_data.get('address'):
+                initial_data['address'] = session_loc.get('address') or session_loc.get('locality', '')
+            if not initial_data.get('city'):
+                initial_data['city'] = session_loc.get('city', '')
+            if not initial_data.get('state'):
+                initial_data['state'] = session_loc.get('state', '')
+            if not initial_data.get('postal_code'):
+                initial_data['postal_code'] = session_loc.get('postal_code', '')
+            if not initial_data.get('landmark') and session_loc.get('landmark'):
+                initial_data['landmark'] = session_loc.get('landmark', '')
         form = CheckoutForm(initial=initial_data)
 
     import secrets
@@ -130,6 +211,11 @@ def checkout(request):
 
     return render(request, "ShopperMartapp/checkout.html", {
         "cart_items": cart_items,
+        "subtotal": subtotal,
+        "discount": discount,
+        "delivery_fee": delivery_fee,
+        "free_delivery_threshold": free_delivery_threshold,
+        "applied_coupon": applied_coupon,
         "total": total,
         "form": form,
         "checkout_token": checkout_token
@@ -152,6 +238,7 @@ def finalize_order(request, order, cart):
 
             # CLEAR CART (AS REQUESTED: Only clear after success)
             cart.items.all().delete()
+            request.session.pop('applied_coupon', None)
 
             # Status change MUST be inside the atomic block for transactional consistency
             user = request.user if request.user.is_authenticated else None
@@ -192,6 +279,17 @@ def payment_callback(request):
             order = Order.objects.get(id=order_id_str)
             cart = get_cart(request)
             
+            # Verify amount matches order total if fetch succeeds
+            try:
+                payment_fetch = client.payment.fetch(razorpay_payment_id)
+                expected_amount_paise = int(order.total * 100)
+                if payment_fetch.get('amount') and payment_fetch.get('amount') != expected_amount_paise:
+                    logger.error(f"PaymentAmountMismatch: order {order.id} expected {expected_amount_paise} got {payment_fetch.get('amount')}")
+                    messages.error(request, "Payment amount mismatch detected. Please contact support.")
+                    return redirect("cart")
+            except Exception as pe:
+                logger.warning(f"Could not verify payment amount from Razorpay fetch API: {pe}")
+
             if order.status == 'pending':
                 return finalize_order(request, order, cart)
             
@@ -209,6 +307,50 @@ def payment_callback(request):
     return redirect("home")
 
 
+@csrf_exempt
+def razorpay_webhook(request):
+    """
+    Asynchronous Razorpay webhook handler.
+    Ensures that orders are marked paid and processed even if customer loses connection
+    or closes their mobile browser tab after UPI PIN authorization.
+    """
+    if request.method != "POST":
+        return HttpResponse(status=405)
+
+    webhook_secret = getattr(settings, 'RAZORPAY_WEBHOOK_SECRET', '') or settings.RAZORPAY_KEY_SECRET
+    webhook_signature = request.headers.get("X-Razorpay-Signature", "")
+    webhook_body = request.body.decode('utf-8')
+
+    if webhook_secret:
+        client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+        try:
+            client.utility.verify_webhook_signature(webhook_body, webhook_signature, webhook_secret)
+        except razorpay.errors.SignatureVerificationError:
+            logger.warning("Razorpay Webhook: Invalid signature received.")
+            return HttpResponse("Invalid signature", status=400)
+
+    try:
+        data = json.loads(webhook_body)
+        event = data.get('event')
+
+        if event in ('order.paid', 'payment.captured'):
+            payload = data.get('payload', {}).get('payment', {}).get('entity', {})
+            order_id_notes = payload.get('notes', {}).get('order_id')
+            payment_id = payload.get('id')
+
+            if order_id_notes:
+                with transaction.atomic():
+                    order = Order.objects.select_for_update().filter(id=order_id_notes).first()
+                    if order and order.status == 'pending':
+                        order.change_status('processing', note=f"Paid via Razorpay Webhook (Payment ID: {payment_id})")
+                        order.save()
+                        logger.info(f"Webhook finalized Order #{order.id} from event {event}")
+        return HttpResponse("Webhook processed", status=200)
+    except Exception as e:
+        logger.error(f"Razorpay Webhook Error: {e}", exc_info=True)
+        return HttpResponse("Server error", status=500)
+
+
 def order_success(request):
     """Display order success page for both guests and logged-in users."""
     order_id = request.session.get('last_order_id')
@@ -222,6 +364,7 @@ def order_success(request):
 @login_required
 def my_orders(request):
     """Display a list of orders for the logged-in user."""
+    cleanup_stale_pending_orders(user=request.user)
     orders = Order.objects.filter(user=request.user).order_by("-created_at").prefetch_related("items__product")
     return render(request, "ShopperMartapp/my_orders.html", {"orders": orders})
 
@@ -241,6 +384,7 @@ def order_detail(request, order_id):
 
 
 @login_required
+@require_POST
 @transaction.atomic
 def cancel_order(request, order_id):
 

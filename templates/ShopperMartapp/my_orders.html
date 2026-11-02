@@ -1,98 +1,85 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Order History | ShopperMart{% endblock %}
+{% block title %}My 10-Minute Orders | ShopperMart Live Tracking{% endblock %}
 
-{% block meta_description %}Track and manage your ShopperMart orders. View order status, shipment details, and purchase history.{% endblock %}
+{% block meta_description %}Track your 10-minute grocery and daily essentials deliveries live with ShopperMart.{% endblock %}
 
-{% block meta_keywords %}shoppermart orders, order history, track shipment, purchase history{% endblock %}
+{% block meta_keywords %}shoppermart orders, 10 min order tracking, live grocery tracking{% endblock %}
 
 {% block content %}
-    <!-- PAGE HEADER -->
-    <header class="pt-24 pb-12 px-8 md:px-24 border-b border-black/5 bg-zinc-50/50">
-      <div class="max-w-7xl mx-auto">
-        <h1 class="font-serif text-5xl md:text-7xl font-bold tracking-tighter text-black uppercase leading-none">Your Orders</h1>
-        <p class="font-mono text-[10px] text-on-secondary-container mt-6 uppercase tracking-[0.3em] font-medium italic">{{ orders|length }} orders found in your account</p>
+    <header class="py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+      <div class="bg-gradient-to-r from-zepto-purple-dark via-zepto-purple to-zepto-pink rounded-3xl p-6 sm:p-8 text-white relative overflow-hidden shadow-zepto">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
+          <div>
+            <span class="text-[10px] font-black uppercase tracking-widest text-zepto-yellow block mb-1">Live Delivery History</span>
+            <h1 class="text-2xl sm:text-4xl font-black tracking-tight leading-none">Your Orders & Deliveries</h1>
+            <p class="text-xs text-white/80 font-medium mt-1">Real-time status of your 10-minute grocery and essentials orders</p>
+          </div>
+          <span class="bg-white/20 backdrop-blur-md px-4 py-2 rounded-2xl text-xs font-black uppercase tracking-wider text-white border border-white/20 self-start sm:self-auto">
+            ⚡ {{ orders|length }} Total Orders
+          </span>
+        </div>
       </div>
     </header>
 
-    <!-- CONTENT -->
-    <section class="max-w-7xl mx-auto px-8 md:px-24 pb-44 py-12">
+    <section class="pb-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
       {% if orders %}
-      <div class="space-y-8">
+      <div class="space-y-4">
         {% for order in orders %}
-        <a href="{% url 'order_detail' order.id %}" class="block p-10 border border-black/5 rounded-[2rem] bg-white shadow-sm hover:shadow-2xl hover:border-black/10 transition-all duration-500 group hover:-translate-y-1">
-          <div class="grid grid-cols-1 md:grid-cols-12 items-start gap-10">
+        <a href="{% url 'order_detail' order.id %}" class="zepto-card-interactive p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 group relative bg-white block">
+          
+          <!-- Order ID & Items -->
+          <div class="space-y-2 max-w-lg">
+            <div class="flex items-center gap-3">
+              <span class="bg-zepto-purple/10 text-zepto-purple text-xs font-black px-3 py-1 rounded-xl">
+                #{{ order.id|stringformat:".8s" }}
+              </span>
+              <span class="text-xs text-zepto-muted font-medium">{{ order.created_at|date:"d M Y, h:i A" }}</span>
+            </div>
             
-            <!-- Left: Order Core Info -->
-            <div class="md:col-span-5 lg:col-span-6">
-               <div class="flex flex-col sm:flex-row sm:items-center gap-4 mb-6">
-                  <span class="font-mono text-[10px] tracking-widest uppercase bg-zinc-100 px-4 py-1.5 rounded-xl font-bold text-black border border-black/5">Order #{{ order.id }}</span>
-                  <span class="font-mono text-[9px] tracking-widest uppercase text-slate-400 italic">{{ order.created_at|date:"d M Y @ H:i" }}</span>
-               </div>
-               
-               <div class="space-y-2">
-                  <p class="text-on-secondary-container font-light text-base leading-relaxed">
-                     {% for item in order.items.all %}
-                        <span class="font-bold text-black">{{ item.product.name }}</span>
-                        <span class="text-xs font-mono font-bold ml-1 text-slate-400">×{{ item.quantity }}</span>{% if not forloop.last %}, {% endif %}
-                     {% endfor %}
-                  </p>
-               </div>
+            <p class="text-xs sm:text-sm font-extrabold text-zepto-purple-dark line-clamp-2">
+              {% for item in order.items.all %}
+                {{ item.product.name }} <span class="text-zepto-muted font-bold">×{{ item.quantity }}</span>{% if not forloop.last %}, {% endif %}
+              {% endfor %}
+            </p>
+          </div>
+
+          <!-- Status & Lifecycle -->
+          <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full animate-ping
+                {% if order.status == 'delivered' %}bg-zepto-green
+                {% elif order.status == 'cancelled' %}bg-red-500
+                {% else %}bg-zepto-yellow{% endif %}"></span>
+              <span class="text-xs font-black uppercase tracking-wider
+                {% if order.status == 'delivered' %}text-zepto-green
+                {% elif order.status == 'cancelled' %}text-red-500
+                {% else %}text-zepto-purple{% endif %}">
+                {{ order.get_status_display }}
+              </span>
             </div>
 
-            <!-- Mini Lifecycle Progress -->
-            <div class="md:col-span-4 lg:col-span-3 md:pt-4 flex flex-col items-center gap-4">
-               <span class="font-mono text-[9px] uppercase tracking-[0.4em] text-black/30 font-bold">Progress</span>
-               {% if order.status != 'cancelled' %}
-               <div class="w-full flex items-center gap-1.5">
-                  {% for step in "01234" %}
-                  <div class="flex-1 h-1.5 rounded-full transition-all duration-500
-                    {% if forloop.counter0 <= order.lifecycle_progress %}bg-black{% else %}bg-zinc-100{% endif %}"></div>
-                  {% endfor %}
-               </div>
-               <div class="flex items-center gap-2">
-                  <span class="w-2 h-2 rounded-full animate-pulse
-                    {% if order.status == 'delivered' %}bg-emerald-500
-                    {% elif order.status == 'shipped' or order.status == 'out_for_delivery' %}bg-blue-500
-                    {% elif order.status == 'cancelled' %}bg-red-500
-                    {% else %}bg-amber-400{% endif %}"></span>
-                  <span class="font-mono text-[10px] tracking-widest uppercase font-bold
-                    {% if order.status == 'delivered' %}text-emerald-600
-                    {% elif order.status == 'cancelled' %}text-red-500
-                    {% else %}text-black/60{% endif %}">{{ order.get_status_display }}</span>
-               </div>
-               {% else %}
-               <div class="inline-flex items-center gap-3 bg-red-50 px-4 py-2 rounded-xl border border-red-100">
-                  <span class="text-red-600 font-mono text-[10px] tracking-widest uppercase font-bold italic">Cancelled</span>
-               </div>
-               {% endif %}
+            <div class="text-right pl-4 sm:border-l border-zepto-border">
+              <span class="text-lg font-black text-zepto-purple-dark block">₹{{ order.total }}</span>
+              <span class="text-[10px] font-bold text-zepto-purple group-hover:underline">View Tracking ➔</span>
             </div>
-
-            <!-- Total Column -->
-            <div class="md:col-span-3 md:pt-4 border-l border-black/5 pl-8 h-full flex flex-col items-end">
-               <span class="font-mono text-[9px] uppercase tracking-[0.4em] text-black/30 block mb-3 font-bold">Total</span>
-               <span class="font-serif text-3xl font-bold text-black leading-none italic">₹{{ order.total }}</span>
-               <span class="font-mono text-[9px] uppercase tracking-widest text-black/20 mt-4 font-bold group-hover:text-black/50 transition-colors">View Details →</span>
-            </div>
-
           </div>
         </a>
         {% endfor %}
       </div>
 
       {% else %}
-      <!-- EMPTY STATE -->
-      <div class="py-44 flex flex-col items-center justify-center text-center">
-        <div class="w-32 h-32 bg-zinc-50 rounded-full flex items-center justify-center mb-12 shadow-inner group">
-           <span class="material-symbols-outlined text-5xl text-zinc-200 group-hover:scale-110 transition-transform">receipt_long</span>
+      <div class="py-24 text-center max-w-md mx-auto bg-white rounded-3xl border border-zepto-border p-8 shadow-sm">
+        <div class="w-20 h-20 bg-zepto-bg rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">
+          🛵
         </div>
-        <h2 class="font-serif text-5xl font-bold text-black leading-none mb-6">No orders found.</h2>
-        <p class="text-on-secondary-container mt-6 font-light text-xl max-w-md leading-relaxed opacity-60">You haven't placed any orders yet. Once you complete a purchase, your order history will appear here.</p>
-        <a href="{% url 'home' %}" class="mt-16 bg-black text-white px-20 py-7 rounded-full font-bold tracking-[0.4em] text-[12px] uppercase hover:opacity-90 transition-all shadow-2xl hover:scale-105 active:scale-95 duration-500">
-          Start Shopping
+        <h3 class="text-xl font-black text-zepto-purple-dark mb-2">No Deliveries Placed Yet</h3>
+        <p class="text-xs text-zepto-muted mb-6">Order fresh groceries, dairy, snacks, or electronics and have them delivered in 10 minutes.</p>
+        <a href="{% url 'home' %}" class="inline-flex items-center gap-2 bg-gradient-to-r from-zepto-purple to-zepto-pink text-white text-xs font-black uppercase px-6 py-3 rounded-2xl shadow-zepto hover:shadow-zepto-hover transition-all">
+          Order in 10 Mins ⚡
         </a>
       </div>
       {% endif %}
     </section>
-{% endblock %}
+{% endblock %}

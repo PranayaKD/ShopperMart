@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Terms of Service | ShopperMart{% endblock %}
+{% block meta_description %}Read ShopperMart's Terms of Service for ordering, 10-minute delivery, payments,
+cancellations, and account responsibilities.{% endblock %}
+
+{% block content %}
+<section class="py-12 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto min-h-screen">
+    <div
+        class="mb-8 p-6 sm:p-10 bg-gradient-to-r from-zepto-purple-dark via-zepto-purple to-zepto-pink rounded-3xl text-white shadow-zepto">
+        <span class="text-[10px] font-black uppercase tracking-widest text-zepto-yellow block mb-1">User
+            Agreement</span>
+        <h1 class="text-3xl sm:text-4xl font-black tracking-tight leading-none">Terms of Service</h1>
+        <p class="text-xs text-white/80 font-medium mt-1">Last Updated: October 2026 • ShopperMart India Private Limited
+        </p>
+    </div>
+
+    <div
+        class="bg-white rounded-3xl p-6 sm:p-10 border border-zepto-border shadow-sm space-y-8 text-xs sm:text-sm text-zepto-muted leading-relaxed">
+        <div>
+            <h2 class="text-base sm:text-lg font-black text-zepto-purple-dark mb-2">1. Agreement to Terms</h2>
+            <p>By creating an account, browsing our catalog, or placing an order on ShopperMart, you agree to comply
+                with and be bound by these Terms of Service. If you disagree with any part of these terms, please
+                refrain from using the platform.</p>
+        </div>
+
+        <div>
+            <h2 class="text-base sm:text-lg font-black text-zepto-purple-dark mb-2">2. 10-Minute Delivery Service</h2>
+            <p>ShopperMart operates localized micro-fulfillment hubs ("dark stores") across Bhadrak and designated
+                delivery zones. While we strive to deliver all eligible orders within 10 minutes, unforeseen
+                circumstances such as severe weather, roadblocks, or sudden extreme order surges may occasionally extend
+                fulfillment timeframes. In all cases, live status is tracked transparently.</p>
+        </div>
+
+        <div>
+            <h2 class="text-base sm:text-lg font-black text-zepto-purple-dark mb-2">3. Pricing & Inventory</h2>
+            <p>All prices listed are in Indian Rupees (INR) and are inclusive of applicable GST taxes. Due to
+                fast-moving inventory, stock availability is locked in real-time upon order confirmation. Individual
+                purchase limits apply (maximum 50 units per item) to safeguard supply for neighborhood communities.</p>
+        </div>
+
+        <div>
+            <h2 class="text-base sm:text-lg font-black text-zepto-purple-dark mb-2">4. Cancellations & Returns</h2>
+            <p>Orders can be cancelled free of charge while they remain in "Pending" or "Processing" state before
+                dispatch. Once an order is "Out for Delivery", cancellations cannot be processed through the app, but
+                items may be returned at the doorstep if damaged or unsatisfactory.</p>
+        </div>
+
+        <div>
+            <h2 class="text-base sm:text-lg font-black text-zepto-purple-dark mb-2">5. Contact Information</h2>
+            <p>For questions or disputes regarding these Terms of Service, contact our legal department at <a
+                    href="mailto:legal@shoppermart.com"
+                    class="text-zepto-purple font-bold hover:underline">legal@shoppermart.com</a>.</p>
+        </div>
+    </div>
+</section>
+{% endblock %}

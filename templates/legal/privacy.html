@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Privacy Policy | ShopperMart{% endblock %}
+{% block meta_description %}Learn how ShopperMart collects, protects, and handles your personal data for 10-minute grocery and ecommerce deliveries.{% endblock %}
+
+{% block content %}
+<section class="py-12 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto min-h-screen">
+    <div class="mb-8 p-6 sm:p-10 bg-gradient-to-r from-zepto-purple-dark via-zepto-purple to-zepto-pink rounded-3xl text-white shadow-zepto">
+      <span class="text-[10px] font-black uppercase tracking-widest text-zepto-yellow block mb-1">Legal & Data Protection</span>
+      <h1 class="text-3xl sm:text-4xl font-black tracking-tight leading-none">Privacy Policy</h1>
+      <p class="text-xs text-white/80 font-medium mt-1">Effective Date: October 2026 • ShopperMart India Private Limited</p>
+    </div>
+
+    <div class="bg-white rounded-3xl p-6 sm:p-10 border border-zepto-border shadow-sm space-y-8 text-xs sm:text-sm text-zepto-muted leading-relaxed">
+        <div>
+            <h2 class="text-base sm:text-lg font-black text-zepto-purple-dark mb-2">1. Introduction</h2>
+            <p>ShopperMart ("we", "our", or "us") is dedicated to safeguarding your personal data and ensuring transparent practices regarding how information is gathered, utilized, and stored across our 10-minute grocery and ecommerce platforms.</p>
+        </div>
+
+        <div>
+            <h2 class="text-base sm:text-lg font-black text-zepto-purple-dark mb-2">2. Information We Collect</h2>
+            <ul class="list-disc pl-5 space-y-1.5">
+                <li><strong>Account Details:</strong> Full name, verified phone number, email address, and encrypted credentials.</li>
+                <li><strong>Delivery Location:</strong> House/flat number, street address, pin code, and GPS coordinates to facilitate precision 10-minute fulfillment from local dark stores.</li>
+                <li><strong>Transaction Records:</strong> Order items, invoices, payment methods (we do not store raw card numbers or UPI PINs; payments are secured via PCI-DSS compliant gateways like Razorpay).</li>
+                <li><strong>Device & Analytics:</strong> IP address, device fingerprints, and anonymized browsing behavior to detect fraud and optimize performance.</li>
+            </ul>
+        </div>
+
+        <div>
+            <h2 class="text-base sm:text-lg font-black text-zepto-purple-dark mb-2">3. How Your Information Is Used</h2>
+            <p>We process your data exclusively to fulfill instant orders, calculate accurate delivery ETAs, communicate tracking updates, process refunds, and prevent fraudulent activity.</p>
+        </div>
+
+        <div>
+            <h2 class="text-base sm:text-lg font-black text-zepto-purple-dark mb-2">4. Data Sharing & Security</h2>
+            <p>We strictly do not sell your personal data. We only share necessary location details with our delivery partners solely for the purpose of completing your delivery. All communications are encrypted with standard 256-bit TLS/SSL encryption.</p>
+        </div>
+
+        <div>
+            <h2 class="text-base sm:text-lg font-black text-zepto-purple-dark mb-2">5. Your Privacy Rights</h2>
+            <p>You have the full right to inspect, correct, or request deletion of your account and personal data at any time by contacting our Data Protection Officer at <a href="mailto:privacy@shoppermart.com" class="text-zepto-purple font-bold hover:underline">privacy@shoppermart.com</a>.</p>
+        </div>
+    </div>
+</section>
+{% endblock %}
+

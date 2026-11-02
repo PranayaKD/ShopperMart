@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Order Confirmed #{{ order.id|truncatechars:12 }} — ShopperMart 10-Min Delivery{% endblock %}
+
+{% block content %}
+<div class="py-12 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
+  <!-- SUCCESS BANNER -->
+  <div class="bg-white rounded-3xl p-8 sm:p-10 shadow-zepto border border-zepto-border text-center relative overflow-hidden mb-8 reveal-scale revealed">
+    <!-- Ambient background gradient -->
+    <div class="absolute -top-24 -right-24 w-60 h-60 rounded-full bg-zepto-green/10 blur-3xl pointer-events-none"></div>
+    <div class="absolute -bottom-24 -left-24 w-60 h-60 rounded-full bg-zepto-purple/10 blur-3xl pointer-events-none"></div>
+
+    <div class="relative z-10">
+      <!-- Animated Check Icon with 10-Min Ping -->
+      <div class="relative inline-flex items-center justify-center mb-6">
+        <div class="w-20 h-20 rounded-3xl bg-gradient-to-tr from-zepto-green to-emerald-400 flex items-center justify-center text-white shadow-zepto-green">
+          <span class="material-symbols-outlined text-4xl">check_circle</span>
+        </div>
+        <span class="absolute -top-1 -right-1 flex h-5 w-5">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-zepto-green opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-5 w-5 bg-zepto-green border-2 border-white"></span>
+        </span>
+      </div>
+
+      <div class="inline-flex items-center gap-2 bg-emerald-50 text-zepto-green px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-wider mb-3 border border-emerald-100">
+        <span class="material-symbols-outlined text-[16px]">bolt</span> 10-Minute Superfast Delivery Assigned
+      </div>
+
+      <h1 class="text-3xl sm:text-4xl font-black text-zepto-purple-dark tracking-tight mb-2">
+        Woohoo! Your Order is Confirmed 🎉
+      </h1>
+      <p class="text-xs sm:text-sm text-zepto-muted max-w-lg mx-auto mb-6">
+        Our delivery partner is packing your fresh items at our nearest dark store. Expected delivery within 
+        <strong class="text-zepto-purple font-black">10 minutes</strong>.
+      </p>
+
+      <!-- ETA TIMER BADGE -->
+      <div class="inline-flex flex-col sm:flex-row items-center gap-4 bg-zepto-bg rounded-2xl p-4 border border-zepto-border max-w-md mx-auto">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-zepto-purple text-white flex items-center justify-center font-black">
+            ⚡
+          </div>
+          <div class="text-left">
+            <span class="text-[10px] font-extrabold uppercase tracking-widest text-zepto-muted block">Estimated Arrival</span>
+            <span class="text-sm font-black text-zepto-purple-dark">8 - 12 Minutes</span>
+          </div>
+        </div>
+        <div class="sm:border-l sm:border-zepto-border sm:pl-4 text-left">
+          <span class="text-[10px] font-extrabold uppercase tracking-widest text-zepto-muted block">Order ID</span>
+          <span class="text-xs font-mono font-bold text-zepto-purple" title="{{ order.id }}">#{{ order.id|truncatechars:12 }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+    <!-- ORDER ITEMS CARD -->
+    <div class="md:col-span-2 bg-white rounded-3xl p-6 sm:p-8 shadow-zepto border border-zepto-border">
+      <div class="flex items-center justify-between pb-4 border-b border-zepto-border mb-6">
+        <h2 class="text-lg font-black text-zepto-purple-dark flex items-center gap-2">
+          <span class="material-symbols-outlined text-zepto-purple">shopping_bag</span> Order Summary
+        </h2>
+        <span class="text-xs font-bold text-zepto-muted">{{ order.items.count }} item{{ order.items.count|pluralize }}</span>
+      </div>
+
+      <div class="space-y-4 mb-6">
+        {% for item in order.items.all %}
+        <div class="flex items-center justify-between py-2 border-b border-zepto-border/50 last:border-b-0">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-xl bg-zepto-bg border border-zepto-border flex items-center justify-center overflow-hidden shrink-0">
+              {% if item.product and item.product.image %}
+                <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="w-full h-full object-contain p-1">
+              {% else %}
+                <span class="text-lg">🛍️</span>
+              {% endif %}
+            </div>
+            <div>
+              <h3 class="text-xs font-bold text-zepto-purple-dark">{{ item.product.name|default:"ShopperMart Item" }}</h3>
+              <p class="text-[11px] text-zepto-muted">Qty: {{ item.quantity }} × ₹{{ item.price }}</p>
+            </div>
+          </div>
+          <span class="text-xs font-black text-zepto-purple-dark">₹{{ item.get_total }}</span>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- PRICE BREAKDOWN -->
+      <div class="bg-zepto-bg rounded-2xl p-4 space-y-2 text-xs">
+        <div class="flex justify-between text-zepto-muted font-medium">
+          <span>Items Subtotal</span>
+          <span>₹{{ order.total }}</span>
+        </div>
+        <div class="flex justify-between text-zepto-muted font-medium">
+          <span>Delivery Partner Fee (10-Min Superfast)</span>
+          <span class="text-zepto-green font-bold uppercase">FREE</span>
+        </div>
+        <div class="flex justify-between text-zepto-muted font-medium">
+          <span>Packaging & Handling</span>
+          <span class="text-zepto-green font-bold uppercase">FREE</span>
+        </div>
+        <div class="pt-2 border-t border-zepto-border flex justify-between font-black text-sm text-zepto-purple-dark">
+          <span>Total Paid</span>
+          <span class="text-zepto-purple text-base">₹{{ order.total }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- DELIVERY INFO & NEXT STEPS -->
+    <div class="space-y-6">
+      <div class="bg-white rounded-3xl p-6 shadow-zepto border border-zepto-border">
+        <h3 class="text-xs font-black uppercase tracking-widest text-zepto-purple mb-4 flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-[16px]">pin_drop</span> Delivery Address
+        </h3>
+        <p class="text-xs font-black text-zepto-purple-dark mb-1">{{ order.full_name }}</p>
+        <p class="text-xs text-zepto-muted leading-relaxed mb-3">
+          {{ order.address }}
+          {% if order.landmark %}<br><span class="text-zepto-purple-dark font-medium">Landmark:</span> {{ order.landmark }}{% endif %}
+          <br>{{ order.city }}, {{ order.state }} - {{ order.postal_code }}
+        </p>
+        <div class="pt-3 border-t border-zepto-border flex items-center justify-between text-[11px]">
+          <span class="text-zepto-muted font-medium">Payment Mode</span>
+          <span class="font-extrabold uppercase text-zepto-purple-dark bg-zepto-bg px-2.5 py-1 rounded-md border border-zepto-border">
+            {{ order.payment }}
+          </span>
+        </div>
+      </div>
+
+      <!-- ACTION BUTTONS -->
+      <div class="flex flex-col gap-3">
+        {% if user.is_authenticated %}
+        <a href="{% url 'order_detail' order.id %}" class="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-zepto-purple to-zepto-purple-dark text-white py-3.5 rounded-2xl text-xs font-black uppercase tracking-wider shadow-zepto hover:shadow-zepto-hover active:scale-95 transition-all text-center">
+          <span class="material-symbols-outlined text-[18px]">navigation</span> Track Live Delivery
+        </a>
+        <a href="{% url 'my_orders' %}" class="w-full flex items-center justify-center gap-2 bg-white text-zepto-purple py-3.5 rounded-2xl text-xs font-black uppercase tracking-wider border-2 border-zepto-purple hover:bg-zepto-purple/5 active:scale-95 transition-all text-center">
+          <span class="material-symbols-outlined text-[18px]">receipt_long</span> View All My Orders
+        </a>
+        {% endif %}
+        <a href="{% url 'home' %}" class="w-full flex items-center justify-center gap-2 bg-zepto-bg hover:bg-zepto-border text-zepto-purple-dark py-3.5 rounded-2xl text-xs font-black uppercase tracking-wider transition-colors text-center border border-zepto-border">
+          <span class="material-symbols-outlined text-[18px]">storefront</span> Continue Shopping
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

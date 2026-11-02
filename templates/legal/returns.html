@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Returns & Refund Policy | ShopperMart{% endblock %}
+{% block meta_description %}ShopperMart's instant return and refund policy for fresh groceries, packaged foods, electronics, and fashion items.{% endblock %}
+
+{% block content %}
+<section class="py-12 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto min-h-screen">
+    <div class="mb-8 p-6 sm:p-10 bg-gradient-to-r from-zepto-purple-dark via-zepto-purple to-zepto-pink rounded-3xl text-white shadow-zepto">
+      <span class="text-[10px] font-black uppercase tracking-widest text-zepto-yellow block mb-1">Customer Protection</span>
+      <h1 class="text-3xl sm:text-4xl font-black tracking-tight leading-none">Returns & Refunds</h1>
+      <p class="text-xs text-white/80 font-medium mt-1">Hassle-Free Doorstep Return Guarantee</p>
+    </div>
+
+    <div class="bg-white rounded-3xl p-6 sm:p-10 border border-zepto-border shadow-sm space-y-8 text-xs sm:text-sm text-zepto-muted leading-relaxed">
+        <div>
+            <h2 class="text-base sm:text-lg font-black text-zepto-purple-dark mb-2">1. No Questions Asked Return Policy</h2>
+            <p>At ShopperMart, your satisfaction is guaranteed. If any grocery item arrives spoiled, incorrect, or missing, or if an electronic or lifestyle product is damaged or defective, we provide an immediate refund or replacement.</p>
+        </div>
+
+        <div>
+            <h2 class="text-base sm:text-lg font-black text-zepto-purple-dark mb-2">2. Return Windows by Category</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse mt-3">
+                    <thead>
+                        <tr class="border-b border-zepto-border text-zepto-purple-dark font-black">
+                            <th class="py-2">Category</th>
+                            <th class="py-2">Return Window</th>
+                            <th class="py-2">Conditions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-zepto-border">
+                        <tr>
+                            <td class="py-2.5 font-bold text-zepto-purple-dark">Fruits & Vegetables</td>
+                            <td class="py-2.5 text-zepto-green font-bold">At Doorstep / 24 Hours</td>
+                            <td class="py-2.5">If quality or freshness does not match standard.</td>
+                        </tr>
+                        <tr>
+                            <td class="py-2.5 font-bold text-zepto-purple-dark">Dairy, Bread & Eggs</td>
+                            <td class="py-2.5 text-zepto-green font-bold">Same Day / 24 Hours</td>
+                            <td class="py-2.5">Expired, leaking, or damaged seals.</td>
+                        </tr>
+                        <tr>
+                            <td class="py-2.5 font-bold text-zepto-purple-dark">Electronics & Gadgets</td>
+                            <td class="py-2.5 text-zepto-purple font-bold">7 Days Replacement</td>
+                            <td class="py-2.5">Manufacturing defect or physical transit damage.</td>
+                        </tr>
+                        <tr>
+                            <td class="py-2.5 font-bold text-zepto-purple-dark">Fashion & Lifestyle</td>
+                            <td class="py-2.5 text-zepto-purple font-bold">7 Days Return</td>
+                            <td class="py-2.5">Unused, with original tags intact.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div>
+            <h2 class="text-base sm:text-lg font-black text-zepto-purple-dark mb-2">3. Instant Refund Processing</h2>
+            <p>Refunds for UPI and wallet payments are triggered within <strong>2 to 4 hours</strong> of return verification. Credit/debit card reversals typically reflect in <strong>2 to 5 business days</strong> depending on your issuing bank.</p>
+        </div>
+
+        <div>
+            <h2 class="text-base sm:text-lg font-black text-zepto-purple-dark mb-2">4. How to Request a Return</h2>
+            <p>Go to <a href="{% url 'my_orders' %}" class="text-zepto-purple font-bold hover:underline">My Orders</a>, select your order, and tap "Request Help / Return" or ping our 24/7 team at <a href="mailto:support@shoppermart.com" class="text-zepto-purple font-bold hover:underline">support@shoppermart.com</a>.</p>
+        </div>
+    </div>
+</section>
+{% endblock %}
+

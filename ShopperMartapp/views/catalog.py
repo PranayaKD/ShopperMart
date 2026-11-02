@@ -5,13 +5,15 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.urls import reverse
-from django.http import HttpResponsePermanentRedirect
+from django.http import HttpResponsePermanentRedirect, JsonResponse
 from django.db.models import Q, Case, When, Value, BooleanField
 from django.core.exceptions import ValidationError
 from decimal import Decimal, InvalidOperation
 from django.core.mail import send_mail
 from django.core.validators import validate_email
 from django.conf import settings
+from django.utils.http import url_has_allowed_host_and_scheme
+from django.core.paginator import Paginator
 import logging
 
 logger = logging.getLogger(__name__)
@@ -47,9 +49,116 @@ def shop_home(request):
     if query and not products.exists():
         messages.error(request, f"No products found matching '{query}'. Showing latest collection instead.")
 
+    paginator = Paginator(products, 24)
+    page_obj = paginator.get_page(request.GET.get('page'))
+
+    # Quick commerce 20-category grid
+    featured_categories = Category.objects.filter(order__gte=1, order__lte=20).order_by('order')
+    if not featured_categories.exists():
+        featured_categories = Category.objects.all()[:20]
+
+    # Category sections like Zepto Image 2
+    grocery_categories = Category.objects.filter(slug__in=[
+        'fruits-vegetables', 'dairy-bread-eggs', 'atta-rice-oil-dals',
+        'meats-fish-eggs', 'masala-dry-fruits-more', 'breakfast-sauces', 'packaged-food'
+    ]).order_by('order')
+
+    snacks_categories = Category.objects.filter(slug__in=[
+        'tea-coffee-more', 'ice-creams-more', 'frozen-food',
+        'sweet-cravings', 'cold-drinks-juices', 'munchies', 'biscuits'
+    ]).order_by('order')
+
+    beauty_categories = Category.objects.filter(slug__in=[
+        'beauty-personal-care', 'skincare', 'makeup-beauty', 'hair-care', 'personal-hygiene'
+    ]).order_by('order')
+
+    household_categories = Category.objects.filter(slug__in=[
+        'laundry-care', 'cleaning-essentials', 'rice', 'spices-seasonings', 'dal-pulses', 'oil-ghee'
+    ]).order_by('order')
+
+    # Dynamic list of category shelves with available products (At least 10+ categories!)
+    category_shelves_slugs = [
+        ("laundry-care", "Laundry Care", "🧺"),
+        ("dairy-bread-eggs", "Dairy, Bread & Eggs", "🥛"),
+        ("munchies", "Munchies & Snacks", "🍟"),
+        ("cold-drinks-juices", "Cold Drinks & Juices", "🥤"),
+        ("cleaning-essentials", "Cleaning Essentials", "✨"),
+        ("rice", "Rice & Grains", "🌾"),
+        ("sweet-cravings", "Sweet Cravings & Chocolates", "🍫"),
+        ("tea-coffee-more", "Tea, Coffee & Beverages", "☕"),
+        ("electronics", "Electronics & Gadgets", "⚡"),
+        ("beauty-personal-care", "Beauty & Personal Care", "💄"),
+        ("home-kitchen", "Home & Kitchen Essentials", "🏠"),
+        ("groceries", "Groceries & Daily Staples", "🛒"),
+        ("fashion", "Trending Apparel & Fashion", "👕"),
+        ("books", "Best-Selling Books & Stationery", "📚"),
+    ]
+
+    home_shelves = []
+    used_shelf_slugs = []
+    for slug, title, icon in category_shelves_slugs:
+        cat_obj = Category.objects.filter(slug=slug).first()
+        if cat_obj:
+            prods = list(Product.objects.available().filter(category=cat_obj).order_by('-rating', 'created_at')[:16])
+            if prods:
+                home_shelves.append({
+                    "category": cat_obj,
+                    "title": title or cat_obj.name,
+                    "icon": icon,
+                    "products": prods,
+                    "count": len(prods)
+                })
+                used_shelf_slugs.append(slug)
+
+    laundry_cat = Category.objects.filter(slug="laundry-care").first()
+    laundry_products = Product.objects.available().filter(category=laundry_cat).order_by('created_at')[:16] if laundry_cat else []
+    cleaning_cat = Category.objects.filter(slug="cleaning-essentials").first()
+    cleaning_products = Product.objects.available().filter(category=cleaning_cat).order_by('created_at')[:16] if cleaning_cat else []
+    rice_cat = Category.objects.filter(slug="rice").first()
+    rice_products = Product.objects.available().filter(category=rice_cat).order_by('created_at')[:16] if rice_cat else []
+
+    featured_products = Product.objects.available().order_by('-rating', '-created_at')[:14]
+    if not featured_products.exists():
+        featured_products = products[:14]
+
+    # Trending search keywords with exact links
+    trending_searches = [
+        {"name": "Milk", "query": "Milk"},
+        {"name": "Bread", "query": "Bread"},
+        {"name": "Atta", "query": "Atta"},
+        {"name": "Basmati Rice", "query": "Basmati Rice"},
+        {"name": "Surf Excel", "query": "Surf Excel"},
+        {"name": "Harpic", "query": "Harpic"},
+        {"name": "Amul Butter", "query": "Butter"},
+        {"name": "Eggs", "query": "Eggs"},
+        {"name": "Maggi", "query": "Maggi"},
+        {"name": "Detergent", "query": "Detergent"},
+        {"name": "Cleaner", "query": "Cleaner"},
+        {"name": "Coffee", "query": "Coffee"},
+        {"name": "Tea", "query": "Tea"},
+        {"name": "Chips", "query": "Chips"},
+        {"name": "Cold Drinks", "query": "Drinks"},
+        {"name": "Ghee", "query": "Ghee"},
+    ]
+
     return render(request, "home.html", {
-        "products": products,
-        "categories": Category.objects.all(),
+        "products": page_obj,
+        "page_obj": page_obj,
+        "featured_products": featured_products,
+        "categories": featured_categories,
+        "grocery_categories": grocery_categories,
+        "snacks_categories": snacks_categories,
+        "beauty_categories": beauty_categories,
+        "household_categories": household_categories,
+        "all_categories": Category.objects.all(),
+        "laundry_cat": laundry_cat,
+        "laundry_products": laundry_products,
+        "cleaning_cat": cleaning_cat,
+        "cleaning_products": cleaning_products,
+        "rice_cat": rice_cat,
+        "rice_products": rice_products,
+        "home_shelves": home_shelves,
+        "trending_searches": trending_searches,
         "query": query,
         "wishlisted_ids": Wishlist.get_product_ids_for_user(request.user),
     })
@@ -81,8 +190,12 @@ def public_store(request):
         
     products = products.sort_by(sort_by)
 
+    paginator = Paginator(products, 24)
+    page_obj = paginator.get_page(request.GET.get('page'))
+
     return render(request, "ShopperMartapp/public_store.html", {
-        "products": products,
+        "products": page_obj,
+        "page_obj": page_obj,
         "categories": Category.objects.all(),
         "selected_category": category_slug,
         "min_price": min_price,
@@ -221,7 +334,7 @@ def product_list(request):
             messages.success(request, "Product added successfully.")
             return redirect("product_list")
 
-    return render(request, "products.html", {
+    return render(request, "product.html", {
         "products": products,
         "categories": categories,
         "form": form,
@@ -243,7 +356,7 @@ def product_update(request, pk):
     else:
         form = ProductForm(instance=product)
     
-    return render(request, "ShopperMartapp/product_form.html", {"form": form, "title": "Update product"})
+    return render(request, "administrator/product_form.html", {"form": form, "title": "Update product"})
 
 
 @staff_member_required
@@ -259,7 +372,7 @@ def product_delete(request, pk):
         product.save()
         messages.success(request, f"Product '{product.name}' archived successfully (Soft Delete).")
         return redirect("product_list")
-    return render(request, "ShopperMartapp/product_confirm_delete.html", {"product": product})
+    return render(request, "administrator/product_confirm_delete.html", {"product": product})
 
 
 # -------------------- REVIEWS --------------------
@@ -317,11 +430,14 @@ def wishlist_view(request):
     })
 
 
-@login_required
 @require_POST
 def toggle_wishlist(request, product_id):
     """Toggle a product in the user's wishlist via AJAX or POST."""
     from django.http import JsonResponse
+    if not request.user.is_authenticated:
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest' or 'application/json' in request.headers.get('accept', ''):
+            return JsonResponse({"error": "Authentication required", "login_required": True}, status=401)
+        return redirect('login')
     try:
         product = get_object_or_404(Product, id=product_id)
     except ValidationError:
@@ -344,7 +460,35 @@ def toggle_wishlist(request, product_id):
         })
     
     messages.success(request, f"Product {'saved to' if status == 'added' else 'removed from'} your wishlist.")
-    return redirect(request.META.get('HTTP_REFERER', 'home'))
+    ref = request.META.get('HTTP_REFERER')
+    if ref and url_has_allowed_host_and_scheme(ref, allowed_hosts={request.get_host()}):
+        return redirect(ref)
+    return redirect('home')
+
+
+def privacy_view(request):
+    """Privacy Policy page."""
+    return render(request, 'legal/privacy.html')
+
+
+def terms_view(request):
+    """Terms of Service page."""
+    return render(request, 'legal/terms.html')
+
+
+def returns_view(request):
+    """Returns & Refund Policy page."""
+    return render(request, 'legal/returns.html')
+
+
+def shipping_view(request):
+    """10-Minute Shipping & Delivery Policy page."""
+    return render(request, 'legal/shipping.html')
+
+
+def faq_view(request):
+    """Frequently Asked Questions & Help Center."""
+    return render(request, 'faq.html')
 
 
 def error_404_view(request, exception):
@@ -355,3 +499,54 @@ def error_404_view(request, exception):
 def error_500_view(request):
     """Custom 500 handler with brand theme."""
     return render(request, '500.html', status=500)
+
+
+# -------------------- SEARCH AUTOCOMPLETE SUGGESTIONS --------------------
+def search_suggestions(request):
+    """
+    Instant JSON search suggestions for autocomplete.
+    Matches any alphabet, number, alphanumeric token, or multi-word combination.
+    Returns related products with image, unit, price, and total matching count.
+    """
+    query = request.GET.get("q", "").strip()
+    if not query:
+        return JsonResponse({"query": "", "total_count": 0, "results": []})
+
+    tokens = query.split()
+    query_filter = Q()
+    for token in tokens:
+        query_filter &= (
+            Q(name__icontains=token) |
+            Q(category__name__icontains=token) |
+            Q(description__icontains=token)
+        )
+
+    matches = Product.objects.available().filter(query_filter).select_related('category').order_by(
+        Case(
+            When(name__istartswith=query, then=Value(0)),
+            When(name__icontains=query, then=Value(1)),
+            default=Value(2)
+        ),
+        '-rating'
+    )
+
+    total_count = matches.count()
+    results = []
+    for p in matches[:8]:
+        results.append({
+            "id": str(p.id),
+            "name": p.name,
+            "slug": p.slug,
+            "url": reverse("product_detail", kwargs={"slug": p.slug}),
+            "price": float(p.price),
+            "mrp": float(p.mrp),
+            "unit": p.unit or "1 pc",
+            "image_url": p.image.url if p.image else "",
+            "category": p.category.name if p.category else ""
+        })
+
+    return JsonResponse({
+        "query": query,
+        "total_count": total_count,
+        "results": results
+    })

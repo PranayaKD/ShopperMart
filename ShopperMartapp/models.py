@@ -28,6 +28,17 @@ class Category(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=100)
     slug = models.SlugField(unique=True)
+    image = models.ImageField(upload_to="categories/", blank=True, null=True)
+    icon = models.CharField(max_length=20, blank=True, default="🛍️")
+    is_new = models.BooleanField(default=False)
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        verbose_name_plural = "Categories"
+        ordering = ['order', 'name']
+        indexes = [
+            models.Index(fields=['slug'], name='cat_slug_idx'),
+        ]
 
     def __str__(self):
         return self.name
@@ -46,9 +57,32 @@ class ProductQuerySet(models.QuerySet):
     def search(self, query):
         if not query:
             return self
-        return self.filter(
-            models.Q(name__icontains=query) | models.Q(description__icontains=query)
+        q_clean = query.strip().lower()
+        base_q = (
+            models.Q(name__icontains=query) |
+            models.Q(description__icontains=query) |
+            models.Q(category__name__icontains=query) |
+            models.Q(category__slug__icontains=query)
         )
+        # Quick-Commerce Smart Synonyms (Mobiles, Home & Kitchen, Fresh Groceries)
+        if any(term in q_clean for term in ['mobile', 'phone', 'smartphone', 'cellphone']):
+            base_q |= (
+                models.Q(category__slug='electronics') |
+                models.Q(name__icontains='iphone') |
+                models.Q(name__icontains='samsung') |
+                models.Q(name__icontains='galaxy') |
+                models.Q(name__icontains='redmi')
+            )
+        elif any(term in q_clean for term in ['clean', 'cleaning', 'household', 'detergent', 'wash']):
+            base_q |= models.Q(category__slug__in=['cleaning-essentials', 'laundry-care', 'home-kitchen'])
+        elif any(term in q_clean for term in ['home', 'kitchen']):
+            base_q |= models.Q(category__slug__in=['home-kitchen', 'cleaning-essentials'])
+        elif any(term in q_clean for term in ['dairy', 'milk', 'bread', 'egg', 'eggs', 'paneer']):
+            base_q |= models.Q(category__slug='dairy-bread-eggs')
+        elif any(term in q_clean for term in ['veg', 'fruit', 'vegetable', 'produce']):
+            base_q |= models.Q(category__slug='fruits-vegetables')
+
+        return self.filter(base_q)
 
     def with_category(self):
         return self.select_related('category')
@@ -90,14 +124,21 @@ class Product(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     image = models.ImageField(upload_to="products/", blank=True, null=True)
+    unit = models.CharField(max_length=60, blank=True, default="1 unit")
+    mrp_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     is_deleted = models.BooleanField(default=False)
 
     objects = ProductManager()
 
     class Meta:
         constraints = [
-            models.CheckConstraint(check=models.Q(stock__gte=0), name='product_stock_non_negative'),
-            models.CheckConstraint(check=models.Q(price__gte=0), name='product_price_non_negative'),
+            models.CheckConstraint(condition=models.Q(stock__gte=0), name='product_stock_non_negative'),
+            models.CheckConstraint(condition=models.Q(price__gte=0), name='product_price_non_negative'),
+        ]
+        indexes = [
+            models.Index(fields=['available', 'is_deleted', '-created_at'], name='prod_avail_del_created_idx'),
+            models.Index(fields=['category', 'available', 'is_deleted'], name='prod_cat_avail_del_idx'),
+            models.Index(fields=['slug'], name='prod_slug_idx'),
         ]
 
     def __str__(self):
@@ -124,6 +165,15 @@ class Product(models.Model):
         """Returns True if stock is between 1 and 5 (urgency badge trigger)."""
         return 0 < self.stock <= 5
 
+    @property
+    def mrp(self):
+        """Standard strike-through MRP. Uses mrp_price if set, else +25% markup."""
+        if self.mrp_price:
+            return self.mrp_price
+        from decimal import Decimal, ROUND_HALF_UP
+        markup = Decimal('1.25')
+        return (self.price * markup).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
+
 
 class Review(models.Model):
     """Product review with admin approval gating."""
@@ -140,6 +190,9 @@ class Review(models.Model):
     class Meta:
         unique_together = ('product', 'user')  # One review per user per product
         ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['product', 'is_approved'], name='rev_prod_appr_idx'),
+        ]
 
     def __str__(self):
         return f"Review by {self.user.username} on {self.product.name} ({self.rating}★)"
@@ -159,6 +212,9 @@ class Cart(models.Model):
     class Meta:
         verbose_name = "Shopping Cart"
         verbose_name_plural = "Shopping Carts"
+        indexes = [
+            models.Index(fields=['user', '-created_at'], name='cart_user_created_idx'),
+        ]
 
     def total_price(self):
         return sum(item.subtotal for item in self.items.all())
@@ -193,13 +249,21 @@ class CartItem(models.Model):
 
     class Meta:
         constraints = [
-            models.CheckConstraint(check=models.Q(quantity__gt=0), name='cart_item_quantity_positive'),
-            models.CheckConstraint(check=models.Q(quantity__lte=100), name='cart_item_quantity_reasonable'),
+            models.CheckConstraint(condition=models.Q(quantity__gt=0), name='cart_item_quantity_positive'),
+            models.CheckConstraint(condition=models.Q(quantity__lte=100), name='cart_item_quantity_reasonable'),
+            models.UniqueConstraint(fields=['cart', 'product'], name='unique_cart_product'),
+        ]
+        indexes = [
+            models.Index(fields=['cart', 'product'], name='cartitem_cart_prod_idx'),
         ]
 
     @property
     def subtotal(self):
         return self.product.price * self.quantity
+
+    @property
+    def total_price(self):
+        return self.subtotal
 
 
 ORDER_STATUS_CHOICES = [
@@ -262,6 +326,10 @@ class Order(models.Model):
 
     class Meta:
         ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['user', '-created_at'], name='order_user_created_idx'),
+            models.Index(fields=['status'], name='order_status_idx'),
+        ]
 
     @property
     def lifecycle_progress(self):
@@ -294,7 +362,10 @@ class OrderItem(models.Model):
 
     class Meta:
         constraints = [
-            models.CheckConstraint(check=models.Q(quantity__gt=0), name='order_item_quantity_positive'),
+            models.CheckConstraint(condition=models.Q(quantity__gt=0), name='order_item_quantity_positive'),
+        ]
+        indexes = [
+            models.Index(fields=['order', 'product'], name='orderitem_order_prod_idx'),
         ]
 
 

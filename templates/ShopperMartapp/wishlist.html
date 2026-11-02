@@ -1,96 +1,104 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Your Wishlist | ShopperMart – Saved Products{% endblock %}
+{% block title %}My Wishlist | ShopperMart 10-Min Delivery{% endblock %}
 
-{% block meta_description %}View and manage your saved products on ShopperMart. Curate your personal collection of premium essentials and move items to your shopping bag when you're ready.{% endblock %}
+{% block meta_description %}View and manage your saved items on ShopperMart. Move to cart anytime for 10-minute delivery.{% endblock %}
 
-{% block meta_keywords %}shoppermart wishlist, saved products, favourite items, product wishlist india, curated shopping list{% endblock %}
+{% block meta_keywords %}shoppermart wishlist, saved products, 10 min groceries, buy saved items{% endblock %}
 
 {% block content %}
-<section class="min-h-screen pt-32 pb-24 bg-zinc-50/30">
-    <div class="max-w-7xl mx-auto px-8 md:px-24">
-        
-        <!-- Header -->
-        <header class="mb-20">
-            <div class="flex flex-col md:flex-row md:items-end justify-between gap-10">
-                <div class="max-w-2xl">
-                    <span class="font-mono text-[9px] uppercase tracking-[0.5em] text-black/30 font-bold block mb-4">Curated Collection</span>
-                    <h1 class="font-serif text-[4rem] md:text-[6rem] font-bold tracking-tighter text-black leading-none uppercase italic border-l-8 border-black pl-10">Your Saved.</h1>
-                    <p class="mt-10 font-sans text-lg text-slate-500 max-w-lg leading-relaxed italic opacity-80">
-                        A personal collection of products you love, saved for later.
-                    </p>
-                </div>
-                <div class="flex items-center gap-6 border-b border-black/5 pb-6">
-                    <span class="font-mono text-[10px] tracking-[0.4em] uppercase text-black/40 font-bold">
-                        {{ products|length }} items saved
-                    </span>
-                </div>
-            </div>
-        </header>
-
-        {% if products %}
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
-            {% for product in products %}
-            <div class="group bg-white border border-black/5 rounded-[3rem] overflow-hidden hover:shadow-2xl transition-all duration-700 hover:-translate-y-2 flex flex-col">
-                
-                <!-- Image Section -->
-                <div class="aspect-square bg-zinc-50 overflow-hidden relative">
-                    <a href="{% url 'product_detail' product.slug %}" class="block w-full h-full">
-                        {% if product.image %}
-                        <img src="{{ product.image.url }}" class="w-full h-full object-contain p-12 mix-blend-multiply group-hover:scale-110 transition-transform duration-[6s]"/>
-                        {% else %}
-                        <div class="w-full h-full flex items-center justify-center font-serif text-slate-200 italic text-2xl uppercase font-bold">Object</div>
-                        {% endif %}
-                    </a>
-                    
-                    <!-- Remove Overlay -->
-                    <form method="POST" action="{% url 'toggle_wishlist' product.id %}" class="absolute top-8 right-8 z-10">
-                        {% csrf_token %}
-                        <button type="submit" class="w-12 h-12 flex items-center justify-center bg-white border border-black/5 rounded-full text-black/20 hover:text-red-500 hover:scale-110 active:scale-95 transition-all shadow-sm group/remove">
-                            <span class="material-symbols-outlined text-[20px] fill-current text-red-500">favorite</span>
-                        </button>
-                    </form>
-                </div>
-
-                <!-- Meta Section -->
-                <div class="p-10 flex flex-col flex-grow">
-                    <div class="flex justify-between items-start mb-6">
-                        <div>
-                            <span class="font-mono text-[9px] uppercase tracking-widest text-black/30 font-bold mb-2 block italic">{{ product.category.name }}</span>
-                            <h3 class="font-serif text-2xl font-bold text-black uppercase tracking-tight">{{ product.name }}</h3>
-                        </div>
-                        <p class="font-mono text-xl font-bold text-black">₹{{ product.price }}</p>
-                    </div>
-
-                    <div class="mt-auto pt-8 border-t border-black/5 flex flex-col sm:flex-row gap-4">
-                        <form method="POST" action="{% url 'add_to_cart' product.id %}" class="flex-grow">
-                            {% csrf_token %}
-                            <input type="hidden" name="quantity" value="1">
-                            <button type="submit" class="w-full bg-black text-white py-4 rounded-full font-mono text-[9px] uppercase tracking-[0.3em] font-bold hover:bg-zinc-800 transition-all flex items-center justify-center gap-4 group/add">
-                                Move to Bag
-                                <span class="material-symbols-outlined text-[16px] group-hover/add:translate-x-1 transition-transform">arrow_forward</span>
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
+<section class="py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto min-h-screen">
+    
+    <!-- Header -->
+    <div class="mb-8 p-6 sm:p-8 bg-gradient-to-r from-zepto-purple-dark via-zepto-purple to-zepto-pink rounded-3xl text-white relative overflow-hidden shadow-zepto">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
+        <div>
+          <span class="text-[10px] font-black uppercase tracking-widest text-zepto-yellow block mb-1">Saved for Fast Delivery</span>
+          <h1 class="text-2xl sm:text-4xl font-black tracking-tight leading-none">
+            My Saved Items
+          </h1>
+          <p class="text-xs text-white/80 font-medium mt-1">Move your favorite items to cart for instant 10-minute delivery</p>
         </div>
-        {% else %}
-        <!-- EMPTY STATE -->
-        <div class="py-44 flex flex-col items-center justify-center text-center">
-            <div class="w-32 h-32 bg-white rounded-full flex items-center justify-center mb-12 shadow-inner border border-black/5 group">
-                <span class="material-symbols-outlined text-5xl text-black/10 group-hover:scale-110 group-hover:text-black/20 transition-all">favorite_border</span>
-            </div>
-            <h2 class="font-serif text-5xl md:text-6xl font-bold text-black leading-none uppercase italic opacity-10 tracking-tighter">Your Archive is Empty.</h2>
-            <p class="text-slate-500 mt-12 font-sans text-xl max-w-sm leading-relaxed italic opacity-60">You haven't saved any products yet. Browse our store and save items you love.</p>
-            <a href="{% url 'public_store' %}" class="mt-16 bg-black text-white px-16 py-6 rounded-full font-mono font-bold tracking-[0.4em] text-[10px] uppercase hover:bg-zinc-800 transition-all shadow-2xl hover:scale-105 active:scale-95 duration-500">
-                Explore The Store
-            </a>
-        </div>
-        {% endif %}
-
+        <span class="bg-white/20 backdrop-blur-md px-4 py-2 rounded-2xl text-xs font-black uppercase tracking-wider text-white border border-white/20 self-start sm:self-auto">
+          ❤️ {{ products|length }} Saved
+        </span>
+      </div>
     </div>
+
+    {% if products %}
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4 md:gap-6">
+        {% for product in products %}
+        <div class="zepto-card-interactive reveal-item p-3 sm:p-4 flex flex-col justify-between group relative bg-white">
+          
+          <!-- Badges & Remove Wishlist -->
+          <div class="flex items-center justify-between mb-2 relative z-20">
+            <span class="bg-zepto-green/10 text-zepto-green text-[10px] font-black uppercase px-2 py-0.5 rounded-md flex items-center gap-1">
+              ⚡ 10 MINS
+            </span>
+            <form method="POST" action="{% url 'toggle_wishlist' product.id %}" class="m-0">
+              {% csrf_token %}
+              <button type="submit" class="w-7 h-7 rounded-full bg-zepto-pink/10 text-zepto-pink hover:scale-110 flex items-center justify-center transition-all" title="Remove from saved">
+                <span class="material-symbols-outlined text-[17px] fill-current">favorite</span>
+              </button>
+            </form>
+          </div>
+
+          <!-- Product Image -->
+          <a href="{% url 'product_detail' product.slug %}" class="block aspect-square w-full mb-3 overflow-hidden rounded-xl bg-zepto-bg/60 p-2 relative">
+            {% if product.image %}
+            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="w-full h-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-500 ease-out"/>
+            {% else %}
+            <div class="w-full h-full flex items-center justify-center text-xs font-bold text-zepto-muted/50 italic">ShopperMart</div>
+            {% endif %}
+          </a>
+
+          <!-- Details & Rating -->
+          <div class="space-y-1 mb-3">
+            <span class="text-[10px] font-bold text-zepto-muted uppercase tracking-wider block truncate">{{ product.category.name }}</span>
+            <a href="{% url 'product_detail' product.slug %}" class="text-xs sm:text-sm font-extrabold text-zepto-purple-dark hover:text-zepto-purple line-clamp-2 leading-snug">
+              {{ product.name }}
+            </a>
+            <div class="flex items-center gap-1 text-[11px] font-bold text-zepto-purple-dark pt-0.5">
+              <span class="material-symbols-outlined text-zepto-yellow text-[14px] fill-current">star</span>
+              <span>{{ product.rating }}</span>
+            </div>
+          </div>
+
+          <!-- Price & Move to Bag Button -->
+          <div class="pt-2 border-t border-zepto-border/60 flex items-center justify-between gap-2 mt-auto">
+            <div class="flex flex-col">
+              <span class="text-sm sm:text-base font-black text-zepto-purple-dark leading-none">₹{{ product.price }}</span>
+              <span class="text-[10px] text-zepto-muted line-through font-medium leading-tight">₹{{ product.mrp }}</span>
+            </div>
+            
+            <form method="POST" action="{% url 'add_to_cart' product.id %}" class="m-0">
+              {% csrf_token %}
+              <input type="hidden" name="quantity" value="1">
+              <button type="submit" 
+                      class="js-add-to-cart-btn bg-gradient-to-r from-zepto-purple to-zepto-pink text-white px-3.5 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider shadow-sm hover:shadow-zepto active:scale-95 transition-all flex items-center gap-1"
+                      data-product-id="{{ product.id }}"
+                      data-product-name="{{ product.name }}">
+                <span>MOVE TO BAG</span>
+                <span class="text-xs">⚡</span>
+              </button>
+            </form>
+          </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <!-- EMPTY STATE -->
+    <div class="py-24 text-center max-w-md mx-auto bg-white rounded-3xl border border-zepto-border p-8 shadow-sm">
+        <div class="w-20 h-20 bg-zepto-bg rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">
+          ❤️
+        </div>
+        <h3 class="text-xl font-black text-zepto-purple-dark mb-2">No Saved Items Yet</h3>
+        <p class="text-xs text-zepto-muted mb-6">Explore thousands of fresh items and tap the heart icon on any product to save it for later.</p>
+        <a href="{% url 'home' %}" class="inline-flex items-center gap-2 bg-gradient-to-r from-zepto-purple to-zepto-pink text-white text-xs font-black uppercase px-6 py-3 rounded-2xl shadow-zepto hover:shadow-zepto-hover transition-all">
+          Explore Deals ⚡
+        </a>
+    </div>
+    {% endif %}
 </section>
 {% endblock %}

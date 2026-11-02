@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}10-Minute Shipping & Delivery Policy | ShopperMart{% endblock %}
+{% block meta_description %}Learn how ShopperMart delivers groceries, snacks, electronics, and household goods in 10 minutes across Bhadrak and regional sectors.{% endblock %}
+
+{% block content %}
+<section class="py-12 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto min-h-screen">
+    <div class="mb-8 p-6 sm:p-10 bg-gradient-to-r from-zepto-purple-dark via-zepto-purple to-zepto-pink rounded-3xl text-white shadow-zepto">
+      <span class="text-[10px] font-black uppercase tracking-widest text-zepto-yellow block mb-1">Fast Logistics Network</span>
+      <h1 class="text-3xl sm:text-4xl font-black tracking-tight leading-none">Shipping & Delivery Policy</h1>
+      <p class="text-xs text-white/80 font-medium mt-1">Superfast 10-Minute Fulfillment Standards</p>
+    </div>
+
+    <div class="bg-white rounded-3xl p-6 sm:p-10 border border-zepto-border shadow-sm space-y-8 text-xs sm:text-sm text-zepto-muted leading-relaxed">
+        <div>
+            <h2 class="text-base sm:text-lg font-black text-zepto-purple-dark mb-2">1. Instant 10-Minute Fulfillment Guarantee</h2>
+            <p>ShopperMart operates localized dark stores within a 2 km delivery radius of our customers. When an order is placed, items are picked and packed in under 90 seconds, and dispatched immediately with a dedicated delivery rider.</p>
+        </div>
+
+        <div>
+            <h2 class="text-base sm:text-lg font-black text-zepto-purple-dark mb-2">2. Delivery Charges & Free Shipping</h2>
+            <ul class="list-disc pl-5 space-y-1.5">
+                <li><strong>Orders above ₹149:</strong> FREE Delivery! Zero delivery fee.</li>
+                <li><strong>Orders below ₹149:</strong> Flat nominal fee of ₹25 to cover rapid rider dispatch.</li>
+                <li><strong>Handling Fee:</strong> ₹5 flat per order to ensure eco-friendly, tamper-evident thermal bagging.</li>
+            </ul>
+        </div>
+
+        <div>
+            <h2 class="text-base sm:text-lg font-black text-zepto-purple-dark mb-2">3. Operational Hours</h2>
+            <p>Our micro-fulfillment dark stores operate from <strong>6:00 AM to 2:00 AM daily</strong>, 7 days a week. Orders placed within operational hours are delivered in 10 minutes.</p>
+        </div>
+
+        <div>
+            <h2 class="text-base sm:text-lg font-black text-zepto-purple-dark mb-2">4. Live GPS Tracking</h2>
+            <p>Once dispatched, you can follow your order's real-time journey on the <a href="{% url 'my_orders' %}" class="text-zepto-purple font-bold hover:underline">Order Manifest</a> page, with live rider status updates from store departure to your door.</p>
+        </div>
+    </div>
+</section>
+{% endblock %}
+

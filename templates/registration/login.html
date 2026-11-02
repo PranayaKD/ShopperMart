@@ -2,125 +2,134 @@
 {% load static %}
 {% load socialaccount %}
 
-{% block title %}Member Access | ShopperMart{% endblock %}
+{% block title %}Sign In | ShopperMart 10-Minute Delivery{% endblock %}
 
-{% block meta_description %}Sign in to your ShopperMart account to manage orders, track shipments, and access your saved products.{% endblock %}
-{% block meta_keywords %}shoppermart login, member access, account sign in, premium ecommerce login india{% endblock %}
+{% block meta_description %}Sign in to your ShopperMart account for instant 10-minute grocery and essentials delivery.{% endblock %}
+{% block meta_keywords %}shoppermart login, fast delivery account, quick commerce sign in{% endblock %}
 
 {% block content %}
-<section class="min-h-screen pt-32 pb-16 px-4 sm:px-8 md:px-16 flex items-center justify-center bg-zinc-50/50">
-  <div class="flex flex-col lg:flex-row w-full max-w-4xl bg-white shadow-2xl rounded-[3rem] overflow-hidden border border-black/5">
+<section class="min-h-screen py-12 px-4 sm:px-6 flex items-center justify-center">
+  <div class="flex flex-col lg:flex-row w-full max-w-4xl bg-white shadow-zepto-hover rounded-3xl overflow-hidden border border-zepto-border">
     
-    <!-- LEFT SIDE: EDITORIAL IMAGE -->
-  <div class="hidden lg:flex lg:w-1/2 relative items-center justify-center p-12 overflow-hidden bg-black">
-    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/80 z-10"></div>
-    <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=1200" 
-         class="absolute inset-0 w-full h-full object-cover mix-blend-overlay opacity-90 transition-transform duration-[20s] hover:scale-105" />
-    
-    <div class="absolute top-10 left-10 z-20">
-      <span class="font-serif text-white tracking-widest uppercase font-bold text-lg">ShopperMart</span>
-    </div>
+    <!-- LEFT SIDE: SHOPPERMART HIGH-SPEED BANNER -->
+    <div class="hidden lg:flex lg:w-1/2 relative items-center justify-center p-12 overflow-hidden zepto-hero-gradient text-white">
+      <div class="absolute -top-16 -left-16 w-64 h-64 bg-zepto-pink/30 rounded-full blur-2xl"></div>
+      <div class="absolute -bottom-16 -right-16 w-64 h-64 bg-zepto-yellow/20 rounded-full blur-2xl"></div>
 
-    <div class="relative z-20 text-center px-12">
-      <blockquote class="font-serif text-3xl text-white leading-snug max-w-md mx-auto mb-8 font-light">
-        "Style is a way to say who you are without having to speak."
-      </blockquote>
-      <div class="flex items-center justify-center gap-4">
-        <div class="w-12 h-px bg-white/30"></div>
-        <span class="font-mono text-[9px] uppercase tracking-[0.4em] text-white/50">Est. 2026</span>
-        <div class="w-12 h-px bg-white/30"></div>
+      <div class="relative z-10 text-center px-6 space-y-6">
+        <div class="w-16 h-16 rounded-3xl bg-white/20 backdrop-blur-md flex items-center justify-center mx-auto text-3xl shadow-lg border border-white/20">
+          ⚡
+        </div>
+        <h2 class="text-3xl font-black tracking-tight leading-tight">
+          Superfast Deliveries in 10 Minutes
+        </h2>
+        <p class="text-xs text-white/80 leading-relaxed max-w-xs mx-auto">
+          Sign in to track real-time rider GPS, access member flash deals, and reorder daily groceries with 1-tap.
+        </p>
+        <div class="pt-4 flex items-center justify-center gap-2">
+          <span class="bg-white/15 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider text-zepto-yellow border border-white/20">
+            🛵 10 MINS DELIVERY
+          </span>
+          <span class="bg-white/15 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider text-white border border-white/20">
+            ⭐ 4.9 RATING
+          </span>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- RIGHT SIDE: LOGIN FORM -->
-  <div class="w-full lg:w-1/2 flex items-center justify-center p-6 md:p-8 bg-white">
-    <div class="w-full max-w-sm">
-      
-      <header class="mb-10 text-center lg:text-left">
-        <h1 class="font-serif text-3xl md:text-4xl font-bold text-black mb-2 tracking-tight uppercase">Sign In</h1>
-        <p class="text-slate-500 font-mono text-[10px] uppercase tracking-widest">Enter your credentials to continue.</p>
-      </header>
+    <!-- RIGHT SIDE: LOGIN FORM -->
+    <div class="w-full lg:w-1/2 p-8 sm:p-12 bg-white flex items-center justify-center">
+      <div class="w-full max-w-sm">
+        
+        <header class="mb-6 text-center lg:text-left">
+          <span class="text-[10px] font-extrabold uppercase tracking-widest text-zepto-purple block mb-1">Welcome Back</span>
+          <h1 class="text-2xl sm:text-3xl font-black text-zepto-purple-dark tracking-tight">Sign In</h1>
+          <p class="text-xs text-zepto-muted mt-1">Enter your details to access your 10-minute store.</p>
+        </header>
 
-      <!-- 1. FORM ERRORS DISPLAY (CodeRabbit Case #9) -->
-      {% if form.errors %}
-      <div class="mb-8 p-4 bg-red-50 text-red-600 rounded-2xl border border-red-100 animate-in fade-in slide-in-from-top-4 duration-500">
-        <ul class="space-y-1">
-          {% for field in form %}
-            {% for error in field.errors %}
-              <li class="font-mono text-[9px] uppercase tracking-widest font-bold flex items-center gap-2">
-                <span class="w-1 h-1 bg-red-600 rounded-full"></span>
-                {{ field.label }}: {{ error }}
+        {% if GOOGLE_OAUTH_ENABLED %}
+        <!-- GOOGLE 1-TAP / SOCIAL SIGN IN -->
+        <div class="mb-5">
+          <a href="{% url 'google_login_dispatcher' %}" class="w-full flex items-center justify-center gap-3 bg-white border border-gray-300 hover:border-gray-400 text-gray-700 py-3 px-4 rounded-xl font-bold text-xs shadow-sm hover:shadow transition-all group">
+            <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24">
+              <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.15z"/>
+              <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.34 24 12 24z"/>
+              <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.14-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
+              <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.34 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+            </svg>
+            <span>Continue with Google</span>
+          </a>
+        </div>
+
+        <div class="relative flex items-center justify-center my-5">
+          <div class="border-t border-gray-200 w-full"></div>
+          <span class="bg-white px-3 text-[10px] font-bold uppercase tracking-wider text-gray-400 absolute">Or continue with username</span>
+        </div>
+        {% endif %}
+
+        {% if form.errors %}
+        <div class="mb-6 p-3.5 bg-red-50 text-red-600 rounded-2xl border border-red-100 text-xs">
+          <ul class="space-y-1">
+            {% for field in form %}
+              {% for error in field.errors %}
+                <li class="font-bold flex items-center gap-1.5">
+                  <span class="w-1.5 h-1.5 bg-red-600 rounded-full"></span>
+                  {{ field.label }}: {{ error }}
+                </li>
+              {% endfor %}
+            {% endfor %}
+            {% for error in form.non_field_errors %}
+              <li class="font-bold flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 bg-red-600 rounded-full"></span>
+                {{ error }}
               </li>
             {% endfor %}
-          {% endfor %}
-          {% for error in form.non_field_errors %}
-            <li class="font-mono text-[9px] uppercase tracking-widest font-bold flex items-center gap-2">
-              <span class="w-1 h-1 bg-red-600 rounded-full"></span>
-              {{ error }}
-            </li>
-          {% endfor %}
-        </ul>
-      </div>
-      {% endif %}
+          </ul>
+        </div>
+        {% endif %}
 
-      <form method="POST" action="{% url 'login' %}" class="space-y-6">
-        {% csrf_token %}
-        <input type="hidden" name="next" value="{{ next|default:'' }}">
+        <form method="POST" action="{% url 'login' %}" class="space-y-4">
+          {% csrf_token %}
+          <input type="hidden" name="next" value="{{ next|default:'' }}">
 
-        <!-- SOCIAL LOGIN FIRST -->
-        <div class="space-y-4">
-          <a href="{% provider_login_url 'google' %}" class="w-full bg-white border-2 border-slate-100 text-black py-5 rounded-full font-bold tracking-[0.2em] text-[11px] uppercase hover:border-black transition-colors active:scale-95 shadow-sm flex items-center justify-center gap-3">
-            <svg viewBox="0 0 24 24" class="w-4 h-4"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/><path d="M1 1h22v22H1z" fill="none"/></svg>
-            Sign in with Google
-          </a>
-
-          <div class="relative flex py-2 items-center">
-             <div class="flex-grow border-t border-slate-100"></div>
-             <span class="flex-shrink-0 mx-4 text-slate-400 font-mono text-[8px] uppercase tracking-widest">Or login manually</span>
-             <div class="flex-grow border-t border-slate-100"></div>
+          <div>
+             <label class="block text-xs font-bold text-zepto-purple-dark mb-1.5" for="username">Username or Email</label>
+             <input class="w-full bg-zepto-bg border border-zepto-border rounded-xl px-4 py-3 text-xs font-bold focus:border-zepto-purple focus:ring-2 focus:ring-zepto-purple/10 outline-none transition-all" 
+                    id="username" name="username" type="text" value="{{ form.username.value|default:'' }}" required/>
           </div>
-        </div>
 
-        <div>
-           <label class="block font-mono text-[9px] tracking-widest uppercase text-slate-500 mb-2 font-bold px-2" for="username">Username</label>
-           <input class="w-full bg-slate-50 border border-slate-200 rounded-full px-6 py-4 text-sm focus:border-black focus:ring-0 transition-colors" 
-                  id="username" name="username" type="text" value="{{ form.username.value|default:'' }}" required/>
-        </div>
+          <div>
+             <label class="block text-xs font-bold text-zepto-purple-dark mb-1.5" for="password">Password</label>
+             <div class="relative">
+               <input class="w-full bg-zepto-bg border border-zepto-border rounded-xl pl-4 pr-10 py-3 text-xs font-bold focus:border-zepto-purple focus:ring-2 focus:ring-zepto-purple/10 outline-none transition-all" 
+                      id="password" name="password" type="password" required/>
+               <button type="button" onclick="togglePassword('password', 'eye-icon')" class="absolute inset-y-0 right-3 flex items-center justify-center text-zepto-muted hover:text-zepto-purple transition-colors" aria-label="Toggle password visibility">
+                 <span id="eye-icon" class="material-symbols-outlined text-[18px]">visibility</span>
+               </button>
+             </div>
+          </div>
 
-        <div>
-           <label class="block font-mono text-[9px] tracking-widest uppercase text-slate-500 mb-2 font-bold px-2" for="password">Password</label>
-           <div class="relative">
-             <input class="w-full bg-slate-50 border border-slate-200 rounded-full pl-6 pr-12 py-4 text-sm focus:border-black focus:ring-0 transition-colors" 
-                    id="password" name="password" type="password" required/>
-             <button type="button" onclick="togglePassword('password', 'eye-icon')" class="absolute inset-y-0 right-4 flex items-center justify-center text-slate-400 hover:text-black transition-colors" aria-label="Toggle password visibility">
-               <span id="eye-icon" class="material-symbols-outlined text-[18px]">visibility</span>
-             </button>
-           </div>
-        </div>
+          <div class="flex items-center justify-between text-xs pt-1">
+             <div class="flex items-center gap-2">
+                <input type="checkbox" id="remember" name="remember" class="w-4 h-4 text-zepto-purple border-zepto-border rounded focus:ring-zepto-purple">
+                <label for="remember" class="text-zepto-muted font-medium cursor-pointer">Remember Me</label>
+             </div>
+             <a href="{% url 'account_reset_password' %}" class="text-zepto-purple font-bold hover:underline">Forgot?</a>
+          </div>
 
-        <div class="flex items-center justify-between pt-2">
-           <div class="flex items-center gap-2">
-              <!-- FIX: Add name="remember" (CodeRabbit Case #10) -->
-              <input type="checkbox" id="remember" name="remember" class="w-4 h-4 text-black border-slate-300 rounded focus:ring-black">
-              <label for="remember" class="font-mono text-[9px] uppercase tracking-widest text-slate-500 cursor-pointer">Remember Me</label>
-           </div>
-           <!-- FIX: Link to allauth password reset -->
-           <a href="{% url 'account_reset_password' %}" class="font-mono text-[9px] uppercase tracking-widest text-black font-bold hover:underline">Forgot?</a>
-        </div>
+          <div class="pt-2">
+            <button type="submit" class="w-full bg-gradient-to-r from-zepto-purple to-zepto-pink text-white py-3.5 rounded-xl font-black tracking-wider text-xs uppercase shadow-zepto hover:shadow-zepto-hover active:scale-95 transition-all">
+              Sign In to ShopperMart ⚡
+            </button>
+          </div>
 
-        <div class="pt-4">
-          <button type="submit" class="w-full bg-black text-white py-5 rounded-full font-bold tracking-[0.3em] text-[11px] uppercase hover:bg-zinc-800 transition-colors active:scale-95 shadow-md">
-            Login to Account
-          </button>
-        </div>
+          <p class="text-center text-xs text-zepto-muted pt-4 border-t border-zepto-border mt-6">
+            Don't have an account? 
+            <a href="{% url 'register' %}" class="text-zepto-purple font-black ml-1 hover:underline">Create Account</a>
+          </p>
+        </form>
 
-        <p class="text-center text-[9px] font-mono uppercase tracking-[0.2em] text-slate-500 pt-8 border-t border-slate-100 mt-8">
-          Need an account? 
-          <a href="{% url 'register' %}" class="text-black font-bold ml-1 hover:underline">Sign Up</a>
-        </p>
-      </form>
-
+      </div>
     </div>
   </div>
 </section>

@@ -1,123 +1,159 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Shop All Products | ShopperMart – Premium Indian E-commerce{% endblock %}
+{% block title %}Shop All Products & Essentials – ShopperMart Superfast Store{% endblock %}
 
-{% block meta_description %}Browse ShopperMart's complete catalog of premium products. Filter by category, sort by price or rating, and discover curated daily essentials and modern lifestyle goods. Free shipping across India.{% endblock %}
+{% block meta_description %}Browse the complete ShopperMart catalog with fresh groceries, dairy, snacks, beverages and household essentials. Delivered to your doorstep in 10 minutes.{% endblock %}
 
-{% block meta_keywords %}shoppermart store, buy online india, premium products catalog, daily essentials shopping, modern lifestyle goods, filter by category, sort by price{% endblock %}
+{% block meta_keywords %}shoppermart store, buy groceries online, 10 min delivery india, quick commerce catalog{% endblock %}
 
 {% block content %}
-<section class="pt-44 pb-24 px-8 md:px-24 bg-background min-h-screen">
-    <div class="flex flex-col md:flex-row gap-16">
+<section class="py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto min-h-screen">
+    
+    <!-- Top Header Banner -->
+    <div class="mb-8 p-6 sm:p-8 bg-gradient-to-r from-zepto-purple-dark via-zepto-purple to-zepto-pink rounded-3xl text-white relative overflow-hidden shadow-zepto">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
+        <div>
+          <span class="text-[10px] font-black uppercase tracking-widest text-zepto-yellow block mb-1">Superfast Supermarket</span>
+          <h1 class="text-2xl sm:text-4xl font-black tracking-tight leading-none">
+            {% if selected_category %}{{ selected_category }}{% elif query %}Search: {{ query }}{% else %}All Products & Aisles{% endif %}
+          </h1>
+          <p class="text-xs text-white/80 font-medium mt-1">Order any item and receive it within 10 minutes</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex flex-col lg:flex-row gap-8 items-start">
         
-        <!-- SIDEBAR FILTERS -->
-        <aside class="w-full md:w-64 shrink-0">
-            <div class="sticky top-44 space-y-12">
+        <!-- SIDEBAR FILTERS (SHOPPERMART PILL THEMED) -->
+        <aside class="w-full lg:w-64 shrink-0 bg-white rounded-3xl p-6 border border-zepto-border shadow-sm sticky top-28">
+            <span class="text-xs font-black uppercase tracking-wider text-zepto-purple-dark block mb-4 pb-2 border-b border-zepto-border">
+              Filter Aisles
+            </span>
+
+            <form method="GET" action="{% url 'public_store' %}" class="space-y-6">
+                {% if query %}<input type="hidden" name="q" value="{{ query }}">{% endif %}
+
+                <!-- Category Links -->
                 <div>
-                    <span class="font-mono text-[10px] tracking-[.3em] text-on-surface-variant uppercase mb-6 block font-bold opacity-40">Categories</span>
-                    <div class="flex flex-col gap-4">
-                        <a href="{% url 'public_store' %}" class="font-serif text-xl {% if not selected_category %}italic font-bold underline decoration-primary/20{% else %}text-on-surface-variant opacity-60 hover:opacity-100{% endif %}">All Objects</a>
-                        {% for cat in categories %}
-                        <a href="?category={{ cat.slug }}" class="font-serif text-xl {% if selected_category == cat.slug %}italic font-bold underline decoration-primary/20{% else %}text-on-surface-variant opacity-60 hover:opacity-100{% endif %}">
-                            {{ cat.name }}
-                        </a>
-                        {% endfor %}
-                    </div>
+                  <span class="text-[11px] font-bold text-zepto-muted uppercase tracking-wider block mb-2.5">Category</span>
+                  <div class="flex flex-col gap-1.5 max-h-56 overflow-y-auto no-scrollbar">
+                    <a href="{% url 'public_store' %}" class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all {% if not selected_category %}bg-zepto-purple text-white{% else %}text-zepto-purple-dark hover:bg-zepto-bg{% endif %}">
+                      🔥 All Categories
+                    </a>
+                    {% for cat in categories %}
+                    <a href="?category={{ cat.slug }}" class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all {% if selected_category == cat.slug %}bg-zepto-purple text-white{% else %}text-zepto-purple-dark hover:bg-zepto-bg{% endif %}">
+                      {{ cat.name }}
+                    </a>
+                    {% endfor %}
+                  </div>
                 </div>
 
-                <form method="GET" action="{% url 'public_store' %}" class="space-y-8">
-                    {% if selected_category %}<input type="hidden" name="category" value="{{ selected_category }}">{% endif %}
-                    {% if query %}<input type="hidden" name="q" value="{{ query }}">{% endif %}
-                    
-                    <div>
-                        <span class="font-mono text-[10px] tracking-[.3em] text-on-surface-variant uppercase mb-6 block font-bold opacity-40">Price Range</span>
-                        <div class="grid grid-cols-2 gap-4">
-                            <input type="number" name="min_price" value="{{ min_price }}" placeholder="Min" class="bg-surface-container-low border-0 rounded-xl px-4 py-3 text-xs font-mono outline-none focus:ring-1 focus:ring-black/10">
-                            <input type="number" name="max_price" value="{{ max_price }}" placeholder="Max" class="bg-surface-container-low border-0 rounded-xl px-4 py-3 text-xs font-mono outline-none focus:ring-1 focus:ring-black/10">
-                        </div>
-                    </div>
+                <!-- Price Range -->
+                <div class="pt-4 border-t border-zepto-border">
+                  <span class="text-[11px] font-bold text-zepto-muted uppercase tracking-wider block mb-2.5">Price Range (₹)</span>
+                  <div class="grid grid-cols-2 gap-2">
+                    <input type="number" name="min_price" value="{{ min_price }}" placeholder="Min" class="w-full bg-zepto-bg border border-zepto-border rounded-xl px-3 py-2 text-xs font-bold outline-none focus:border-zepto-purple">
+                    <input type="number" name="max_price" value="{{ max_price }}" placeholder="Max" class="w-full bg-zepto-bg border border-zepto-border rounded-xl px-3 py-2 text-xs font-bold outline-none focus:border-zepto-purple">
+                  </div>
+                </div>
 
-                    <div>
-                        <span class="font-mono text-[10px] tracking-[.3em] text-on-surface-variant uppercase mb-6 block font-bold opacity-40">Sort By</span>
-                        <select name="sort" onchange="this.form.submit()" class="w-full bg-surface-container-low border-0 rounded-xl px-4 py-3 text-xs font-mono outline-none focus:ring-1 focus:ring-black/10 appearance-none">
-                            <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Recently Added</option>
-                            <option value="price_asc" {% if sort == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
-                            <option value="price_desc" {% if sort == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
-                            <option value="rating" {% if sort == 'rating' %}selected{% endif %}>Top Rated</option>
-                        </select>
-                    </div>
+                <!-- Sort By -->
+                <div class="pt-4 border-t border-zepto-border">
+                  <span class="text-[11px] font-bold text-zepto-muted uppercase tracking-wider block mb-2.5">Sort Items</span>
+                  <select name="sort" onchange="this.form.submit()" class="w-full bg-zepto-bg border border-zepto-border rounded-xl px-3 py-2 text-xs font-bold text-zepto-purple-dark outline-none focus:border-zepto-purple cursor-pointer">
+                    <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Recently Added</option>
+                    <option value="price_asc" {% if sort == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
+                    <option value="price_desc" {% if sort == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
+                    <option value="rating" {% if sort == 'rating' %}selected{% endif %}>Top Rated First</option>
+                  </select>
+                </div>
 
-                    <button type="submit" class="w-full bg-black text-white py-4 rounded-xl font-mono text-[10px] tracking-widest uppercase font-bold hover:bg-zinc-800 transition-all">Apply Filter</button>
-                    <a href="{% url 'public_store' %}" class="block text-center font-mono text-[9px] uppercase tracking-widest text-black/40 hover:text-black">Reset All</a>
-                </form>
-            </div>
+                <div class="flex flex-col gap-2 pt-2">
+                  <button type="submit" class="w-full bg-gradient-to-r from-zepto-purple to-zepto-pink text-white py-2.5 rounded-xl text-xs font-black uppercase tracking-wider shadow-sm hover:shadow-zepto transition-all">
+                    Apply Filters
+                  </button>
+                  <a href="{% url 'public_store' %}" class="text-center text-[11px] font-bold text-zepto-muted hover:text-zepto-pink py-1">
+                    Reset All Filters
+                  </a>
+                </div>
+            </form>
         </aside>
 
         <!-- PRODUCT GRID -->
-        <div class="flex-grow">
-            <div class="mb-16">
-                <span class="font-mono text-[10px] tracking-[.3em] text-on-surface-variant uppercase mb-4 block font-bold">Catalog</span>
-                <h2 class="font-serif text-5xl md:text-7xl font-bold tracking-tighter italic lowercase">
-                    {% if selected_category %}{{ selected_category }}{% elif query %}Search: {{ query }}{% else %}The collection.{% endif %}
-                </h2>
-                <p class="font-mono text-[10px] text-on-surface-variant mt-6 uppercase tracking-widest font-bold opacity-40">{{ products|length }} objects currently available</p>
-            </div>
-
+        <div class="flex-grow w-full">
             {% if products %}
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-24">
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 gap-2.5 sm:gap-3.5">
                 {% for product in products %}
-                <div class="group">
-                    <div class="aspect-square bg-white mb-8 overflow-hidden relative border border-black/5 rounded-2xl group-hover:border-primary/20 group-hover:shadow-lg transition-all duration-500">
-                        <a href="{% url 'product_detail' product.slug %}" class="block w-full h-full">
-                            {% if product.image %}
-                            <img src="{{ product.image.url }}" class="w-full h-full object-contain p-6 group-hover:scale-105 transition-transform duration-1000"/>
-                            {% else %}
-                            <div class="w-full h-full flex items-center justify-center font-serif text-surface-container text-4xl italic">Object</div>
-                            {% endif %}
-                        </a>
-                        <!-- Wishlist Toggle -->
-                        <button type="button" 
-                                onclick="toggleWishlist({{ product.id }}, this)"
-                                class="absolute top-4 right-4 z-30 w-10 h-10 flex items-center justify-center bg-white/80 backdrop-blur-md rounded-full border border-black/5 shadow-sm hover:scale-110 active:scale-95 transition-all js-require-auth">
-                          <span class="material-symbols-outlined text-sm {% if product.id in wishlisted_ids %}fill-current text-red-500{% else %}text-black/20{% endif %}">favorite</span>
-                        </button>
-                        <!-- Add to Cart: Always Visible Fix -->
-                        <form method="POST" action="{% url 'add_to_cart' product.id %}" class="js-require-auth absolute bottom-6 right-6 z-20 transition-all duration-500">
-                            {% csrf_token %}
-                            <input type="hidden" name="quantity" value="1">
-                            <button type="submit" 
-                                    class="js-add-to-cart-btn bg-primary text-white w-14 h-14 flex items-center justify-center hover:bg-primary-container transition-all shadow-2xl rounded-full active:scale-95"
-                                    data-product-id="{{ product.id }}"
-                                    data-product-name="{{ product.name }}">
-                                <span class="material-symbols-outlined text-sm">shopping_bag</span>
-                            </button>
-                        </form>
+                <div class="zepto-card-interactive reveal-item p-2.5 sm:p-3 flex flex-col justify-between group relative bg-white rounded-2xl border border-gray-200/90 hover:border-brand-orange/40 shadow-2xs hover:shadow-md transition-all">
+                  
+                  <!-- Badges & Wishlist -->
+                  <div class="flex items-center justify-between mb-2 relative z-20">
+                    <span class="bg-zepto-green/10 text-zepto-green text-[10px] font-black uppercase px-2 py-0.5 rounded-md flex items-center gap-1">
+                      ⚡ 10 MINS
+                    </span>
+                    <button type="button" 
+                            onclick="toggleWishlist('{{ product.id }}', this)"
+                            class="w-7 h-7 rounded-full bg-zepto-bg hover:bg-zepto-pink/10 text-zepto-muted hover:text-zepto-pink flex items-center justify-center transition-all js-require-auth" title="Save to wishlist">
+                      <span class="material-symbols-outlined text-[17px] {% if product.id in wishlisted_ids %}fill-current text-zepto-pink{% endif %}">favorite</span>
+                    </button>
+                  </div>
+
+                  <!-- Product Image -->
+                  <a href="{% url 'product_detail' product.slug %}" class="block w-full h-[120px] sm:h-[135px] mb-2 overflow-hidden rounded-xl bg-white p-2 relative flex items-center justify-center border border-gray-50">
+                    {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" class="w-full h-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-500 ease-out"/>
+                    {% else %}
+                    <div class="w-full h-full flex items-center justify-center text-xs font-bold text-zepto-muted/50 italic">ShopperMart</div>
+                    {% endif %}
+                  </a>
+
+                  <!-- Details & Rating -->
+                  <div class="space-y-1 mb-3">
+                    <span class="text-[10px] font-bold text-zepto-muted uppercase tracking-wider block truncate">{{ product.category.name }}</span>
+                    <a href="{% url 'product_detail' product.slug %}" class="text-xs sm:text-sm font-extrabold text-zepto-purple-dark hover:text-zepto-purple line-clamp-2 leading-snug">
+                      {{ product.name }}
+                    </a>
+                    <div class="flex items-center gap-1 text-[11px] font-bold text-zepto-purple-dark pt-0.5">
+                      <span class="material-symbols-outlined text-zepto-yellow text-[14px] fill-current">star</span>
+                      <span>{{ product.rating }}</span>
+                      <span class="text-zepto-muted text-[10px] font-medium">({{ product.reviews_count }})</span>
+                    </div>
+                  </div>
+
+                  <!-- Price & ShopperMart ADD Button -->
+                  <div class="pt-2 border-t border-zepto-border/60 flex items-center justify-between gap-2 mt-auto">
+                    <div class="flex flex-col">
+                      <span class="text-sm sm:text-base font-black text-zepto-purple-dark leading-none">₹{{ product.price }}</span>
+                      <span class="text-[10px] text-zepto-muted line-through font-medium leading-tight">₹{{ product.mrp }}</span>
                     </div>
                     
-                    <div class="space-y-2 px-1">
-                        <p class="font-mono text-[10px] uppercase text-on-surface-variant tracking-[0.3em] font-bold">{{ product.category.name }}</p>
-                        <h4 class="font-sans text-[16px] font-semibold text-on-background tracking-tight uppercase leading-snug">{{ product.name }}</h4>
-                        
-                        <div class="flex items-center gap-2 pt-1 border-t border-primary/5 mt-4">
-                            <div class="flex items-center gap-1">
-                                <span class="material-symbols-outlined text-primary text-[14px] fill-current">star</span>
-                                <span class="font-mono text-[12px] font-bold text-on-background">{{ product.rating }}</span>
-                            </div>
-                            <!-- Verified terminology consistent with user request -->
-                            <span class="font-mono text-[10px] text-on-surface-variant italic opacity-60">({{ product.reviews_count }} verified)</span>
-                        </div>
-                        
-                        <p class="font-mono text-lg pt-3 font-bold text-primary italic">₹{{ product.price }}</p>
-                    </div>
+                    <form method="POST" action="{% url 'add_to_cart' product.id %}" class="m-0">
+                      {% csrf_token %}
+                      <input type="hidden" name="quantity" value="1">
+                      <button type="submit" 
+                              class="js-add-to-cart-btn zepto-add-btn px-3 py-1.5 rounded-xl text-xs flex items-center gap-1 shadow-sm"
+                              data-product-id="{{ product.id }}"
+                              data-product-name="{{ product.name }}">
+                        <span class="text-xs font-black">+</span>
+                        <span>ADD</span>
+                      </button>
+                    </form>
+                  </div>
                 </div>
                 {% endfor %}
             </div>
+            
             {% else %}
-            <div class="py-32 flex flex-col items-center justify-center text-center opacity-40">
-                <span class="material-symbols-outlined text-6xl mb-8">inventory_2</span>
-                <h3 class="font-serif text-3xl italic">No matches found.</h3>
-                <p class="font-sans text-sm mt-4 italic">Adjust your filters or try a different search term.</p>
+            <div class="py-24 text-center bg-white rounded-3xl border border-zepto-border p-8 max-w-lg mx-auto shadow-sm">
+                <div class="w-20 h-20 bg-zepto-bg rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">
+                  🛒
+                </div>
+                <h3 class="text-xl font-black text-zepto-purple-dark mb-2">No Products Match Filters</h3>
+                <p class="text-xs text-zepto-muted mb-6">Try resetting the price filters or choosing another category.</p>
+                <a href="{% url 'public_store' %}" class="inline-flex items-center gap-2 bg-gradient-to-r from-zepto-purple to-zepto-pink text-white text-xs font-black uppercase px-6 py-3 rounded-2xl shadow-zepto hover:shadow-zepto-hover transition-all">
+                  Reset Filters ⚡
+                </a>
             </div>
             {% endif %}
         </div>

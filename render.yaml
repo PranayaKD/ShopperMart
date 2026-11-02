@@ -2,8 +2,8 @@ services:
   - type: web
     name: shoppermart
     env: python
-    buildCommand: "./build.sh"
-    startCommand: "gunicorn ShopperMart.wsgi --bind 0.0.0.0:$PORT"
+    buildCommand: "bash ./build.sh"
+    startCommand: "gunicorn ShopperMart.wsgi:application --bind 0.0.0.0:$PORT --workers 3 --threads 2 --worker-class gthread --timeout 60"
     envVars:
       - key: DATABASE_URL
         fromDatabase:

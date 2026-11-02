@@ -71,8 +71,22 @@
     var rzp1 = new Razorpay(options);
     
     rzp1.on('payment.failed', function (response){
-        alert("Payment Failed: " + response.error.description);
-        window.location.href = "{% url 'order_detail' order.id %}";
+        const reason = response.error?.description || "Payment was rejected or cancelled.";
+        if (window.showPaymentFailedModal) {
+            window.showPaymentFailedModal({
+                title: "Payment Failed",
+                message: reason,
+                onRetry: function() {
+                    rzp1.open();
+                },
+                onCod: function() {
+                    window.location.href = "{% url 'order_detail' order.id %}";
+                }
+            });
+        } else {
+            alert("Payment Failed: " + reason);
+            window.location.href = "{% url 'order_detail' order.id %}";
+        }
     });
     
     // Auto open once DOM is loaded

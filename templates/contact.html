@@ -1,67 +1,73 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Contact Us | ShopperMart – Customer Support India{% endblock %}
+{% block title %}24/7 Customer Support | ShopperMart 10-Minute Delivery{% endblock %}
 
-{% block meta_description %}Get in touch with ShopperMart. Contact our customer support team for order inquiries, product questions, or partnership opportunities. Based in Bhadrak, Odisha, India.{% endblock %}
+{% block meta_description %}Get fast customer support for your 10-minute grocery and essentials delivery. Contact ShopperMart in Bhadrak, Odisha.{% endblock %}
 
-{% block meta_keywords %}shoppermart contact, customer support india, ecommerce help bhadrak, online shopping support odisha, shoppermart email{% endblock %}
+{% block meta_keywords %}shoppermart contact, 10 min delivery support, customer care bhadrak{% endblock %}
 
 {% block content %}
-<section class="pt-44 pb-32 px-8 md:px-24 bg-zinc-50 overflow-hidden relative">
-    <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-24 items-start relative z-10">
+<section class="py-12 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
         
-        <div class="space-y-12">
-            <span class="font-mono text-[10px] tracking-[.3em] text-on-surface-variant uppercase block font-bold opacity-40">Get in Touch</span>
-            <h1 class="font-serif text-6xl md:text-8xl font-bold tracking-tighter text-black uppercase leading-[0.9] italic">
-                We're Here <br/>to <span class="text-zinc-300">Help.</span>
+        <!-- Left Side -->
+        <div class="space-y-6">
+            <span class="text-[10px] font-black uppercase tracking-widest text-zepto-purple block">24/7 Live Support</span>
+            <h1 class="text-3xl sm:text-5xl font-black text-zepto-purple-dark tracking-tight leading-tight">
+              We're Here <br/>to <span class="zepto-gradient-text">Help Fast.</span>
             </h1>
-            <p class="font-newsreader text-2xl leading-relaxed text-black/60 italic max-w-lg">
-                Whether you have a question about our collection, or just want to say hello, we'd love to hear from you.
+            <p class="text-xs sm:text-sm text-zepto-muted leading-relaxed">
+              Have a question about your 10-minute delivery, need an item added, or want to give feedback? Our support team is online 24/7.
             </p>
             
-            <div class="space-y-10 pt-12 border-t border-black/5">
-                <div class="flex items-start gap-6">
-                    <span class="material-symbols-outlined text-black/20 text-3xl">mail</span>
+            <div class="space-y-4 pt-4 border-t border-zepto-border">
+                <div class="flex items-start gap-4 p-4 rounded-2xl bg-white border border-zepto-border shadow-sm">
+                    <div class="w-10 h-10 rounded-xl bg-zepto-purple/10 text-zepto-purple flex items-center justify-center shrink-0">
+                      <span class="material-symbols-outlined text-[20px]">mail</span>
+                    </div>
                     <div>
-                        <h4 class="font-mono text-[10px] uppercase tracking-widest font-bold mb-2">Email Us</h4>
-                        <a href="mailto:hello@shoppermart.com" class="font-serif text-2xl font-bold hover:italic transition-all">hello@shoppermart.com</a>
+                        <h4 class="text-xs font-black text-zepto-purple-dark">Email Support</h4>
+                        <a href="mailto:support@shoppermart.com" class="text-xs font-bold text-zepto-purple hover:underline">support@shoppermart.com</a>
+                        <p class="text-[10px] text-zepto-muted">Average response time: 5 minutes</p>
                     </div>
                 </div>
-                <div class="flex items-start gap-6">
-                    <span class="material-symbols-outlined text-black/20 text-3xl">location_on</span>
+
+                <div class="flex items-start gap-4 p-4 rounded-2xl bg-white border border-zepto-border shadow-sm">
+                    <div class="w-10 h-10 rounded-xl bg-zepto-green/10 text-zepto-green flex items-center justify-center shrink-0">
+                      <span class="material-symbols-outlined text-[20px]">location_on</span>
+                    </div>
                     <div>
-                        <h4 class="font-mono text-[10px] uppercase tracking-widest font-bold mb-2">Visit Us</h4>
-                        <p class="font-serif text-2xl font-bold">Bhadrak, Odisha, <br/>India</p>
+                        <h4 class="text-xs font-black text-zepto-purple-dark">Central Dark Store</h4>
+                        <p class="text-xs text-zepto-muted">Bhadrak Sector 4, Odisha, 756100</p>
+                        <p class="text-[10px] text-zepto-green font-bold">Open 6:00 AM – 2:00 AM Daily</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="bg-white p-12 md:p-16 rounded-[3rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] border border-black/5">
-            <h3 class="font-serif text-3xl font-bold uppercase mb-12 tracking-tight">Send a Message</h3>
-            <form method="POST" action="{% url 'contact' %}" class="space-y-10">
+        <!-- Right Side: Contact Form -->
+        <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-zepto-border">
+            <h3 class="text-xl font-black text-zepto-purple-dark mb-6">Send Us a Quick Message</h3>
+            <form method="POST" action="{% url 'contact' %}" class="space-y-4">
                 {% csrf_token %}
-                <div class="relative group">
-                    <input class="block w-full px-0 py-5 text-black bg-transparent border-0 border-b border-black/10 focus:ring-0 focus:border-black transition-all duration-700 peer font-serif text-2xl font-bold placeholder:opacity-0" 
-                           id="name" name="name" placeholder="Name" type="text" required/>
-                    <label class="absolute left-0 top-0 text-black/30 font-mono text-[9px] tracking-[0.4em] uppercase pointer-events-none transition-all duration-500 origin-left peer-focus:-translate-y-8 peer-focus:scale-90 peer-focus:text-black peer-not-placeholder-shown:-translate-y-8 peer-not-placeholder-shown:scale-90" 
-                           for="name">Your Name</label>
+                <div>
+                    <label class="block text-xs font-bold text-zepto-purple-dark mb-1" for="name">Your Name</label>
+                    <input class="w-full bg-zepto-bg border border-zepto-border rounded-xl px-4 py-3 text-xs font-bold focus:border-zepto-purple outline-none" 
+                           id="name" name="name" placeholder="E.g. Pranaya Dash" type="text" required/>
                 </div>
-                <div class="relative group">
-                    <input class="block w-full px-0 py-5 text-black bg-transparent border-0 border-b border-black/10 focus:ring-0 focus:border-black transition-all duration-700 peer font-serif text-2xl font-bold placeholder:opacity-0" 
-                           id="email" name="email" placeholder="Email" type="email" required/>
-                    <label class="absolute left-0 top-0 text-black/30 font-mono text-[9px] tracking-[0.4em] uppercase pointer-events-none transition-all duration-500 origin-left peer-focus:-translate-y-8 peer-focus:scale-90 peer-focus:text-black peer-not-placeholder-shown:-translate-y-8 peer-not-placeholder-shown:scale-90" 
-                           for="email">Email Address</label>
+                <div>
+                    <label class="block text-xs font-bold text-zepto-purple-dark mb-1" for="email">Email Address</label>
+                    <input class="w-full bg-zepto-bg border border-zepto-border rounded-xl px-4 py-3 text-xs font-bold focus:border-zepto-purple outline-none" 
+                           id="email" name="email" placeholder="name@example.com" type="email" required/>
                 </div>
-                <div class="relative group">
-                    <textarea class="block w-full px-0 py-5 text-black bg-transparent border-0 border-b border-black/10 focus:ring-0 focus:border-black transition-all duration-700 peer font-serif text-xl placeholder:opacity-0 resize-none" 
-                              id="message" name="message" placeholder="Message" required rows="3"></textarea>
-                    <label class="absolute left-0 top-0 text-black/30 font-mono text-[9px] tracking-[0.4em] uppercase pointer-events-none transition-all duration-500 origin-left peer-focus:-translate-y-8 peer-focus:scale-90 peer-focus:text-black peer-not-placeholder-shown:-translate-y-8 peer-not-placeholder-shown:scale-90" 
-                           for="message">How can we help?</label>
+                <div>
+                    <label class="block text-xs font-bold text-zepto-purple-dark mb-1" for="message">Message</label>
+                    <textarea class="w-full bg-zepto-bg border border-zepto-border rounded-xl p-4 text-xs font-bold focus:border-zepto-purple outline-none resize-none" 
+                              id="message" name="message" placeholder="How can we assist you with your 10-minute order?" required rows="4"></textarea>
                 </div>
-                <button type="submit" class="w-full bg-black text-white py-6 rounded-full font-bold tracking-[0.5em] text-[11px] uppercase hover:bg-zinc-800 transition-all shadow-xl active:scale-95 duration-500">
-                    Send Message
+                <button type="submit" class="w-full bg-gradient-to-r from-zepto-purple to-zepto-pink text-white py-3.5 rounded-xl text-xs font-black uppercase tracking-wider shadow-zepto hover:shadow-zepto-hover active:scale-95 transition-all">
+                  Send Message ⚡
                 </button>
             </form>
         </div>

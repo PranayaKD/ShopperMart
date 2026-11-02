@@ -17,25 +17,41 @@ SECRET_KEY = config("SECRET_KEY")  # No default — MUST be set in .env or envir
 DEBUG = config("DEBUG", default=False, cast=bool)
 
 # 1. RAZORPAY ENVIRONMENT CHECK
+from datetime import timedelta
+
 RAZORPAY_KEY_ID = config("RAZORPAY_KEY_ID", default="")
 RAZORPAY_KEY_SECRET = config("RAZORPAY_KEY_SECRET", default="")
+RAZORPAY_WEBHOOK_SECRET = config("RAZORPAY_WEBHOOK_SECRET", default="")
 
 if not RAZORPAY_KEY_ID or not RAZORPAY_KEY_SECRET:
     import logging
     logging.getLogger(__name__).warning("CRITICAL: RAZORPAY_KEY_ID or RAZORPAY_KEY_SECRET is missing. Payments will fail.")
 
-# ================= ALLOWED_HOSTS =================
-# FIX: This was missing quotes and proper list format
-# ================= ALLOWED_HOSTS =================
-ALLOWED_HOSTS = config(
-    "ALLOWED_HOSTS", 
-    default="localhost,127.0.0.1,shoppermart.onrender.com"  # Add your Render URL here
-).split(",")
+# ================= HOSTS & REVERSE PROXY =================
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
-# Or keep the dynamic approach but with a fallback
+ALLOWED_HOSTS = [
+    h.strip() for h in config(
+        "ALLOWED_HOSTS", 
+        default="localhost,127.0.0.1,shoppermart.onrender.com,testserver"
+    ).split(",") if h.strip()
+]
+
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
-if RENDER_EXTERNAL_HOSTNAME:
+if RENDER_EXTERNAL_HOSTNAME and RENDER_EXTERNAL_HOSTNAME not in ALLOWED_HOSTS:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+
+CSRF_TRUSTED_ORIGINS = [
+    f"https://{h.lstrip('.')}"
+    for h in ALLOWED_HOSTS
+    if h not in ("localhost", "127.0.0.1", "testserver")
+]
+CSRF_TRUSTED_ORIGINS.extend([
+    "https://*.onrender.com",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+])
+CSRF_TRUSTED_ORIGINS = list(dict.fromkeys(CSRF_TRUSTED_ORIGINS))
 
 # ================= APPS =================
 INSTALLED_APPS = [
@@ -49,7 +65,9 @@ INSTALLED_APPS = [
     "widget_tweaks",           # UI form helper
     "rest_framework",          # Django REST Framework
     "rest_framework.authtoken", # Token-based API auth
+    "rest_framework_simplejwt.token_blacklist", # Refresh token rotation & blacklisting
     "django_filters",          # API filtering
+    "drf_spectacular",         # OpenAPI 3.0 schema & Swagger UI
     "django.contrib.sites",    # Required for allauth
     "allauth",
     "allauth.account",
@@ -70,6 +88,7 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 20,
     'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ],
@@ -89,6 +108,26 @@ REST_FRAMEWORK = {
         'anon': '100/hour',
         'user': '1000/hour',
     },
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'EXCEPTION_HANDLER': 'ShopperMartapp.exceptions.custom_exception_handler',
+}
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
+    "UPDATE_LAST_LOGIN": True,
+    "ALGORITHM": "HS256",
+    "SIGNING_KEY": SECRET_KEY,
+    "AUTH_HEADER_TYPES": ("Bearer",),
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'ShopperMart 10-Minute Quick Commerce API',
+    'DESCRIPTION': 'Production-ready REST API for ShopperMart. Includes catalog search, atomic ordering, cart sync, and JWT token authentication.',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
 }
 
 
@@ -141,6 +180,7 @@ TEMPLATES = [
                 "ShopperMartapp.context_processors.categories_processor",
                 "ShopperMartapp.context_processors.cart_processor",
                 "ShopperMartapp.context_processors.wishlist_processor",
+                "ShopperMartapp.context_processors.settings_processor",
             ],
         },
     },
@@ -148,25 +188,39 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "ShopperMart.wsgi.application"
 
-# ================= DATABASE =================
-# FIX: Simplified database configuration for Render
+# ================= DATABASE (PostgreSQL Only) =================
+# Enforces production-grade PostgreSQL with connection persistence
+DATABASE_URL = config(
+    "DATABASE_URL",
+    default="postgresql://postgres@127.0.0.1:5433/shoppermart"
+)
+is_internal_or_local = any(h in DATABASE_URL for h in ("dpg-", "render.internal", "localhost", "127.0.0.1"))
+db_ssl_default = False if (DEBUG or is_internal_or_local) else True
+
 DATABASES = {
-    "default": dj_database_url.config(
-        default=config(
-            "DATABASE_URL",
-            default="sqlite:///db.sqlite3"  # Fallback to SQLite for local dev
-        ),
-        conn_max_age=600
+    "default": dj_database_url.parse(
+        DATABASE_URL,
+        conn_max_age=600,
+        ssl_require=config("DB_SSL_REQUIRE", default=db_ssl_default, cast=bool),
     )
 }
 
-# ================= CACHING (Required for Rate Limiting) =================
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'LOCATION': 'unique-snowflake',
+# ================= CACHING (Rate Limiting & Sessions) =================
+REDIS_URL = config("REDIS_URL", default="")
+if REDIS_URL:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+            'LOCATION': REDIS_URL,
+        }
     }
-}
+else:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'shoppermart-cache-local',
+        }
+    }
 
 # ================= PASSWORD VALIDATION =================
 AUTH_PASSWORD_VALIDATORS = [
@@ -182,23 +236,51 @@ TIME_ZONE = "Asia/Kolkata"
 USE_I18N = True
 USE_TZ = True   # Store timestamps in UTC
 
-# ================= STATIC & MEDIA =================
+# ================= STATIC & MEDIA STORAGE =================
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-# WhiteNoise storage
-# We use CompressedStaticFilesStorage to provide compression without the 
-# strict manifest requirements that can cause crashes in dev/test environments.
+# Persistent Cloud Media Storage (Cloudinary / AWS S3 / Local fallback)
+CLOUDINARY_CLOUD_NAME = config("CLOUDINARY_CLOUD_NAME", default="")
+CLOUDINARY_API_KEY = config("CLOUDINARY_API_KEY", default="")
+CLOUDINARY_API_SECRET = config("CLOUDINARY_API_SECRET", default="")
+
+AWS_STORAGE_BUCKET_NAME = config("AWS_STORAGE_BUCKET_NAME", default="")
+
+if CLOUDINARY_CLOUD_NAME and CLOUDINARY_API_KEY and CLOUDINARY_API_SECRET:
+    CLOUDINARY_STORAGE = {
+        'CLOUD_NAME': CLOUDINARY_CLOUD_NAME,
+        'API_KEY': CLOUDINARY_API_KEY,
+        'API_SECRET': CLOUDINARY_API_SECRET,
+    }
+    import cloudinary
+    cloudinary.config(
+        cloud_name=CLOUDINARY_CLOUD_NAME,
+        api_key=CLOUDINARY_API_KEY,
+        api_secret=CLOUDINARY_API_SECRET,
+        secure=True
+    )
+    DEFAULT_STORAGE_BACKEND = "cloudinary_storage.storage.MediaCloudinaryStorage"
+    if "cloudinary_storage" not in INSTALLED_APPS:
+        INSTALLED_APPS += ["cloudinary_storage", "cloudinary"]
+elif AWS_STORAGE_BUCKET_NAME:
+    AWS_ACCESS_KEY_ID = config("AWS_ACCESS_KEY_ID", default="")
+    AWS_SECRET_ACCESS_KEY = config("AWS_SECRET_ACCESS_KEY", default="")
+    AWS_S3_REGION_NAME = config("AWS_S3_REGION_NAME", default="us-east-1")
+    AWS_S3_CUSTOM_DOMAIN = config("AWS_S3_CUSTOM_DOMAIN", default=f"{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com")
+    DEFAULT_STORAGE_BACKEND = "storages.backends.s3boto3.S3Boto3Storage"
+else:
+    DEFAULT_STORAGE_BACKEND = "django.core.files.storage.FileSystemStorage"
+
 STORAGES = {
     "default": {
-        "BACKEND": "django.core.files.storage.FileSystemStorage",
+        "BACKEND": DEFAULT_STORAGE_BACKEND,
     },
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
     },
 }
-
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
@@ -224,7 +306,8 @@ MESSAGE_TAGS = {
     messages.ERROR: "danger",
 }
 
-# RAZORPAY KEYS MOVED TO SECURITY SECTION
+# GOOGLE MAPS & PAYMENT KEYS
+GOOGLE_MAPS_API_KEY = config("GOOGLE_MAPS_API_KEY", default="")  # Active key  # Active key
 
 # ================= SECURITY SETTINGS (Production) =================
 SECURE_SSL_REDIRECT = False
@@ -244,17 +327,121 @@ if not DEBUG:
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
 
-# ================= CONTENT SECURITY POLICY (CSP) =================
+# ================= CONTENT SECURITY POLICY (django-csp 3.8 + 4.x) =================
+CSP_DEFAULT_SRC = ("'self'",)
+CSP_STYLE_SRC = (
+    "'self'",
+    "'unsafe-inline'",
+    "fonts.googleapis.com",
+    "cdn.tailwindcss.com",
+    "unpkg.com",
+)
+CSP_FONT_SRC = (
+    "'self'",
+    "fonts.gstatic.com",
+    "fonts.googleapis.com",
+    "data:",
+)
+CSP_SCRIPT_SRC = (
+    "'self'",
+    "'unsafe-inline'",
+    "'unsafe-eval'",
+    "cdn.tailwindcss.com",
+    "checkout.razorpay.com",
+    "https://checkout.razorpay.com",
+    "https://api.razorpay.com",
+    "https://cdn.razorpay.com",
+    "https://cdn.jsdelivr.net",
+    "maps.googleapis.com",
+    "https://maps.googleapis.com",
+    "maps.gstatic.com",
+    "https://maps.gstatic.com",
+    "unpkg.com",
+)
+CSP_IMG_SRC = (
+    "'self'",
+    "data:",
+    "blob:",
+    "res.cloudinary.com",
+    "*.cloudinary.com",
+    "*.amazonaws.com",
+    "*.googleusercontent.com",
+    "https://*.razorpay.com",
+    "https://checkout.razorpay.com",
+    "*.tile.openstreetmap.org",
+    "tile.openstreetmap.org",
+    "*.basemaps.cartocdn.com",
+    "basemaps.cartocdn.com",
+    "*.cartocdn.com",
+    "maps.googleapis.com",
+    "https://maps.googleapis.com",
+    "maps.gstatic.com",
+    "https://maps.gstatic.com",
+    "*.google.com",
+    "*.googleapis.com",
+    "*.gstatic.com",
+    "unpkg.com",
+)
+CSP_FRAME_SRC = (
+    "'self'",
+    "checkout.razorpay.com",
+    "https://checkout.razorpay.com",
+    "https://api.razorpay.com",
+    "https://*.razorpay.com",
+    "maps.google.com",
+    "https://maps.google.com",
+    "www.google.com",
+    "https://www.google.com",
+)
+CSP_CHILD_SRC = (
+    "'self'",
+    "checkout.razorpay.com",
+    "https://checkout.razorpay.com",
+    "https://api.razorpay.com",
+    "https://*.razorpay.com",
+)
+CSP_CONNECT_SRC = (
+    "'self'",
+    "api.razorpay.com",
+    "https://api.razorpay.com",
+    "https://*.razorpay.com",
+    "lumberjack.razorpay.com",
+    "https://lumberjack.razorpay.com",
+    "https://lumberjack-cx.razorpay.com",
+    "nominatim.openstreetmap.org",
+    "https://nominatim.openstreetmap.org",
+    "*.tile.openstreetmap.org",
+    "tile.openstreetmap.org",
+    "*.basemaps.cartocdn.com",
+    "basemaps.cartocdn.com",
+    "*.cartocdn.com",
+    "maps.googleapis.com",
+    "https://maps.googleapis.com",
+)
+CSP_FORM_ACTION = (
+    "'self'",
+    "https://api.razorpay.com",
+    "https://*.razorpay.com",
+    "https://checkout.razorpay.com",
+)
+
 CONTENT_SECURITY_POLICY = {
     'DIRECTIVES': {
-        'default-src': ("'self'",),
-        'style-src': ("'self'", "'unsafe-inline'", "fonts.googleapis.com", "cdn.tailwindcss.com"),
-        'font-src': ("'self'", "fonts.gstatic.com", "fonts.googleapis.com"),
-        'script-src': ("'self'", "'unsafe-inline'", "cdn.tailwindcss.com", "checkout.razorpay.com"),
-        'img-src': ("'self'", "data:", "res.cloudinary.com", "*.googleusercontent.com"),
-        'frame-src': ("'self'", "checkout.razorpay.com"),
+        'default-src': CSP_DEFAULT_SRC,
+        'style-src': CSP_STYLE_SRC,
+        'font-src': CSP_FONT_SRC,
+        'script-src': CSP_SCRIPT_SRC,
+        'img-src': CSP_IMG_SRC,
+        'frame-src': CSP_FRAME_SRC,
+        'child-src': CSP_CHILD_SRC,
+        'connect-src': CSP_CONNECT_SRC,
+        'form-action': CSP_FORM_ACTION,
     }
 }
+
+# Allow payment popups (e.g. Razorpay 3D-Secure bank OTP simulator)
+# Allow payment popups (e.g. Razorpay 3D-Secure bank OTP simulator)
+SECURE_CROSS_ORIGIN_OPENER_POLICY = None
 
 # ================= LOGGING (Operational Backup) =================
 LOGGING = {

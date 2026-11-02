@@ -4,6 +4,7 @@ Converts Django models to/from JSON for the API layer.
 Demonstrates: Nested serialization, computed fields, write validation.
 """
 from rest_framework import serializers
+from drf_spectacular.utils import extend_schema_field
 from django.contrib.auth.models import User
 from .models import (
     Category, Product, Review, Cart, CartItem,
@@ -13,12 +14,19 @@ from .models import (
 
 # ═══════════ CATEGORY ═══════════
 class CategorySerializer(serializers.ModelSerializer):
-    product_count = serializers.IntegerField(source='products.count', read_only=True)
+    product_count = serializers.SerializerMethodField()
     url = serializers.HyperlinkedIdentityField(view_name='api-category-detail', lookup_field='slug')
 
     class Meta:
         model = Category
         fields = ['id', 'name', 'slug', 'product_count', 'url']
+
+    @extend_schema_field(serializers.IntegerField())
+    def get_product_count(self, obj):
+        val = getattr(obj, 'annotated_product_count', None)
+        if val is not None:
+            return val
+        return obj.products.filter(available=True, is_deleted=False).count()
 
 
 # ═══════════ REVIEW ═══════════
@@ -53,8 +61,8 @@ class ProductListSerializer(serializers.ModelSerializer):
     """Lightweight serializer for list views (no heavy relations)."""
     category_name = serializers.CharField(source='category.name', read_only=True)
     category_slug = serializers.CharField(source='category.slug', read_only=True)
-    computed_rating = serializers.DecimalField(max_digits=3, decimal_places=1, read_only=True)
-    computed_reviews_count = serializers.IntegerField(read_only=True)
+    computed_rating = serializers.SerializerMethodField()
+    computed_reviews_count = serializers.SerializerMethodField()
     low_stock = serializers.BooleanField(read_only=True)
     image_url = serializers.SerializerMethodField()
 
@@ -67,6 +75,20 @@ class ProductListSerializer(serializers.ModelSerializer):
             'image_url', 'created_at',
         ]
 
+    @extend_schema_field(serializers.DecimalField(max_digits=3, decimal_places=1))
+    def get_computed_rating(self, obj):
+        if hasattr(obj, 'annotated_rating'):
+            return round(float(obj.annotated_rating), 1) if obj.annotated_rating is not None else float(obj.rating)
+        return float(obj.computed_rating)
+
+    @extend_schema_field(serializers.IntegerField())
+    def get_computed_reviews_count(self, obj):
+        if hasattr(obj, 'annotated_reviews_count'):
+            val = obj.annotated_reviews_count
+            return val if (val is not None and val > 0) else obj.reviews_count
+        return obj.computed_reviews_count
+
+    @extend_schema_field(serializers.CharField(allow_null=True))
     def get_image_url(self, obj):
         if obj.image:
             request = self.context.get('request')
@@ -80,8 +102,8 @@ class ProductDetailSerializer(serializers.ModelSerializer):
     """Full serializer with nested reviews for detail view."""
     category = CategorySerializer(read_only=True)
     reviews = ReviewSerializer(many=True, read_only=True, source='approved_reviews')
-    computed_rating = serializers.DecimalField(max_digits=3, decimal_places=1, read_only=True)
-    computed_reviews_count = serializers.IntegerField(read_only=True)
+    computed_rating = serializers.SerializerMethodField()
+    computed_reviews_count = serializers.SerializerMethodField()
     low_stock = serializers.BooleanField(read_only=True)
     image_url = serializers.SerializerMethodField()
 
@@ -93,6 +115,20 @@ class ProductDetailSerializer(serializers.ModelSerializer):
             'image_url', 'created_at', 'updated_at', 'reviews',
         ]
 
+    @extend_schema_field(serializers.DecimalField(max_digits=3, decimal_places=1))
+    def get_computed_rating(self, obj):
+        if hasattr(obj, 'annotated_rating'):
+            return round(float(obj.annotated_rating), 1) if obj.annotated_rating is not None else float(obj.rating)
+        return float(obj.computed_rating)
+
+    @extend_schema_field(serializers.IntegerField())
+    def get_computed_reviews_count(self, obj):
+        if hasattr(obj, 'annotated_reviews_count'):
+            val = obj.annotated_reviews_count
+            return val if (val is not None and val > 0) else obj.reviews_count
+        return obj.computed_reviews_count
+
+    @extend_schema_field(serializers.CharField(allow_null=True))
     def get_image_url(self, obj):
         if obj.image:
             request = self.context.get('request')
@@ -118,6 +154,7 @@ class CartItemSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['subtotal']
 
+    @extend_schema_field(serializers.CharField(allow_null=True))
     def get_product_image(self, obj):
         if obj.product.image:
             request = self.context.get('request')
@@ -128,7 +165,7 @@ class CartItemSerializer(serializers.ModelSerializer):
 
 class CartSerializer(serializers.ModelSerializer):
     items = CartItemSerializer(many=True, read_only=True)
-    total_price = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True, source='total_price')
+    total_price = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
     item_count = serializers.IntegerField(source='items.count', read_only=True)
 
     class Meta:
@@ -156,6 +193,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
         model = OrderItem
         fields = ['id', 'product', 'product_name', 'quantity', 'price', 'total']
 
+    @extend_schema_field(serializers.CharField())
     def get_total(self, obj):
         return str(obj.get_total())
 
@@ -196,6 +234,7 @@ class OrderDetailSerializer(serializers.ModelSerializer):
             'lifecycle_progress', 'lifecycle_percentage', 'lifecycle_steps',
         ]
 
+    @extend_schema_field(serializers.ListField(child=serializers.CharField()))
     def get_lifecycle_steps(self, obj):
         return ORDER_LIFECYCLE_STEPS
 
@@ -218,6 +257,26 @@ class UserSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
 
+class UpdateCartItemSerializer(serializers.Serializer):
+    item_id = serializers.UUIDField()
+    quantity = serializers.IntegerField(min_value=1, max_value=50)
+
+
+class RemoveCartItemSerializer(serializers.Serializer):
+    item_id = serializers.UUIDField()
+
+
+class OrderCreateSerializer(serializers.Serializer):
+    full_name = serializers.CharField(max_length=80)
+    email = serializers.EmailField()
+    address = serializers.CharField(max_length=255)
+    city = serializers.CharField(max_length=50)
+    state = serializers.CharField(max_length=50)
+    postal_code = serializers.CharField(min_length=6, max_length=6)
+    landmark = serializers.CharField(max_length=255, required=False, allow_blank=True)
+    payment_method = serializers.ChoiceField(choices=['upi', 'card', 'cod'], default='upi')
+
+
 class RegisterSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=150)
     email = serializers.EmailField()
@@ -233,5 +292,19 @@ class RegisterSerializer(serializers.Serializer):
             raise serializers.ValidationError("Email already registered.")
         return value
 
+    def validate_password(self, value):
+        from django.contrib.auth.password_validation import validate_password
+        validate_password(value)
+        return value
+
     def create(self, validated_data):
         return User.objects.create_user(**validated_data)
+
+
+class LogoutSerializer(serializers.Serializer):
+    refresh = serializers.CharField(required=False, allow_blank=True, help_text="Optional SimpleJWT refresh token to blacklist.")
+
+
+class LoginSerializer(serializers.Serializer):
+    username = serializers.CharField(max_length=150)
+    password = serializers.CharField(write_only=True)
