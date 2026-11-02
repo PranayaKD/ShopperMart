@@ -91,8 +91,18 @@
     {% else %}
 
 
-    <!-- Hero split promotional banners -->
-    <section class="pt-3 sm:pt-4 pb-6 px-3 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+    <!-- Hero promotional banners -->
+    <section class="pt-3 sm:pt-4 pb-6 px-3 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-4">
+      
+      <!-- Daily essentials top banner -->
+      <a href="{% url 'public_store' %}?category=fruits-vegetables" 
+         class="block w-full overflow-hidden rounded-2xl sm:rounded-3xl shadow-sm hover:shadow-md hover:scale-[1.002] active:scale-[0.998] transition-all group border border-gray-100/60 bg-emerald-800">
+        <img src="/media/banners/banner_daily_essentials.png" 
+             alt="Stock up on daily essentials - Get farm-fresh goodness and range of exotic fruits, vegetables, eggs and more" 
+             class="w-full h-auto object-cover rounded-2xl sm:rounded-3xl transition-transform duration-300 group-hover:brightness-[1.02]" 
+             loading="eager" />
+      </a>
+
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">
         
         <!-- Left: Solid brand orange first-order cashback offer -->
