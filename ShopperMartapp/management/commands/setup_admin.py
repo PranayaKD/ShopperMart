@@ -29,13 +29,14 @@ class Command(BaseCommand):
         username = options["username"]
         email = options["email"]
         password = options["password"]
+        custom_env_password = os.getenv("ADMIN_PASSWORD")
 
         if User.objects.filter(username=username).exists():
             user = User.objects.get(username=username)
             user.is_staff = True
             user.is_superuser = True
-            if options.get("password") and options["password"] != "Admin@12345":
-                user.set_password(password)
+            if custom_env_password:
+                user.set_password(custom_env_password)
             user.save()
             self.stdout.write(
                 self.style.WARNING(f"Superuser '{username}' already exists. Staff permissions verified.")
