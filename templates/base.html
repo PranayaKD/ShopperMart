@@ -576,43 +576,43 @@
 
             <!-- TOP DEPARTMENT NAVIGATION BAR (ZEPTO STYLE - BRAND ORANGE PERSONALIZED) -->
       <nav aria-label="Departments" class="mt-2.5 pt-2 border-t border-gray-100 flex items-center gap-5 sm:gap-7 md:gap-8 overflow-x-auto no-scrollbar whitespace-nowrap">
-        <a href="{% url 'public_store' %}" class="shrink-0 flex items-center gap-1.5 pb-1.5 text-xs transition-colors {% if request.path == '/store/' or not category and request.path == '/' %}text-brand-orange font-black border-b-2 border-brand-orange{% else %}text-gray-600 hover:text-brand-orange font-bold{% endif %}">
+        <a href="{% url 'public_store' %}" class="shrink-0 flex items-center gap-1.5 pb-1.5 text-xs transition-colors {% if request.path == '/store/' and not request.GET.category and not request.GET.q or request.path == '/' and not request.GET.category and not request.GET.q %}text-brand-orange font-black border-b-2 border-brand-orange{% else %}text-gray-600 hover:text-brand-orange font-bold{% endif %}">
           <span class="material-symbols-outlined text-[17px]">shopping_bag</span>
           <span>All</span>
         </a>
-        <a href="{% url 'category_products' 'shoppermart-cafe' %}" class="shrink-0 flex items-center gap-1.5 pb-1.5 text-xs transition-colors {% if 'cafe' in request.path %}text-brand-orange font-black border-b-2 border-brand-orange{% else %}text-gray-600 hover:text-brand-orange font-bold{% endif %}">
+        <a href="{% url 'public_store' %}?category=shoppermart-cafe" class="shrink-0 flex items-center gap-1.5 pb-1.5 text-xs transition-colors {% if request.GET.category == 'shoppermart-cafe' or 'cafe' in request.path %}text-brand-orange font-black border-b-2 border-brand-orange{% else %}text-gray-600 hover:text-brand-orange font-bold{% endif %}">
           <span class="material-symbols-outlined text-[17px]">local_cafe</span>
           <span>Cafe</span>
         </a>
-        <a href="{% url 'category_products' 'home-kitchen' %}" class="shrink-0 flex items-center gap-1.5 pb-1.5 text-xs transition-colors {% if 'home-kitchen' in request.path or 'cleaning' in request.path %}text-brand-orange font-black border-b-2 border-brand-orange{% else %}text-gray-600 hover:text-brand-orange font-bold{% endif %}">
+        <a href="{% url 'public_store' %}?category=home-kitchen" class="shrink-0 flex items-center gap-1.5 pb-1.5 text-xs transition-colors {% if request.GET.category == 'home-kitchen' or 'home-kitchen' in request.path %}text-brand-orange font-black border-b-2 border-brand-orange{% else %}text-gray-600 hover:text-brand-orange font-bold{% endif %}">
           <span class="material-symbols-outlined text-[17px]">cleaning_services</span>
           <span>Home</span>
         </a>
-        <a href="{% url 'public_store' %}?q=toys" class="shrink-0 flex items-center gap-1.5 pb-1.5 text-xs transition-colors {% if 'toys' in request.get_full_path %}text-brand-orange font-black border-b-2 border-brand-orange{% else %}text-gray-600 hover:text-brand-orange font-bold{% endif %}">
+        <a href="{% url 'public_store' %}?q=toys" class="shrink-0 flex items-center gap-1.5 pb-1.5 text-xs transition-colors {% if request.GET.q == 'toys' or 'toys' in request.get_full_path %}text-brand-orange font-black border-b-2 border-brand-orange{% else %}text-gray-600 hover:text-brand-orange font-bold{% endif %}">
           <span class="material-symbols-outlined text-[17px]">smart_toy</span>
           <span>Toys</span>
         </a>
-        <a href="{% url 'category_products' 'fruits-vegetables' %}" class="shrink-0 flex items-center gap-1.5 pb-1.5 text-xs transition-colors {% if 'fruits' in request.path %}text-brand-orange font-black border-b-2 border-brand-orange{% else %}text-gray-600 hover:text-brand-orange font-bold{% endif %}">
+        <a href="{% url 'public_store' %}?category=fruits-vegetables" class="shrink-0 flex items-center gap-1.5 pb-1.5 text-xs transition-colors {% if request.GET.category == 'fruits-vegetables' or 'fruits' in request.path %}text-brand-orange font-black border-b-2 border-brand-orange{% else %}text-gray-600 hover:text-brand-orange font-bold{% endif %}">
           <span class="material-symbols-outlined text-[17px]">nutrition</span>
           <span>Fresh</span>
         </a>
-        <a href="{% url 'category_products' 'electronics' %}" class="shrink-0 flex items-center gap-1.5 pb-1.5 text-xs transition-colors {% if 'electronics' in request.path %}text-brand-orange font-black border-b-2 border-brand-orange{% else %}text-gray-600 hover:text-brand-orange font-bold{% endif %}">
+        <a href="{% url 'public_store' %}?category=electronics" class="shrink-0 flex items-center gap-1.5 pb-1.5 text-xs transition-colors {% if request.GET.category == 'electronics' or 'electronics' in request.path %}text-brand-orange font-black border-b-2 border-brand-orange{% else %}text-gray-600 hover:text-brand-orange font-bold{% endif %}">
           <span class="material-symbols-outlined text-[17px]">headphones</span>
           <span>Electronics</span>
         </a>
-        <a href="{% url 'public_store' %}?q=mobile" class="shrink-0 flex items-center gap-1.5 pb-1.5 text-xs transition-colors {% if 'mobile' in request.get_full_path %}text-brand-orange font-black border-b-2 border-brand-orange{% else %}text-gray-600 hover:text-brand-orange font-bold{% endif %}">
+        <a href="{% url 'public_store' %}?q=mobile" class="shrink-0 flex items-center gap-1.5 pb-1.5 text-xs transition-colors {% if request.GET.q == 'mobile' or 'mobile' in request.get_full_path %}text-brand-orange font-black border-b-2 border-brand-orange{% else %}text-gray-600 hover:text-brand-orange font-bold{% endif %}">
           <span class="material-symbols-outlined text-[17px]">smartphone</span>
           <span>Mobiles</span>
         </a>
-        <a href="{% url 'category_products' 'beauty-personal-care' %}" class="shrink-0 flex items-center gap-1.5 pb-1.5 text-xs transition-colors {% if 'beauty' in request.path %}text-brand-orange font-black border-b-2 border-brand-orange{% else %}text-gray-600 hover:text-brand-orange font-bold{% endif %}">
+        <a href="{% url 'public_store' %}?category=beauty-personal-care" class="shrink-0 flex items-center gap-1.5 pb-1.5 text-xs transition-colors {% if request.GET.category == 'beauty-personal-care' or 'beauty' in request.path %}text-brand-orange font-black border-b-2 border-brand-orange{% else %}text-gray-600 hover:text-brand-orange font-bold{% endif %}">
           <span class="material-symbols-outlined text-[17px]">brush</span>
           <span>Beauty</span>
         </a>
-        <a href="{% url 'category_products' 'apparel-lifestyle' %}" class="shrink-0 flex items-center gap-1.5 pb-1.5 text-xs transition-colors {% if 'apparel' in request.path %}text-brand-orange font-black border-b-2 border-brand-orange{% else %}text-gray-600 hover:text-brand-orange font-bold{% endif %}">
+        <a href="{% url 'public_store' %}?category=fashion" class="shrink-0 flex items-center gap-1.5 pb-1.5 text-xs transition-colors {% if request.GET.category == 'fashion' or request.GET.category == 'apparel-lifestyle' or 'fashion' in request.path or 'apparel' in request.path %}text-brand-orange font-black border-b-2 border-brand-orange{% else %}text-gray-600 hover:text-brand-orange font-bold{% endif %}">
           <span class="material-symbols-outlined text-[17px]">checkroom</span>
           <span>Fashion</span>
         </a>
-        <a href="{% url 'category_products' 'personal-hygiene' %}" class="shrink-0 flex items-center gap-1.5 pb-1.5 text-xs transition-colors {% if 'hygiene' in request.path or 'pharmacy' in request.get_full_path %}text-brand-orange font-black border-b-2 border-brand-orange{% else %}text-gray-600 hover:text-brand-orange font-bold{% endif %}">
+        <a href="{% url 'public_store' %}?category=personal-hygiene" class="shrink-0 flex items-center gap-1.5 pb-1.5 text-xs transition-colors {% if request.GET.category == 'personal-hygiene' or request.GET.category == 'pharmacy' or 'hygiene' in request.path or 'pharmacy' in request.get_full_path %}text-brand-orange font-black border-b-2 border-brand-orange{% else %}text-gray-600 hover:text-brand-orange font-bold{% endif %}">
           <span class="material-symbols-outlined text-[17px]">medication</span>
           <span>Pharmacy</span>
         </a>

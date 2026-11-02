@@ -168,16 +168,40 @@ def public_store(request):
     """Public Store page with sidebar filtering and sorting."""
     # Get parameters
     query = request.GET.get("q", "")
-    category_slug = request.GET.get('category', '')
+    category_slug = request.GET.get('category', '').strip()
     min_price = request.GET.get('min_price', '')
     max_price = request.GET.get('max_price', '')
     sort_by = request.GET.get('sort', 'newest')
 
+    slug_aliases = {
+        'apparel-lifestyle': 'fashion',
+        'apparel': 'fashion',
+        'clothing': 'fashion',
+        'cleaning-household': 'cleaning-essentials',
+        'cleaning': 'cleaning-essentials',
+        'pharmacy': 'personal-hygiene',
+        'hygiene': 'personal-hygiene',
+        'veggies': 'fruits-vegetables',
+        'fruits': 'fruits-vegetables',
+        'vegetables': 'fruits-vegetables',
+        'dairy': 'dairy-bread-eggs',
+        'cafe': 'shoppermart-cafe',
+    }
+    category_slug = slug_aliases.get(category_slug, category_slug)
+
     # Build optimized QuerySet
     products = Product.objects.available().with_category().search(query)
     
+    selected_cat_obj = None
     if category_slug:
-        products = products.filter(category__slug=category_slug)
+        selected_cat_obj = Category.objects.filter(slug=category_slug).first()
+        if not selected_cat_obj:
+            selected_cat_obj = Category.objects.filter(models.Q(slug__icontains=category_slug) | models.Q(name__icontains=category_slug.replace('-', ' '))).first()
+        if selected_cat_obj:
+            category_slug = selected_cat_obj.slug
+            products = products.filter(category=selected_cat_obj)
+        else:
+            products = products.filter(category__slug=category_slug)
     
     # Price filtering (Fixed: Use Decimal for precision)
     try:
@@ -198,6 +222,7 @@ def public_store(request):
         "page_obj": page_obj,
         "categories": Category.objects.all(),
         "selected_category": category_slug,
+        "selected_category_name": selected_cat_obj.name if selected_cat_obj else category_slug.replace('-', ' ').title(),
         "min_price": min_price,
         "max_price": max_price,
         "sort": sort_by,
@@ -266,7 +291,39 @@ def contact_view(request):
 
 def category_products(request, slug):
     """Display all products under a specific category. SEO-FRIENDLY: No login required to browse."""
-    category = get_object_or_404(Category, slug=slug)
+    category = Category.objects.filter(slug=slug).first()
+
+    # Alias / legacy redirect mapping to prevent 404s
+    if not category:
+        slug_aliases = {
+            'apparel-lifestyle': 'fashion',
+            'apparel': 'fashion',
+            'clothing': 'fashion',
+            'cleaning-household': 'cleaning-essentials',
+            'cleaning': 'cleaning-essentials',
+            'pharmacy': 'personal-hygiene',
+            'hygiene': 'personal-hygiene',
+            'veggies': 'fruits-vegetables',
+            'fruits': 'fruits-vegetables',
+            'vegetables': 'fruits-vegetables',
+            'dairy': 'dairy-bread-eggs',
+            'cafe': 'shoppermart-cafe',
+        }
+        canonical_slug = slug_aliases.get(slug)
+        if canonical_slug:
+            category = Category.objects.filter(slug=canonical_slug).first()
+            if category:
+                return redirect('category_products', slug=category.slug, permanent=True)
+
+    if not category:
+        # Fallback partial matching
+        category = Category.objects.filter(models.Q(slug__icontains=slug) | models.Q(name__icontains=slug.replace('-', ' '))).first()
+        if category:
+            return redirect('category_products', slug=category.slug, permanent=True)
+
+    if not category:
+        raise Http404("No Category matches the given query.")
+
     products = Product.objects.available().filter(category=category).with_category().with_image_status().sort_by('newest')
 
     return render(request, "ShopperMartapp/category_products.html", {

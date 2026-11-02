@@ -16,7 +16,7 @@
         <div>
           <span class="text-[10px] font-black uppercase tracking-widest text-zepto-yellow block mb-1">Superfast Supermarket</span>
           <h1 class="text-2xl sm:text-4xl font-black tracking-tight leading-none">
-            {% if selected_category %}{{ selected_category }}{% elif query %}Search: {{ query }}{% else %}All Products & Aisles{% endif %}
+            {% if selected_category %}{{ selected_category_name|default:selected_category }}{% elif query %}Search: {{ query }}{% else %}All Products & Aisles{% endif %}
           </h1>
           <p class="text-xs text-white/80 font-medium mt-1">Order any item and receive it within 10 minutes</p>
         </div>

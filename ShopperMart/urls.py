@@ -57,7 +57,8 @@ handler404 = 'ShopperMartapp.views.catalog.error_404_view'
 handler500 = 'ShopperMartapp.views.catalog.error_500_view'
 
 if settings.DEBUG:
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+    urlpatterns += staticfiles_urlpatterns()
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 else:
     # Serve media files in production for the free tier Render portfolio
