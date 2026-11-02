@@ -1,162 +1,141 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Shop All Products & Essentials – ShopperMart Superfast Store{% endblock %}
+{% block title %}{{ page_title }} – ShopperMart{% endblock %}
 
-{% block meta_description %}Browse the complete ShopperMart catalog with fresh groceries, dairy, snacks, beverages and household essentials. Delivered to your doorstep in 10 minutes.{% endblock %}
-
-{% block meta_keywords %}shoppermart store, buy groceries online, 10 min delivery india, quick commerce catalog{% endblock %}
+{% block meta_description %}Browse {{ page_title }} at ShopperMart with instant 10-minute doorstep delivery.{% endblock %}
 
 {% block content %}
-<section class="py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto min-h-screen">
+<section class="py-6 sm:py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto min-h-screen">
     
-    <!-- Top Header Banner -->
-    <div class="mb-8 p-6 sm:p-8 bg-gradient-to-r from-zepto-purple-dark via-zepto-purple to-zepto-pink rounded-3xl text-white relative overflow-hidden shadow-zepto">
+    <!-- Category header banner -->
+    <div class="mb-6 sm:mb-8 p-6 sm:p-8 bg-[#E85002] rounded-3xl text-white relative overflow-hidden shadow-sm">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
         <div>
-          <span class="text-[10px] font-black uppercase tracking-widest text-zepto-yellow block mb-1">Superfast Supermarket</span>
+          <span class="text-[10px] font-black uppercase tracking-widest text-white/80 block mb-1">Instant 10-Min Delivery</span>
           <h1 class="text-2xl sm:text-4xl font-black tracking-tight leading-none">
-            {% if selected_category %}{{ selected_category_name|default:selected_category }}{% elif query %}Search: {{ query }}{% else %}All Products & Aisles{% endif %}
+            {{ page_title }}
           </h1>
-          <p class="text-xs text-white/80 font-medium mt-1">Order any item and receive it within 10 minutes</p>
+          <p class="text-xs text-white/90 font-medium mt-1.5">{{ page_description }}</p>
         </div>
       </div>
     </div>
 
-    <div class="flex flex-col lg:flex-row gap-8 items-start">
+    <!-- Products toolbar -->
+    <div class="flex items-center justify-between mb-6 pb-3 border-b border-gray-100 gap-4 flex-wrap">
+      <div class="text-xs font-bold text-gray-500">
+        Showing <span class="font-black text-gray-900">{{ page_obj.paginator.count }}</span> items
+      </div>
+      
+      <form method="GET" action="{% url 'public_store' %}" class="flex items-center gap-2">
+        {% if query %}<input type="hidden" name="q" value="{{ query }}">{% endif %}
+        {% if selected_category %}<input type="hidden" name="category" value="{{ selected_category }}">{% endif %}
         
-        <!-- SIDEBAR FILTERS (SHOPPERMART PILL THEMED) -->
-        <aside class="w-full lg:w-64 shrink-0 bg-white rounded-3xl p-6 border border-zepto-border shadow-sm sticky top-28">
-            <span class="text-xs font-black uppercase tracking-wider text-zepto-purple-dark block mb-4 pb-2 border-b border-zepto-border">
-              Filter Aisles
+        <label for="sort-select" class="text-xs font-bold text-gray-500">Sort by:</label>
+        <select id="sort-select" name="sort" onchange="this.form.submit()" class="bg-white border border-gray-200 rounded-xl px-3 py-1.5 text-xs font-bold text-gray-800 outline-none focus:border-brand-orange cursor-pointer">
+          <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Recently Added</option>
+          <option value="price_asc" {% if sort == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
+          <option value="price_desc" {% if sort == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
+          <option value="rating" {% if sort == 'rating' %}selected{% endif %}>Top Rated First</option>
+        </select>
+      </form>
+    </div>
+
+    <!-- Products grid -->
+    {% if products %}
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2.5 sm:gap-3.5">
+        {% for product in products %}
+        <div class="p-2.5 sm:p-3 flex flex-col justify-between group relative bg-white rounded-2xl border border-gray-200/90 hover:border-brand-orange/40 shadow-2xs hover:shadow-md transition-all">
+          
+          <!-- Badges & Wishlist -->
+          <div class="flex items-center justify-between mb-2 relative z-20">
+            <span class="bg-green-50 text-emerald-700 text-[10px] font-black uppercase px-2 py-0.5 rounded-md flex items-center gap-1">
+              ⚡ 10 MINS
             </span>
+            <button type="button" 
+                    onclick="toggleWishlist('{{ product.id }}', this)"
+                    class="w-7 h-7 rounded-full bg-gray-50 hover:bg-rose-50 text-gray-400 hover:text-brand-crimson flex items-center justify-center transition-all js-require-auth" title="Save to wishlist">
+              <span class="material-symbols-outlined text-[17px] {% if product.id in wishlisted_ids %}fill-current text-brand-crimson{% endif %}">favorite</span>
+            </button>
+          </div>
 
-            <form method="GET" action="{% url 'public_store' %}" class="space-y-6">
-                {% if query %}<input type="hidden" name="q" value="{{ query }}">{% endif %}
+          <!-- Product Image Area -->
+          <a href="{% url 'product_detail' product.slug %}" class="block w-full h-[120px] sm:h-[135px] mb-2 overflow-hidden rounded-xl bg-white p-2 relative flex items-center justify-center border border-gray-50">
+            {% if product.image %}
+            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+            {% else %}
+            <div class="w-full h-full flex items-center justify-center text-xs font-bold text-gray-400 italic">ShopperMart</div>
+            {% endif %}
+          </a>
 
-                <!-- Category Links -->
-                <div>
-                  <span class="text-[11px] font-bold text-zepto-muted uppercase tracking-wider block mb-2.5">Category</span>
-                  <div class="flex flex-col gap-1.5 max-h-56 overflow-y-auto no-scrollbar">
-                    <a href="{% url 'public_store' %}" class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all {% if not selected_category %}bg-zepto-purple text-white{% else %}text-zepto-purple-dark hover:bg-zepto-bg{% endif %}">
-                      🔥 All Categories
-                    </a>
-                    {% for cat in categories %}
-                    <a href="?category={{ cat.slug }}" class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all {% if selected_category == cat.slug %}bg-zepto-purple text-white{% else %}text-zepto-purple-dark hover:bg-zepto-bg{% endif %}">
-                      {{ cat.name }}
-                    </a>
-                    {% endfor %}
-                  </div>
-                </div>
+          <!-- Details & Rating -->
+          <div class="space-y-1 mb-3">
+            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block truncate">{{ product.category.name }}</span>
+            <a href="{% url 'product_detail' product.slug %}" class="text-xs sm:text-sm font-bold text-gray-900 hover:text-brand-orange line-clamp-2 leading-snug">
+              {{ product.name }}
+            </a>
+            <div class="flex items-center gap-1 text-[11px] font-bold text-gray-700 pt-0.5">
+              <span class="material-symbols-outlined text-amber-500 text-[14px] fill-current">star</span>
+              <span>{{ product.rating }}</span>
+              <span class="text-gray-400 text-[10px] font-medium">({{ product.reviews_count }})</span>
+            </div>
+          </div>
 
-                <!-- Price Range -->
-                <div class="pt-4 border-t border-zepto-border">
-                  <span class="text-[11px] font-bold text-zepto-muted uppercase tracking-wider block mb-2.5">Price Range (₹)</span>
-                  <div class="grid grid-cols-2 gap-2">
-                    <input type="number" name="min_price" value="{{ min_price }}" placeholder="Min" class="w-full bg-zepto-bg border border-zepto-border rounded-xl px-3 py-2 text-xs font-bold outline-none focus:border-zepto-purple">
-                    <input type="number" name="max_price" value="{{ max_price }}" placeholder="Max" class="w-full bg-zepto-bg border border-zepto-border rounded-xl px-3 py-2 text-xs font-bold outline-none focus:border-zepto-purple">
-                  </div>
-                </div>
-
-                <!-- Sort By -->
-                <div class="pt-4 border-t border-zepto-border">
-                  <span class="text-[11px] font-bold text-zepto-muted uppercase tracking-wider block mb-2.5">Sort Items</span>
-                  <select name="sort" onchange="this.form.submit()" class="w-full bg-zepto-bg border border-zepto-border rounded-xl px-3 py-2 text-xs font-bold text-zepto-purple-dark outline-none focus:border-zepto-purple cursor-pointer">
-                    <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Recently Added</option>
-                    <option value="price_asc" {% if sort == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
-                    <option value="price_desc" {% if sort == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
-                    <option value="rating" {% if sort == 'rating' %}selected{% endif %}>Top Rated First</option>
-                  </select>
-                </div>
-
-                <div class="flex flex-col gap-2 pt-2">
-                  <button type="submit" class="w-full bg-gradient-to-r from-zepto-purple to-zepto-pink text-white py-2.5 rounded-xl text-xs font-black uppercase tracking-wider shadow-sm hover:shadow-zepto transition-all">
-                    Apply Filters
-                  </button>
-                  <a href="{% url 'public_store' %}" class="text-center text-[11px] font-bold text-zepto-muted hover:text-zepto-pink py-1">
-                    Reset All Filters
-                  </a>
-                </div>
-            </form>
-        </aside>
-
-        <!-- PRODUCT GRID -->
-        <div class="flex-grow w-full">
-            {% if products %}
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 gap-2.5 sm:gap-3.5">
-                {% for product in products %}
-                <div class="zepto-card-interactive reveal-item p-2.5 sm:p-3 flex flex-col justify-between group relative bg-white rounded-2xl border border-gray-200/90 hover:border-brand-orange/40 shadow-2xs hover:shadow-md transition-all">
-                  
-                  <!-- Badges & Wishlist -->
-                  <div class="flex items-center justify-between mb-2 relative z-20">
-                    <span class="bg-zepto-green/10 text-zepto-green text-[10px] font-black uppercase px-2 py-0.5 rounded-md flex items-center gap-1">
-                      ⚡ 10 MINS
-                    </span>
-                    <button type="button" 
-                            onclick="toggleWishlist('{{ product.id }}', this)"
-                            class="w-7 h-7 rounded-full bg-zepto-bg hover:bg-zepto-pink/10 text-zepto-muted hover:text-zepto-pink flex items-center justify-center transition-all js-require-auth" title="Save to wishlist">
-                      <span class="material-symbols-outlined text-[17px] {% if product.id in wishlisted_ids %}fill-current text-zepto-pink{% endif %}">favorite</span>
-                    </button>
-                  </div>
-
-                  <!-- Product Image -->
-                  <a href="{% url 'product_detail' product.slug %}" class="block w-full h-[120px] sm:h-[135px] mb-2 overflow-hidden rounded-xl bg-white p-2 relative flex items-center justify-center border border-gray-50">
-                    {% if product.image %}
-                    <img src="{{ product.image.url }}" alt="{{ product.name }}" class="w-full h-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-500 ease-out"/>
-                    {% else %}
-                    <div class="w-full h-full flex items-center justify-center text-xs font-bold text-zepto-muted/50 italic">ShopperMart</div>
-                    {% endif %}
-                  </a>
-
-                  <!-- Details & Rating -->
-                  <div class="space-y-1 mb-3">
-                    <span class="text-[10px] font-bold text-zepto-muted uppercase tracking-wider block truncate">{{ product.category.name }}</span>
-                    <a href="{% url 'product_detail' product.slug %}" class="text-xs sm:text-sm font-extrabold text-zepto-purple-dark hover:text-zepto-purple line-clamp-2 leading-snug">
-                      {{ product.name }}
-                    </a>
-                    <div class="flex items-center gap-1 text-[11px] font-bold text-zepto-purple-dark pt-0.5">
-                      <span class="material-symbols-outlined text-zepto-yellow text-[14px] fill-current">star</span>
-                      <span>{{ product.rating }}</span>
-                      <span class="text-zepto-muted text-[10px] font-medium">({{ product.reviews_count }})</span>
-                    </div>
-                  </div>
-
-                  <!-- Price & ShopperMart ADD Button -->
-                  <div class="pt-2 border-t border-zepto-border/60 flex items-center justify-between gap-2 mt-auto">
-                    <div class="flex flex-col">
-                      <span class="text-sm sm:text-base font-black text-zepto-purple-dark leading-none">₹{{ product.price }}</span>
-                      <span class="text-[10px] text-zepto-muted line-through font-medium leading-tight">₹{{ product.mrp }}</span>
-                    </div>
-                    
-                    <form method="POST" action="{% url 'add_to_cart' product.id %}" class="m-0">
-                      {% csrf_token %}
-                      <input type="hidden" name="quantity" value="1">
-                      <button type="submit" 
-                              class="js-add-to-cart-btn zepto-add-btn px-3 py-1.5 rounded-xl text-xs flex items-center gap-1 shadow-sm"
-                              data-product-id="{{ product.id }}"
-                              data-product-name="{{ product.name }}">
-                        <span class="text-xs font-black">+</span>
-                        <span>ADD</span>
-                      </button>
-                    </form>
-                  </div>
-                </div>
-                {% endfor %}
+          <!-- Price & ADD Button -->
+          <div class="pt-2 border-t border-gray-100 flex items-center justify-between gap-2 mt-auto">
+            <div class="flex flex-col">
+              <span class="text-sm sm:text-base font-black text-gray-900 leading-none">₹{{ product.price|floatformat:0 }}</span>
+              {% if product.mrp_price and product.mrp_price > product.price %}
+              <span class="text-[10px] text-gray-400 line-through font-medium leading-tight">₹{{ product.mrp_price|floatformat:0 }}</span>
+              {% endif %}
             </div>
             
-            {% else %}
-            <div class="py-24 text-center bg-white rounded-3xl border border-zepto-border p-8 max-w-lg mx-auto shadow-sm">
-                <div class="w-20 h-20 bg-zepto-bg rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">
-                  🛒
-                </div>
-                <h3 class="text-xl font-black text-zepto-purple-dark mb-2">No Products Match Filters</h3>
-                <p class="text-xs text-zepto-muted mb-6">Try resetting the price filters or choosing another category.</p>
-                <a href="{% url 'public_store' %}" class="inline-flex items-center gap-2 bg-gradient-to-r from-zepto-purple to-zepto-pink text-white text-xs font-black uppercase px-6 py-3 rounded-2xl shadow-zepto hover:shadow-zepto-hover transition-all">
-                  Reset Filters ⚡
-                </a>
-            </div>
-            {% endif %}
+            <button type="button" 
+                    onclick="quickAddToCart('{{ product.id }}', this, event)"
+                    class="bg-white hover:bg-brand-orange text-brand-orange hover:text-white border-[1.5px] border-brand-orange text-[11px] font-black uppercase px-3 py-1 rounded-xl shadow-2xs transition-all active:scale-95 cursor-pointer">
+              <span>+ ADD</span>
+            </button>
+          </div>
         </div>
+        {% endfor %}
     </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <div class="flex items-center justify-center gap-2 pt-10">
+      {% if page_obj.has_previous %}
+      <a href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}" 
+         class="px-4 py-2 rounded-xl border border-gray-200 text-xs font-bold text-gray-700 hover:bg-gray-50 transition-colors">
+        Previous
+      </a>
+      {% endif %}
+      
+      <span class="text-xs font-bold text-gray-500 px-3">
+        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+      </span>
+
+      {% if page_obj.has_next %}
+      <a href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}" 
+         class="px-4 py-2 rounded-xl border border-gray-200 text-xs font-bold text-gray-700 hover:bg-gray-50 transition-colors">
+        Next
+      </a>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    {% else %}
+    <!-- Empty state -->
+    <div class="py-20 text-center bg-white rounded-3xl border border-gray-200 p-8 max-w-lg mx-auto shadow-sm">
+      <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
+        🛒
+      </div>
+      <h3 class="text-lg font-black text-gray-900 mb-1">No Products Found</h3>
+      <p class="text-xs text-gray-500 mb-5">We couldn't find items in this section. Explore other categories or browse all products.</p>
+      <a href="{% url 'public_store' %}" class="inline-flex items-center gap-2 bg-brand-orange hover:bg-brand-crimson text-white text-xs font-black uppercase px-6 py-2.5 rounded-xl shadow-sm transition-all">
+        Browse All Products ⚡
+      </a>
+    </div>
+    {% endif %}
+
 </section>
 {% endblock %}

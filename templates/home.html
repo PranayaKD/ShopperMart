@@ -91,10 +91,10 @@
     {% else %}
 
 
-        <!-- 1. HERO PROMO BANNERS (CLEAN QUICK-COMMERCE BANNERS) -->
+        <!-- Promotional hero banners -->
     <section class="pt-3 sm:pt-4 pb-4 px-3 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-3.5 sm:space-y-4">
       
-      <!-- TOP WIDE HERO BANNER: DAILY ESSENTIALS -->
+      <!-- Daily essentials banner -->
       <a href="{% url 'public_store' %}?category=fruits-vegetables" 
          class="block w-full overflow-hidden rounded-2xl sm:rounded-3xl shadow-sm hover:shadow-md hover:scale-[1.003] active:scale-[0.997] transition-all group border border-gray-100/60 bg-emerald-800">
         <img src="/media/banners/banner_daily_essentials.png" 
@@ -103,9 +103,9 @@
              loading="eager" />
       </a>
 
-      <!-- BOTTOM 3 PROMO CARDS: PHARMACY, PET CARE, BABY CARE -->
+      <!-- Promotional feature cards -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4 md:gap-4.5">
-        <!-- CARD 1: PHARMACY -->
+        <!-- Pharmacy card -->
         <a href="{% url 'public_store' %}?category=personal-hygiene" 
            class="block w-full overflow-hidden rounded-2xl sm:rounded-3xl shadow-sm hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all group border border-gray-100/60 bg-[#00838F]">
           <img src="/media/banners/card_pharmacy.png" 
@@ -114,7 +114,7 @@
                loading="lazy" />
         </a>
 
-        <!-- CARD 2: PET CARE -->
+        <!-- Pet care card -->
         <a href="{% url 'public_store' %}?q=pet" 
            class="block w-full overflow-hidden rounded-2xl sm:rounded-3xl shadow-sm hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all group border border-gray-100/60 bg-[#F5A623]">
           <img src="/media/banners/card_pet_care.png" 
@@ -123,7 +123,7 @@
                loading="lazy" />
         </a>
 
-        <!-- CARD 3: BABY CARE -->
+        <!-- Baby care card -->
         <a href="{% url 'public_store' %}?q=baby" 
            class="block w-full overflow-hidden rounded-2xl sm:rounded-3xl shadow-sm hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all group border border-gray-100/60 bg-[#546E7A]">
           <img src="/media/banners/card_baby_care.png" 
@@ -135,7 +135,7 @@
 
     </section>
 
-    <!-- TRENDING SEARCHES BAR (TOP ACCELERATOR) -->
+    <!-- Trending searches -->
     <section class="pt-3 pb-1 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
       <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1 text-xs">
         <span class="text-[10px] font-black uppercase tracking-wider text-gray-400 shrink-0 flex items-center gap-1">
@@ -150,9 +150,9 @@
       </div>
     </section>
 
-    <!-- 2. GROUPED CATEGORY SECTIONS (EXACT MATCHING ZEPTO IMAGE 2: SMALL CLEAN CARDS) -->
+    <!-- Category highlights -->
     
-    <!-- GROUP A: GROCERY & KITCHEN -->
+    <!-- Grocery and kitchen -->
     {% if grocery_categories %}
     <section class="scroll-reveal py-5 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
       <div class="flex items-center justify-between mb-3">
@@ -185,7 +185,7 @@
     </section>
     {% endif %}
 
-    <!-- GROUP B: SNACKS & DRINKS -->
+    <!-- Snacks and drinks -->
     {% if snacks_categories %}
     <section class="scroll-reveal py-5 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
       <div class="flex items-center justify-between mb-3">
@@ -218,7 +218,7 @@
     </section>
     {% endif %}
 
-    <!-- 3. DYNAMIC CATEGORY PRODUCT SHELVES (AT LEAST 10+ CATEGORIES FOR RICH SCROLLING) -->
+    <!-- Product shelves -->
     {% for shelf in home_shelves %}
     <section class="scroll-reveal py-4 sm:py-6 px-3 sm:px-6 lg:px-8 max-w-7xl mx-auto">
       <div class="flex items-center justify-between mb-2.5 sm:mb-3.5">
@@ -228,7 +228,7 @@
         </div>
 
         <div class="flex items-center gap-2 sm:gap-3 shrink-0">
-          <!-- Chevron Navigation Controls: White < and Solid Black > matching Zepto design exactly -->
+          <!-- Navigation controls -->
           <div class="flex items-center gap-1.5 sm:gap-2">
             
             
@@ -241,17 +241,17 @@
         </div>
       </div>
 
-      <!-- Rail wrapper with clean spacing and zero card obstruction -->
+      <!-- Horizontal product rail -->
       <div class="relative group/rail">
 
-        <!-- Product Track (Edge to edge on mobile, contained on desktop) -->
+        <!-- Product track -->
         <div id="rail-{{ shelf.category.slug }}" 
              class="flex gap-2.5 sm:gap-3.5 overflow-x-auto pb-3 pt-1 scroll-smooth no-scrollbar cursor-grab active:cursor-grabbing select-none px-1 sm:px-0 -mx-1 sm:mx-0" 
              style="scrollbar-width: none; -ms-overflow-style: none; -webkit-overflow-scrolling: touch;">
           {% for product in shelf.products %}
           <div class="w-[136px] sm:w-[155px] md:w-[165px] flex-shrink-0 scroll-reveal-card bg-white rounded-2xl border border-gray-200/90 hover:border-brand-orange/40 p-2 sm:p-2.5 flex flex-col justify-between shadow-xs hover:shadow-md transition-all group relative">
             
-            <!-- Image Area with Single ADD Button -->
+            <!-- Product image and add button -->
             <div class="w-full h-[112px] sm:h-[125px] rounded-xl bg-white p-2 relative flex items-center justify-center mb-1.5 sm:mb-2 overflow-hidden border border-gray-50">
               <a href="{% url 'product_detail' product.slug %}" class="w-full h-full flex items-center justify-center">
                 {% if product.image %}
@@ -261,7 +261,7 @@
                 {% endif %}
               </a>
 
-              <!-- Quick Add Button (Solid Brand Orange) -->
+              <!-- Add button -->
               <button type="button" 
                       onclick="quickAddToCart('{{ product.id }}', this, event)"
                       class="absolute bottom-1 right-1 bg-white hover:bg-brand-orange text-brand-orange hover:text-white border-[1.5px] border-brand-orange text-[10px] sm:text-[11px] font-black uppercase px-2.5 py-0.5 rounded-lg shadow-2xs transition-all active:scale-90 z-10 cursor-pointer">
@@ -297,7 +297,7 @@
     </section>
     {% endfor %}
 
-    <!-- GROUP C: BEAUTY & HOUSEHOLD CATEGORIES (ZEPTO-STYLE AISLE CARDS) -->
+    <!-- Beauty and personal care -->
     {% if beauty_categories %}
     <section class="scroll-reveal py-5 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
       <div class="flex items-center justify-between mb-3">
@@ -330,7 +330,7 @@
     </section>
     {% endif %}
 
-    <!-- 6. TRENDING & EXISTING USER PRODUCTS (COMPACT QUICK-COMMERCE CARDS MATCHING CATEGORY RAILS ABOVE) -->
+    <!-- Featured products grid -->
     <section id="quick-deals" class="scroll-reveal py-6 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
       <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-4 gap-3 pb-3 border-b border-gray-200">
         <div>
@@ -350,12 +350,12 @@
         </a>
       </div>
 
-      <!-- Compact 7-column / responsive grid with card dimensions matching category rails above -->
+      <!-- Product grid -->
       <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 gap-2.5 sm:gap-3">
         {% for product in featured_products %}
         <div class="bg-white rounded-2xl border border-gray-200/90 hover:border-gray-300 p-2.5 flex flex-col justify-between shadow-xs hover:shadow-md transition-all group relative">
           
-          <!-- Image Area with Single ADD Button -->
+          <!-- Product image and add button -->
           <div class="w-full h-[125px] rounded-xl bg-white p-2 relative flex items-center justify-center mb-2 overflow-hidden border border-gray-50">
             <a href="{% url 'product_detail' product.slug %}" class="w-full h-full flex items-center justify-center">
               {% if product.image %}
@@ -403,7 +403,7 @@
       </div>
     </section>
 
-    <!-- 7. BRAND STATEMENT (MATCHING IMAGE 3: "THE PLACE THAT FITS ALL YOUR NEEDS" & PRANAYA PORTFOLIO) -->
+    <!-- Brand statement -->
     <section class="scroll-reveal py-12 sm:py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto my-4">
       <div class="bg-[#F4F6FA] border border-gray-200/80 rounded-3xl p-8 sm:p-14 text-center shadow-xs">
         <h2 class="text-3xl sm:text-5xl lg:text-6xl font-black text-[#505F75] tracking-tight leading-tight">
@@ -420,7 +420,7 @@
       </div>
     </section>
 
-    <!-- 8. TRUST & PROMISE FEATURES -->
+    <!-- Service highlights -->
     <section class="scroll-reveal py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-gray-200">
       <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
         
@@ -461,7 +461,7 @@
     <!-- Hidden CSRF Token for Quick Cart Actions -->
     <input type="hidden" id="page-csrf-token" value="{{ csrf_token }}">
 
-    <!-- RAIL SCROLL, MOUSE DRAG & AJAX QUICK ADD SCRIPT -->
+    <!-- Product rail interactions -->
     <script>
       // Smooth Horizontal Rail Scrolling with Auto-Arrow Visibility
       function scrollRail(railId, distance) {

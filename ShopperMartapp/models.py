@@ -64,7 +64,7 @@ class ProductQuerySet(models.QuerySet):
             models.Q(category__name__icontains=query) |
             models.Q(category__slug__icontains=query)
         )
-        # Quick-Commerce Smart Synonyms (Mobiles, Home & Kitchen, Fresh Groceries)
+        # Search query synonyms
         if any(term in q_clean for term in ['mobile', 'phone', 'smartphone', 'cellphone']):
             base_q |= (
                 models.Q(category__slug='electronics') |

@@ -25,7 +25,7 @@ def shop_home(request):
     """Display all available products with high-performance filtering and rate-limited search."""
     query = request.GET.get("q", "").strip()
     
-    # 50+ Edge Case: Search Rate Limiting (Case #12)
+    # Session search rate limiting
     import time
     now = time.time()
     last_search = request.session.get('last_search_time', 0)
@@ -52,12 +52,12 @@ def shop_home(request):
     paginator = Paginator(products, 24)
     page_obj = paginator.get_page(request.GET.get('page'))
 
-    # Quick commerce 20-category grid
+    # Featured categories
     featured_categories = Category.objects.filter(order__gte=1, order__lte=20).order_by('order')
     if not featured_categories.exists():
         featured_categories = Category.objects.all()[:20]
 
-    # Category sections like Zepto Image 2
+    # Category highlights
     grocery_categories = Category.objects.filter(slug__in=[
         'fruits-vegetables', 'dairy-bread-eggs', 'atta-rice-oil-dals',
         'meats-fish-eggs', 'masala-dry-fruits-more', 'breakfast-sauces', 'packaged-food'
@@ -76,7 +76,7 @@ def shop_home(request):
         'laundry-care', 'cleaning-essentials', 'rice', 'spices-seasonings', 'dal-pulses', 'oil-ghee'
     ]).order_by('order')
 
-    # Dynamic list of category shelves with available products (At least 10+ categories!)
+    # Category shelves
     category_shelves_slugs = [
         ("laundry-care", "Laundry Care", "🧺"),
         ("dairy-bread-eggs", "Dairy, Bread & Eggs", "🥛"),
@@ -165,45 +165,44 @@ def shop_home(request):
 
 
 def public_store(request):
-    """Public Store page with sidebar filtering and sorting."""
-    # Get parameters
-    query = request.GET.get("q", "")
-    category_slug = request.GET.get('category', '').strip()
-    min_price = request.GET.get('min_price', '')
-    max_price = request.GET.get('max_price', '')
-    sort_by = request.GET.get('sort', 'newest')
+    """Catalog browsing and search view."""
+    query = request.GET.get("q", "").strip()
+    category_slug = request.GET.get("category", "").strip()
+    min_price = request.GET.get("min_price", "")
+    max_price = request.GET.get("max_price", "")
+    sort_by = request.GET.get("sort", "newest")
 
     slug_aliases = {
-        'apparel-lifestyle': 'fashion',
-        'apparel': 'fashion',
-        'clothing': 'fashion',
-        'cleaning-household': 'cleaning-essentials',
-        'cleaning': 'cleaning-essentials',
-        'pharmacy': 'personal-hygiene',
-        'hygiene': 'personal-hygiene',
-        'veggies': 'fruits-vegetables',
-        'fruits': 'fruits-vegetables',
-        'vegetables': 'fruits-vegetables',
-        'dairy': 'dairy-bread-eggs',
-        'cafe': 'shoppermart-cafe',
+        "apparel-lifestyle": "fashion",
+        "apparel": "fashion",
+        "clothing": "fashion",
+        "cleaning-household": "cleaning-essentials",
+        "cleaning": "cleaning-essentials",
+        "pharmacy": "personal-hygiene",
+        "hygiene": "personal-hygiene",
+        "veggies": "fruits-vegetables",
+        "fruits": "fruits-vegetables",
+        "vegetables": "fruits-vegetables",
+        "dairy": "dairy-bread-eggs",
+        "cafe": "shoppermart-cafe",
     }
     category_slug = slug_aliases.get(category_slug, category_slug)
 
-    # Build optimized QuerySet
     products = Product.objects.available().with_category().search(query)
-    
+
     selected_cat_obj = None
     if category_slug:
         selected_cat_obj = Category.objects.filter(slug=category_slug).first()
         if not selected_cat_obj:
-            selected_cat_obj = Category.objects.filter(models.Q(slug__icontains=category_slug) | models.Q(name__icontains=category_slug.replace('-', ' '))).first()
+            selected_cat_obj = Category.objects.filter(
+                models.Q(slug__icontains=category_slug) | models.Q(name__icontains=category_slug.replace("-", " "))
+            ).first()
         if selected_cat_obj:
             category_slug = selected_cat_obj.slug
             products = products.filter(category=selected_cat_obj)
         else:
             products = products.filter(category__slug=category_slug)
-    
-    # Price filtering (Fixed: Use Decimal for precision)
+
     try:
         if min_price:
             products = products.filter(price__gte=Decimal(min_price))
@@ -211,18 +210,39 @@ def public_store(request):
             products = products.filter(price__lte=Decimal(max_price))
     except (InvalidOperation, ValueError):
         messages.error(request, "Invalid price filter range.")
-        
+
     products = products.sort_by(sort_by)
 
+    # Human-friendly page title & description
+    page_title = "All Products"
+    page_description = "Order any item and receive it within 10 minutes"
+    if selected_cat_obj:
+        page_title = selected_cat_obj.name
+        page_description = f"Fresh and authentic {selected_cat_obj.name.lower()} delivered in 10 minutes"
+    elif query:
+        query_map = {
+            "mobile": ("Mobiles & Smartphones", "Top smartphones, tablets and accessories delivered in 10 minutes"),
+            "toys": ("Toys & Games", "Fun toys, games and creative sets for kids"),
+            "pet": ("Pet Care Essentials", "Nutritious pet food, treats and supplies"),
+            "baby": ("Baby Care Essentials", "Diapers, wipes and daily baby care necessities"),
+        }
+        if query.lower() in query_map:
+            page_title, page_description = query_map[query.lower()]
+        else:
+            page_title = f'Results for "{query}"'
+            page_description = f'Found items matching "{query}"'
+
     paginator = Paginator(products, 24)
-    page_obj = paginator.get_page(request.GET.get('page'))
+    page_obj = paginator.get_page(request.GET.get("page"))
 
     return render(request, "ShopperMartapp/public_store.html", {
         "products": page_obj,
         "page_obj": page_obj,
         "categories": Category.objects.all(),
         "selected_category": category_slug,
-        "selected_category_name": selected_cat_obj.name if selected_cat_obj else category_slug.replace('-', ' ').title(),
+        "selected_category_name": page_title,
+        "page_title": page_title,
+        "page_description": page_description,
         "min_price": min_price,
         "max_price": max_price,
         "sort": sort_by,

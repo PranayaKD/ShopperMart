@@ -15,6 +15,9 @@ staticfiles/
 .env
 .pgdata/
 .tmp/
+credentials.json
+token.json
+*.bak
 
 # VS Code
 .vscode/

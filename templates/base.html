@@ -412,7 +412,7 @@
     </div>
   </div>
 
-  <!-- MASTER ZEPTO HEADER -->
+  <!-- Main header -->
   <header id="master-header" class="sticky top-0 z-[100] zepto-header-glass w-full">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
       <div class="flex items-center justify-between gap-3 md:gap-6">
@@ -438,7 +438,7 @@
             </div>
           </a>
 
-          <!-- Location Selector Pill (Zepto Style) -->
+          <!-- Location selector -->
           <div id="open-location-modal-btn" class="flex items-center gap-2 sm:gap-2.5 bg-zepto-bg hover:bg-zepto-purple/5 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-2xl border border-zepto-border transition-all cursor-pointer group/loc" onclick="openLocationModal()" title="Change delivery location">
             <div class="relative w-6 h-6 sm:w-7 sm:h-7 rounded-xl bg-zepto-green/10 flex items-center justify-center text-zepto-green shrink-0">
               <div class="radar-pulse-ring"></div>
@@ -574,7 +574,7 @@
         </div>
       </div>
 
-            <!-- TOP DEPARTMENT NAVIGATION BAR (ZEPTO STYLE - BRAND ORANGE PERSONALIZED) -->
+            <!-- Department navigation -->
       <nav aria-label="Departments" class="mt-2.5 pt-2 border-t border-gray-100 flex items-center gap-5 sm:gap-7 md:gap-8 overflow-x-auto no-scrollbar whitespace-nowrap">
         <a href="{% url 'public_store' %}" class="shrink-0 flex items-center gap-1.5 pb-1.5 text-xs transition-colors {% if request.path == '/store/' and not request.GET.category and not request.GET.q or request.path == '/' and not request.GET.category and not request.GET.q %}text-brand-orange font-black border-b-2 border-brand-orange{% else %}text-gray-600 hover:text-brand-orange font-bold{% endif %}">
           <span class="material-symbols-outlined text-[17px]">shopping_bag</span>
@@ -620,7 +620,7 @@
     </div>
   </header>
 
-  <!-- SIDEBAR MOBILE DRAWER (ZEPTO THEMED) -->
+  <!-- Mobile navigation drawer -->
   <aside id="sidebar-drawer" class="fixed left-0 top-0 bottom-0 w-[85vw] max-w-[340px] bg-white text-zepto-purple-dark z-[150] flex flex-col p-6 overflow-y-auto no-scrollbar shadow-2xl transition-transform duration-500 -translate-x-full">
     <div class="flex justify-between items-center pb-6 border-b border-zepto-border">
       <div class="flex items-center gap-2">
