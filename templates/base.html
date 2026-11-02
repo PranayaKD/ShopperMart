@@ -490,8 +490,15 @@
             {% endif %}
           </a>
 
-          <!-- User Account Pill -->
+          <!-- User Account Pill & Admin Portal -->
           {% if user.is_authenticated %}
+            {% if user.is_staff %}
+            <a href="{% url 'admin_dashboard' %}" class="flex items-center gap-1.5 bg-gray-950 hover:bg-black text-white text-xs font-black px-3.5 py-2 rounded-2xl shadow-sm hover:scale-105 active:scale-95 transition-all" title="Open Store Admin Dashboard">
+              <span class="material-symbols-outlined text-[16px] text-amber-400">admin_panel_settings</span>
+              <span class="hidden sm:inline">Admin Panel</span>
+            </a>
+            {% endif %}
+
             <div class="relative group/user">
               <a href="{% url 'profile' %}" class="flex items-center gap-2 bg-white border border-zepto-border hover:border-zepto-purple/30 px-3 py-2 rounded-2xl transition-all">
                 <div class="w-7 h-7 rounded-full bg-zepto-purple/10 text-zepto-purple flex items-center justify-center font-bold text-xs">
@@ -524,6 +531,10 @@
               </div>
             </div>
           {% else %}
+            <a href="{% url 'admin_login' %}" class="hidden sm:inline-flex items-center gap-1 text-[11px] font-bold text-gray-500 hover:text-black px-2.5 py-1.5 rounded-xl hover:bg-gray-100 transition-all" title="Store Admin Portal">
+              <span class="material-symbols-outlined text-[14px]">lock</span>
+              <span>Admin</span>
+            </a>
             <button onclick="openAuthModal()" class="px-4 py-2 rounded-2xl text-xs font-bold text-zepto-purple-dark hover:text-zepto-purple hover:bg-zepto-purple/5 transition-all">
               Login
             </button>
@@ -670,6 +681,11 @@
 
       <div class="my-3 border-t border-zepto-border"></div>
       {% if user.is_authenticated %}
+        {% if user.is_staff %}
+        <a href="{% url 'admin_dashboard' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-black bg-black text-white hover:bg-neutral-800 transition-all shadow-sm">
+          <span class="material-symbols-outlined text-[18px] text-amber-400">admin_panel_settings</span> Admin Panel (Control Center)
+        </a>
+        {% endif %}
         <a href="{% url 'profile' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold hover:bg-zepto-bg text-zepto-purple-dark">
           <span class="material-symbols-outlined text-[18px]">account_circle</span> {{ user.username }} profile
         </a>
@@ -686,6 +702,9 @@
         <button onclick="closeNav(); openAuthModal();" class="w-full py-3 bg-gradient-to-r from-zepto-purple to-zepto-pink text-white rounded-xl text-xs font-extrabold uppercase tracking-wider shadow-zepto hover:shadow-zepto-hover active:scale-95 transition-all">
           Sign In / Register
         </button>
+        <a href="{% url 'admin_login' %}" class="flex items-center justify-center gap-2 py-2 text-xs font-bold text-gray-500 hover:text-black transition-colors mt-1">
+          <span class="material-symbols-outlined text-[16px]">lock</span> Store Admin Login
+        </a>
       {% endif %}
     </nav>
   </aside>
@@ -903,6 +922,7 @@
             <li><a href="{% url 'terms' %}" class="hover:text-white transition-colors">Terms of Service</a></li>
             <li><a href="{% url 'privacy' %}" class="hover:text-white transition-colors">Privacy Policy</a></li>
             <li><a href="{% url 'returns' %}" class="hover:text-white transition-colors">Return & Refund Policy</a></li>
+            <li><a href="{% url 'admin_login' %}" class="hover:text-white transition-colors flex items-center gap-1.5">Store Admin Portal <span class="text-[9px] bg-white/10 text-amber-400 font-bold px-1.5 py-0.5 rounded">Staff</span></a></li>
             <li><a href="{% url 'shipping' %}" class="hover:text-white transition-colors">10-Minute Shipping Info</a></li>
           </ul>
         </div>

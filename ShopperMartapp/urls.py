@@ -79,6 +79,7 @@ urlpatterns = [
     path("products/<uuid:pk>/delete/", catalog.product_delete, name="product_delete"),
 
     # --- ADVANCED DASHBOARD SYSTEM ---
+    path("admin-login/", administrator.admin_login_view, name="admin_login"),
     path("dashboard/", administrator.admin_dashboard, name="admin_dashboard"),
     path("dashboard/inventory/", administrator.admin_product_list, name="admin_product_list"),
     path("dashboard/inventory/new/", administrator.admin_product_upsert, name="admin_product_upsert"),
