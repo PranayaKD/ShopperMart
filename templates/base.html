@@ -413,9 +413,95 @@
   </div>
 
   <!-- Main header -->
-  <header id="master-header" class="sticky top-0 z-[100] zepto-header-glass w-full">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-      <div class="flex items-center justify-between gap-3 md:gap-6">
+  <header id="master-header" class="sticky top-0 z-[100] zepto-header-glass w-full bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-2xs">
+    <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2 md:py-3">
+      
+      <!-- ============================================== -->
+      <!-- 1. MOBILE HEADER (DISPLAY: BLOCK ON MD:HIDDEN) -->
+      <!-- ============================================== -->
+      <div class="block md:hidden">
+        <!-- Mobile Top Row: Logo, Location & Quick Actions -->
+        <div class="flex items-center justify-between gap-2">
+          
+          <!-- Left: Hamburger + Compact Logo -->
+          <div class="flex items-center gap-1.5 shrink-0">
+            <button id="hamburger-btn" class="p-1.5 -ml-1 rounded-xl text-gray-800 hover:bg-gray-100 transition-colors" title="Toggle Navigation">
+              <span class="material-symbols-outlined text-[24px]">menu</span>
+            </button>
+            
+            <a href="{% url 'home' %}" class="flex items-center gap-1.5">
+              <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-orange to-brand-flame flex items-center justify-center text-white shadow-xs">
+                <span class="material-symbols-outlined text-[18px] font-bold">bolt</span>
+              </div>
+              <div class="flex flex-col">
+                <span class="font-extrabold text-base tracking-tight leading-none text-gray-950">
+                  Shopper<span class="text-brand-orange">Mart</span>
+                </span>
+                <span class="text-[8px] font-extrabold tracking-wider uppercase text-emerald-600 flex items-center gap-0.5 mt-0.5">
+                  <span class="w-1 h-1 rounded-full bg-emerald-600 animate-pulse"></span> 10 MINS
+                </span>
+              </div>
+            </a>
+          </div>
+
+          <!-- Center/Location: Quick Location Pill -->
+          <button type="button" onclick="openLocationModal()" class="flex items-center gap-1 bg-gray-50 hover:bg-orange-50/60 border border-gray-200/80 px-2 py-1 rounded-full text-left transition-colors truncate max-w-[140px]" title="Change Delivery Location">
+            <span class="material-symbols-outlined text-[13px] text-emerald-600 shrink-0">near_me</span>
+            <span id="mobile-header-location-text" class="text-[10px] font-bold text-gray-800 truncate">Bhadrak Sector 4</span>
+            <span class="material-symbols-outlined text-[12px] text-gray-400 shrink-0">expand_more</span>
+          </button>
+
+          <!-- Right: User Avatar / Login & Header Cart -->
+          <div class="flex items-center gap-1.5 shrink-0">
+            {% if user.is_authenticated %}
+              {% if user.is_staff %}
+              <a href="{% url 'admin_dashboard' %}" class="w-7 h-7 rounded-full bg-gray-950 text-amber-400 flex items-center justify-center shadow-2xs" title="Admin Desk">
+                <span class="material-symbols-outlined text-[15px]">admin_panel_settings</span>
+              </a>
+              {% endif %}
+              <a href="{% url 'profile' %}" class="w-7 h-7 rounded-full bg-brand-orange text-white font-bold text-xs flex items-center justify-center border border-white shadow-2xs" title="Account">
+                {{ user.username|slice:":1"|upper }}
+              </a>
+            {% else %}
+              <button type="button" onclick="openAuthModal()" class="text-xs font-black text-gray-800 hover:text-brand-orange px-1.5 py-1" title="Login">
+                Login
+              </button>
+            {% endif %}
+
+            <!-- Mobile Header Cart Button -->
+            <button type="button" onclick="openCartSidebar(event)" id="mobile-header-cart-btn" class="relative w-8 h-8 rounded-xl bg-brand-orange text-white flex items-center justify-center shadow-xs active:scale-95 transition-all cursor-pointer" title="Cart">
+              <span class="material-symbols-outlined text-[18px]">shopping_bag</span>
+              <span id="mobile-header-cart-badge" class="{% if not global_cart_item_count or global_cart_item_count == 0 %}hidden {% endif %}absolute -top-1.5 -right-1.5 bg-black text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center border-2 border-white shadow-xs">
+                {{ global_cart_item_count|default:"0" }}
+              </span>
+            </button>
+          </div>
+
+        </div>
+
+        <!-- Mobile Row 2: Full-Width Prominent Search Bar -->
+        <div class="mt-2.5">
+          <form action="{% url 'home' %}" method="GET" class="relative group/msearch">
+            <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-[18px] pointer-events-none">search</span>
+            <input type="text" 
+                   id="mobile-search-input"
+                   name="q" 
+                   value="{{ query|default:'' }}" 
+                   placeholder="Search 'milk, bread, chips, curd'..." 
+                   class="w-full bg-[#F0F2F9] focus:bg-white text-gray-900 text-xs font-medium rounded-xl pl-10 pr-9 py-2.5 border border-transparent focus:border-brand-orange/50 focus:ring-2 focus:ring-brand-orange/15 outline-none transition-all placeholder:text-gray-400 shadow-2xs">
+            {% if query %}
+            <a href="{% url 'home' %}" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700" title="Clear">
+              <span class="material-symbols-outlined text-[16px]">cancel</span>
+            </a>
+            {% endif %}
+          </form>
+        </div>
+      </div>
+
+      <!-- =============================================== -->
+      <!-- 2. DESKTOP HEADER (DISPLAY: HIDDEN MD:FLEX ROW) -->
+      <!-- =============================================== -->
+      <div class="hidden md:flex items-center justify-between gap-3 md:gap-6">
         
         <!-- BRAND LOGO & LOCATION SELECTOR -->
         <div class="flex items-center gap-3 md:gap-6 shrink-0">
@@ -863,7 +949,7 @@
   
 
   <!-- CONTENT WRAPPER -->
-  <main class="min-h-screen">
+  <main class="min-h-screen pb-24 md:pb-0">
     {% block content %}{% endblock %}
   </main>
 
@@ -1308,10 +1394,10 @@
 
     function updateHeaderLocationUI(loc) {
       const el = document.getElementById('header-location-text');
-      if (el) {
-        const text = loc.locality ? `${loc.locality}${loc.postal_code ? ', ' + loc.postal_code : ''}` : (loc.city || "Select Location");
-        el.textContent = text;
-      }
+      const mel = document.getElementById('mobile-header-location-text');
+      const text = loc.locality ? `${loc.locality}${loc.postal_code ? ', ' + loc.postal_code : ''}` : (loc.city || "Select Location");
+      if (el) el.textContent = text;
+      if (mel) mel.textContent = loc.locality || loc.city || "Bhadrak";
       const titleEl = document.getElementById('selected-address-title');
       const detailEl = document.getElementById('selected-address-detail');
       if (titleEl) titleEl.textContent = loc.locality || loc.city || "Selected Location";
@@ -1639,7 +1725,7 @@
   <!-- ======================================================== -->
   <div id="cart-drawer-backdrop" class="fixed inset-0 bg-black/60 backdrop-blur-xs z-[200] transition-opacity duration-300 opacity-0 pointer-events-none" onclick="closeCartSidebar()"></div>
 
-  <aside id="cart-drawer" class="fixed top-0 right-0 h-full w-full sm:w-[420px] md:w-[450px] bg-[#f4f6f8] z-[201] shadow-2xl flex flex-col transform translate-x-full transition-transform duration-300 ease-in-out" aria-label="Shopping Cart">
+  <aside id="cart-drawer" class="fixed top-0 right-0 h-full w-full sm:w-[420px] md:w-[450px] bg-[#f4f6f8] z-[201] shadow-2xl flex flex-col transform translate-x-full transition-transform duration-300 ease-in-out invisible pointer-events-none" aria-label="Shopping Cart">
     <!-- Drawer Top Header -->
     <div class="h-16 px-4 bg-white border-b border-gray-100 flex items-center justify-between shrink-0 shadow-xs">
       <div class="flex items-center gap-3">
@@ -1730,24 +1816,64 @@
       return match ? match[1] : '';
     }
 
-    // 1. UPDATE HEADER CART BADGE WITH SPRING PULSE
+    // 1. UPDATE HEADER CART BADGE WITH SPRING PULSE (SYNC DESKTOP & MOBILE)
     window.updateCartHeaderUI = function(totalItems) {
-      const badge = document.getElementById('main-cart-badge');
       const count = parseInt(totalItems, 10) || 0;
 
+      // Desktop badge
+      const badge = document.getElementById('main-cart-badge');
       if (badge) {
         if (count > 0) {
           badge.textContent = count;
           badge.classList.remove('hidden');
-          safeAnime({
-            targets: badge,
-            scale: [0.6, 1.25, 1],
-            duration: 350,
-            easing: 'easeOutElastic(1, 0.6)'
-          });
         } else {
           badge.classList.add('hidden');
         }
+      }
+
+      // Mobile header badge
+      const mBadge = document.getElementById('mobile-header-cart-badge');
+      if (mBadge) {
+        if (count > 0) {
+          mBadge.textContent = count;
+          mBadge.classList.remove('hidden');
+        } else {
+          mBadge.classList.add('hidden');
+        }
+      }
+
+      // Mobile bottom nav badge
+      const bBadge = document.getElementById('mobile-nav-cart-badge');
+      if (bBadge) {
+        if (count > 0) {
+          bBadge.textContent = count;
+          bBadge.classList.remove('hidden');
+        } else {
+          bBadge.classList.add('hidden');
+        }
+      }
+
+      // Mobile floating quick cart pill
+      const floatingPill = document.getElementById('mobile-floating-cart-pill');
+      const floatingText = document.getElementById('floating-cart-items-text');
+      if (floatingPill) {
+        if (count > 0) {
+          floatingPill.classList.remove('hidden');
+          if (floatingText) floatingText.textContent = count + ' item' + (count > 1 ? 's' : '');
+        } else {
+          floatingPill.classList.add('hidden');
+        }
+      }
+    };
+
+    // Helper for mobile search trigger from bottom nav
+    window.focusMobileSearch = function() {
+      const mInput = document.getElementById('mobile-search-input');
+      if (mInput) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        setTimeout(() => mInput.focus(), 250);
+      } else {
+        window.location.href = "{% url 'home' %}";
       }
     };
 
@@ -1881,7 +2007,7 @@
         return;
       }
 
-      drawer.classList.remove('translate-x-full');
+      drawer.classList.remove('translate-x-full', 'invisible', 'pointer-events-none');
       backdrop.classList.remove('pointer-events-none');
       document.body.classList.add('overflow-hidden');
 
@@ -1947,12 +2073,12 @@
           duration: 340,
           easing: 'cubicBezier(0.7, 0, 0.84, 0)',
           complete: () => {
-            drawer.classList.add('translate-x-full');
+            drawer.classList.add('translate-x-full', 'invisible', 'pointer-events-none');
             document.body.classList.remove('overflow-hidden');
           }
         });
       } else {
-        if (drawer) drawer.classList.add('translate-x-full');
+        if (drawer) drawer.classList.add('translate-x-full', 'invisible', 'pointer-events-none');
         if (backdrop) {
           backdrop.classList.add('opacity-0', 'pointer-events-none');
           backdrop.classList.remove('opacity-100');
@@ -2602,6 +2728,68 @@
     setTimeout(initBlinkitPeek, 1000);
   });
   </script>
+  <!-- ======================================================== -->
+  <!-- MOBILE FLOATING QUICK CART PILL (BLINKIT / ZEPTO STYLE)   -->
+  <!-- ======================================================== -->
+  <div id="mobile-floating-cart-pill" class="{% if not global_cart_item_count or global_cart_item_count == 0 %}hidden {% endif %}md:hidden fixed bottom-16 left-3 right-3 z-[115] bg-gray-950 text-white rounded-2xl p-2.5 sm:p-3 shadow-2xl flex items-center justify-between border border-white/10 transition-all duration-300">
+    <div class="flex items-center gap-2.5 pl-1">
+      <div class="w-8 h-8 rounded-xl bg-brand-orange text-white flex items-center justify-center shrink-0 shadow-xs">
+        <span class="material-symbols-outlined text-[18px]">shopping_bag</span>
+      </div>
+      <div class="flex flex-col leading-tight">
+        <span id="floating-cart-items-text" class="text-xs font-black">{{ global_cart_item_count|default:"0" }} item{{ global_cart_item_count|pluralize }}</span>
+        <span id="floating-cart-total-text" class="text-[11px] font-bold text-gray-300">₹{{ global_cart_total|floatformat:0 }}</span>
+      </div>
+    </div>
+    <button type="button" onclick="openCartSidebar(event)" class="bg-brand-orange hover:bg-brand-flame text-white text-xs font-black uppercase tracking-wider px-3.5 py-1.5 rounded-xl flex items-center gap-1 shadow-md active:scale-95 transition-all cursor-pointer">
+      <span>View Cart</span>
+      <span class="material-symbols-outlined text-[15px]">chevron_right</span>
+    </button>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MOBILE BOTTOM NAVIGATION DOCK (BLINKIT / ZEPTO STYLE)     -->
+  <!-- ======================================================== -->
+  <nav id="mobile-bottom-nav" class="md:hidden fixed bottom-0 left-0 right-0 z-[120] bg-white/95 backdrop-blur-md border-t border-gray-200/90 py-1.5 px-3 shadow-[0_-4px_25px_rgba(0,0,0,0.08)] flex items-center justify-around select-none" aria-label="Mobile Navigation">
+    
+    <!-- Home Tab -->
+    <a href="{% url 'home' %}" class="flex flex-col items-center justify-center py-1 px-3 rounded-xl transition-all {% if request.path == '/' %}text-brand-orange font-black{% else %}text-gray-500 hover:text-gray-900 font-bold{% endif %}">
+      <span class="material-symbols-outlined text-[22px] {% if request.path == '/' %}fill-current{% endif %}">home</span>
+      <span class="text-[10px] mt-0.5 leading-none">Home</span>
+    </a>
+
+    <!-- Categories / Store Tab -->
+    <a href="{% url 'public_store' %}" class="flex flex-col items-center justify-center py-1 px-3 rounded-xl transition-all {% if '/store/' in request.path or '/category/' in request.path %}text-brand-orange font-black{% else %}text-gray-500 hover:text-gray-900 font-bold{% endif %}">
+      <span class="material-symbols-outlined text-[22px] {% if '/store/' in request.path or '/category/' in request.path %}fill-current{% endif %}">grid_view</span>
+      <span class="text-[10px] mt-0.5 leading-none">Categories</span>
+    </a>
+
+    <!-- Search Tab (Focuses search input) -->
+    <button type="button" onclick="focusMobileSearch()" class="flex flex-col items-center justify-center py-1 px-3 rounded-xl transition-all text-gray-500 hover:text-gray-900 font-bold cursor-pointer">
+      <span class="material-symbols-outlined text-[22px]">search</span>
+      <span class="text-[10px] mt-0.5 leading-none">Search</span>
+    </button>
+
+    <!-- Orders Tab -->
+    <a href="{% if user.is_authenticated %}{% url 'my_orders' %}{% else %}javascript:void(0){% endif %}" 
+       {% if not user.is_authenticated %}onclick="openAuthModal()"{% endif %} 
+       class="flex flex-col items-center justify-center py-1 px-3 rounded-xl transition-all {% if '/orders/' in request.path %}text-brand-orange font-black{% else %}text-gray-500 hover:text-gray-900 font-bold{% endif %}">
+      <span class="material-symbols-outlined text-[22px] {% if '/orders/' in request.path %}fill-current{% endif %}">receipt_long</span>
+      <span class="text-[10px] mt-0.5 leading-none">Orders</span>
+    </a>
+
+    <!-- Cart Tab (Opens Cart Sidebar Drawer) -->
+    <button type="button" onclick="openCartSidebar(event)" class="relative flex flex-col items-center justify-center py-1 px-3 rounded-xl transition-all text-gray-700 hover:text-brand-orange font-bold cursor-pointer">
+      <div class="relative">
+        <span class="material-symbols-outlined text-[22px]">shopping_bag</span>
+        <span id="mobile-nav-cart-badge" class="{% if not global_cart_item_count or global_cart_item_count == 0 %}hidden {% endif %}absolute -top-1.5 -right-2.5 bg-brand-orange text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow-xs">
+          {{ global_cart_item_count|default:"0" }}
+        </span>
+      </div>
+      <span class="text-[10px] mt-0.5 leading-none">Cart</span>
+    </button>
+  </nav>
+
 </body>
 
 </html>
