@@ -20,7 +20,7 @@
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 
 
@@ -76,9 +76,9 @@
             "tertiary-fixed": "#F16001"
           },
           fontFamily: {
-            "sans": ["-apple-system", "BlinkMacSystemFont", "'Segoe UI'", "Roboto", "sans-serif"],
+            "sans": ["'Plus Jakarta Sans'", "'Inter'", "-apple-system", "BlinkMacSystemFont", "'Segoe UI'", "Roboto", "sans-serif"],
             "mono": ["'JetBrains Mono'", "monospace"],
-            "headline": ["-apple-system", "BlinkMacSystemFont", "'Segoe UI'", "Roboto", "sans-serif"]
+            "headline": ["'Plus Jakarta Sans'", "'Inter'", "-apple-system", "BlinkMacSystemFont", "'Segoe UI'", "Roboto", "sans-serif"]
           },
           boxShadow: {
             "zepto": "0 10px 24px -5px rgba(0, 0, 0, 0.08), 0 4px 12px -2px rgba(0, 0, 0, 0.04)",
@@ -137,7 +137,8 @@
     body { 
       background-color: #F9F9F9; 
       color: #000000;
-      font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+      font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-weight: 500;
       text-rendering: optimizeLegibility;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
@@ -447,7 +448,7 @@
           <!-- Center/Location: Quick Location Pill -->
           <button type="button" onclick="openLocationModal()" class="flex items-center gap-1 bg-gray-50 hover:bg-orange-50/60 border border-gray-200/80 px-2 py-1 rounded-full text-left transition-colors truncate max-w-[140px]" title="Change Delivery Location">
             <span class="material-symbols-outlined text-[13px] text-emerald-600 shrink-0">near_me</span>
-            <span id="mobile-header-location-text" class="text-[10px] font-bold text-gray-800 truncate">Bhadrak Sector 4</span>
+            <span id="mobile-header-location-text" class="text-[10px] font-extrabold text-gray-950 truncate">Bhadrak Sector 4</span>
             <span class="material-symbols-outlined text-[12px] text-gray-400 shrink-0">expand_more</span>
           </button>
 
@@ -488,7 +489,7 @@
                    name="q" 
                    value="{{ query|default:'' }}" 
                    placeholder="Search 'milk, bread, chips, curd'..." 
-                   class="w-full bg-[#F0F2F9] focus:bg-white text-gray-900 text-xs font-medium rounded-xl pl-10 pr-9 py-2.5 border border-transparent focus:border-brand-orange/50 focus:ring-2 focus:ring-brand-orange/15 outline-none transition-all placeholder:text-gray-400 shadow-2xs">
+                   class="w-full bg-[#F0F2F9] focus:bg-white text-gray-900 text-xs font-semibold rounded-xl pl-10 pr-9 py-2.5 border border-transparent focus:border-brand-orange/50 focus:ring-2 focus:ring-brand-orange/15 outline-none transition-all placeholder:text-gray-400 shadow-2xs">
             {% if query %}
             <a href="{% url 'home' %}" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700" title="Clear">
               <span class="material-symbols-outlined text-[16px]">cancel</span>
@@ -2755,19 +2756,19 @@
     <!-- Home Tab -->
     <a href="{% url 'home' %}" class="flex flex-col items-center justify-center py-1 px-3 rounded-xl transition-all {% if request.path == '/' %}text-brand-orange font-black{% else %}text-gray-500 hover:text-gray-900 font-bold{% endif %}">
       <span class="material-symbols-outlined text-[22px] {% if request.path == '/' %}fill-current{% endif %}">home</span>
-      <span class="text-[10px] mt-0.5 leading-none">Home</span>
+      <span class="text-[10px] font-extrabold tracking-tight mt-0.5 leading-none">Home</span>
     </a>
 
     <!-- Categories / Store Tab -->
     <a href="{% url 'public_store' %}" class="flex flex-col items-center justify-center py-1 px-3 rounded-xl transition-all {% if '/store/' in request.path or '/category/' in request.path %}text-brand-orange font-black{% else %}text-gray-500 hover:text-gray-900 font-bold{% endif %}">
       <span class="material-symbols-outlined text-[22px] {% if '/store/' in request.path or '/category/' in request.path %}fill-current{% endif %}">grid_view</span>
-      <span class="text-[10px] mt-0.5 leading-none">Categories</span>
+      <span class="text-[10px] font-extrabold tracking-tight mt-0.5 leading-none">Categories</span>
     </a>
 
     <!-- Search Tab (Focuses search input) -->
     <button type="button" onclick="focusMobileSearch()" class="flex flex-col items-center justify-center py-1 px-3 rounded-xl transition-all text-gray-500 hover:text-gray-900 font-bold cursor-pointer">
       <span class="material-symbols-outlined text-[22px]">search</span>
-      <span class="text-[10px] mt-0.5 leading-none">Search</span>
+      <span class="text-[10px] font-extrabold tracking-tight mt-0.5 leading-none">Search</span>
     </button>
 
     <!-- Orders Tab -->
@@ -2775,7 +2776,7 @@
        {% if not user.is_authenticated %}onclick="openAuthModal()"{% endif %} 
        class="flex flex-col items-center justify-center py-1 px-3 rounded-xl transition-all {% if '/orders/' in request.path %}text-brand-orange font-black{% else %}text-gray-500 hover:text-gray-900 font-bold{% endif %}">
       <span class="material-symbols-outlined text-[22px] {% if '/orders/' in request.path %}fill-current{% endif %}">receipt_long</span>
-      <span class="text-[10px] mt-0.5 leading-none">Orders</span>
+      <span class="text-[10px] font-extrabold tracking-tight mt-0.5 leading-none">Orders</span>
     </a>
 
     <!-- Cart Tab (Opens Cart Sidebar Drawer) -->
@@ -2786,7 +2787,7 @@
           {{ global_cart_item_count|default:"0" }}
         </span>
       </div>
-      <span class="text-[10px] mt-0.5 leading-none">Cart</span>
+      <span class="text-[10px] font-extrabold tracking-tight mt-0.5 leading-none">Cart</span>
     </button>
   </nav>
 

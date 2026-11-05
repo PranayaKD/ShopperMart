@@ -70,8 +70,8 @@
 
           <!-- Details & Rating -->
           <div class="space-y-1 mb-3">
-            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block truncate">{{ product.category.name }}</span>
-            <a href="{% url 'product_detail' product.slug %}" class="text-xs sm:text-sm font-bold text-gray-900 hover:text-brand-orange line-clamp-2 leading-snug">
+            <span class="text-[10px] font-extrabold text-gray-400 uppercase tracking-wider block truncate">{{ product.category.name }}</span>
+            <a href="{% url 'product_detail' product.slug %}" class="text-xs sm:text-sm font-bold text-gray-950 hover:text-brand-orange line-clamp-2 leading-snug">
               {{ product.name }}
             </a>
             <div class="flex items-center gap-1 text-[11px] font-bold text-gray-700 pt-0.5">
@@ -84,7 +84,7 @@
           <!-- Price & ADD Button -->
           <div class="pt-2 border-t border-gray-100 flex items-center justify-between gap-2 mt-auto">
             <div class="flex flex-col">
-              <span class="text-sm sm:text-base font-black text-gray-900 leading-none">₹{{ product.price|floatformat:0 }}</span>
+              <span class="text-sm sm:text-base font-black text-gray-950 leading-none">₹{{ product.price|floatformat:0 }}</span>
               {% if product.mrp_price and product.mrp_price > product.price %}
               <span class="text-[10px] text-gray-400 line-through font-medium leading-tight">₹{{ product.mrp_price|floatformat:0 }}</span>
               {% endif %}
