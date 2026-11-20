@@ -1,7 +1,7 @@
 <div align="center">
 
-<!-- 3D Modern Wave Header Banner -->
-<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=2,14,24&height=220&section=header&text=ShopperMart&fontSize=68&fontColor=ffffff&animation=fadeIn&desc=Modular%20E-Commerce%20%26%20Inventory%20Platform%20%7C%20Django%20%2B%20DRF&descSize=18&descAlignY=72&descAlign=50" width="100%" alt="ShopperMart Header Banner"/>
+<!-- 3D Modern Wave Header Banner (No raw ampersands to avoid SVG XML entity errors) -->
+<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=2,14,24&height=220&section=header&text=ShopperMart&fontSize=68&fontColor=ffffff&animation=fadeIn&desc=Modular%20E-Commerce%20and%20Inventory%20Platform%20%7C%20Django%20%2B%20DRF&descSize=18&descAlignY=72&descAlign=50" width="100%" alt="ShopperMart Header Banner"/>
 
 [![Live Demo](https://img.shields.io/badge/Live_App-shoppermart.onrender.com-0070f3?style=for-the-badge&logo=render&logoColor=white)](https://shoppermart.onrender.com/)
 [![GitHub Repo](https://img.shields.io/badge/Source_Code-PranayaKD%2FShopperMart-111111?style=for-the-badge&logo=github&logoColor=white)](https://github.com/PranayaKD/ShopperMart)
@@ -21,28 +21,18 @@ Engineered with UUIDv4 primary keys to eradicate IDOR vulnerabilities, atomic mu
 
 ---
 
-## 📸 Visual Showcase & Previews
+## 📸 Live Storefront & Application Showcase
 
 <div align="center">
-  <h3>Interactive Storefront Banner & Category Showcase</h3>
-  <img src="./docs/images/shoppermart_hero_preview.png" alt="ShopperMart Hero Banner Preview" width="92%" style="border-radius: 12px; box-shadow: 0 12px 32px rgba(0,0,0,0.25);"/>
+  <h3>Real-Time Live Storefront</h3>
+  <img src="./docs/images/shoppermart_live_storefront.png" alt="ShopperMart Live Storefront" width="92%" style="border-radius: 12px; box-shadow: 0 12px 32px rgba(0,0,0,0.25);"/>
 </div>
 
 <br/>
 
 <div align="center">
-  <table width="100%">
-    <tr>
-      <td width="50%" align="center">
-        <h4>Department Category Showcase</h4>
-        <img src="./docs/images/shoppermart_category_preview.png" alt="ShopperMart Category Banner" width="90%" style="border-radius: 8px;"/>
-      </td>
-      <td width="50%" align="center">
-        <h4>Live Product Inventory & Stock Engine</h4>
-        <img src="./docs/images/shoppermart_product_preview.png" alt="ShopperMart Product Item" width="80%" style="border-radius: 8px;"/>
-      </td>
-    </tr>
-  </table>
+  <h3>Department Catalog & Product Grid</h3>
+  <img src="./docs/images/shoppermart_live_products.png" alt="ShopperMart Live Products & Categories" width="92%" style="border-radius: 12px; box-shadow: 0 12px 32px rgba(0,0,0,0.25);"/>
 </div>
 
 ---
