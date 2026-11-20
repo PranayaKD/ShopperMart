@@ -4,6 +4,7 @@
 <img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=2,14,24&height=220&section=header&text=ShopperMart&fontSize=68&fontColor=ffffff&animation=fadeIn&desc=Modular%20E-Commerce%20and%20Inventory%20Platform%20%7C%20Django%20%2B%20DRF&descSize=18&descAlignY=72&descAlign=50" width="100%" alt="ShopperMart Header Banner"/>
 
 [![Live Demo](https://img.shields.io/badge/Live_App-shoppermart.onrender.com-0070f3?style=for-the-badge&logo=render&logoColor=white)](https://shoppermart.onrender.com/)
+[![Developer Portfolio](https://img.shields.io/badge/Developed%20by-PranayaKD-111111?style=for-the-badge&logo=googlechrome&logoColor=white)](https://pranayakd.in/)
 [![GitHub Repo](https://img.shields.io/badge/Source_Code-PranayaKD%2FShopperMart-111111?style=for-the-badge&logo=github&logoColor=white)](https://github.com/PranayaKD/ShopperMart)
 [![Django](https://img.shields.io/badge/Django-5.2+-092e20?style=for-the-badge&logo=django&logoColor=white)](https://www.djangoproject.com/)
 [![DRF](https://img.shields.io/badge/REST_Framework-3.16+-a30000?style=for-the-badge&logo=django&logoColor=white)](https://www.django-rest-framework.org/)
@@ -135,7 +136,8 @@ Open `http://localhost:8000` to access ShopperMart.
 
 ## 📄 License & Author
 
-Developed by **[Pranaya Kumar Dash](https://github.com/PranayaKD)**.  
+Developed by **[PranayaKD](https://pranayakd.in/)** ([Pranaya Kumar Dash](https://github.com/PranayaKD)).  
+Portfolio: **[https://pranayakd.in/](https://pranayakd.in/)**  
 Licensed under the [MIT License](LICENSE).
 
 <div align="center">
